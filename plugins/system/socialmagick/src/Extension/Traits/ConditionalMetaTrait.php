@@ -26,8 +26,7 @@ trait ConditionalMetaTrait
 	private function conditionallyApplyMeta(string $name, $value, string $attribute = 'property'): void
 	{
 		/** @var HtmlDocument $doc */
-		$doc = $this->getApplication()->getDocument();
-
+		$doc      = $this->getApplication()->getDocument();
 		$existing = $doc->getMetaData($name, $attribute);
 
 		if (!empty($existing))

@@ -9,7 +9,7 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension\Traits;
 
 \defined('_JEXEC') || die;
 
-use Akeeba\Plugin\System\SocialMagick\Library\ImageGenerator;
+use \Akeeba\Plugin\System\SocialMagick\Library\ImageGenerator;
 
 trait ImageGeneratorHelperTrait
 {

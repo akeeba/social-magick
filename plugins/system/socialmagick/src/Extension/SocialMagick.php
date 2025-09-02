@@ -41,6 +41,8 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	use OpenGraphImageTrait;
 	use ImageGeneratorHelperTrait;
 	use ParametersRetrieverTrait;
+	use Feature\FormTabs;
+	use Feature\Ajax;
 
 	/**
 	 * The com_content article ID being rendered, if applicable.
@@ -78,155 +80,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			'onContentPrepareForm'       => 'onContentPrepareForm',
 			'onSocialMagickGetTemplates' => 'onSocialMagickGetTemplates',
 		];
-	}
-
-	/**
-	 * Runs when Joomla is preparing a form. Used to add extra form fieldsets to core pages.
-	 *
-	 * @param   Event  $event
-	 *
-	 * @return  void
-	 *
-	 * @since        1.0.0
-	 */
-	public function onContentPrepareForm(Event $event): void
-	{
-		/**
-		 * @var Form  $form The form to be altered.
-		 * @var mixed $data The associated data for the form.
-		 */
-		[$form, $data] = array_values($event->getArguments());
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = true;
-
-		$this->loadLanguage();
-		$this->loadLanguage('plg_system_socialmagick.sys');
-
-		Form::addFormPath(__DIR__ . '/../../form');
-
-		switch ($form->getName())
-		{
-			// A menu item is being added/edited
-			case 'com_menus.item':
-				$form->loadFile('socialmagick_menu', false);
-				break;
-
-			// A core content category is being added/edited
-			case 'com_categories.categorycom_content':
-				$form->loadFile('socialmagick_category', false);
-				break;
-
-			// An article is being added/edited
-			case 'com_content.article':
-				$form->loadFile('socialmagick_article', false);
-				break;
-		}
-
-		$event->setArgument('result', $result);
-	}
-
-	/**
-	 * Triggered when Joomla is saving content. Used to save the SocialMagick configuration.
-	 *
-	 * @param   Event  $event
-	 *
-	 * @return  void
-	 * @since        1.0.0
-	 */
-	public function onContentBeforeSave(Event $event): void
-	{
-		/**
-		 * @var   string|null       $context Context for the content being saved
-		 * @var   Table|object      $table   Joomla table object where the content is being saved to
-		 * @var   bool              $isNew   Is this a new record?
-		 * @var   object|array|null $data    Data being saved (Joomla 4)
-		 */
-		[$context, $table, $isNew, $data] = array_values($event->getArguments());
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = true;
-		$event->setArgument('result', $result);
-
-		$data = (array) $data;
-
-		// Make sure I have data to save
-		if (!isset($data['socialmagick']))
-		{
-			return;
-		}
-
-		$key = null;
-
-		switch ($context)
-		{
-			case 'com_menus.item':
-			case 'com_categories.category':
-				$key = 'params';
-				break;
-
-			case 'com_content.article':
-				$key = 'attribs';
-				break;
-		}
-
-		if (is_null($key))
-		{
-			return;
-		}
-
-		$params        = @json_decode($table->{$key}, true) ?? [];
-		$table->{$key} = json_encode(array_merge($params, ['socialmagick' => $data['socialmagick']]));
-	}
-
-	/**
-	 * Triggered when Joomla is loading content. Used to load the Social Magick configuration.
-	 *
-	 * This is used for both articles and article categories.
-	 *
-	 * @param   Event  $event
-	 *
-	 * @return  void
-	 * @since   1.0.0
-	 */
-	public function onContentPrepareData(Event $event): void
-	{
-		/**
-		 * @var   string|null  $context Context for the content being loaded
-		 * @var   object|array $data    Data being saved
-		 */
-		[$context, $data] = array_values($event->getArguments());
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = true;
-		$event->setArgument('result', $result);
-
-		$key = null;
-
-		switch ($context)
-		{
-			case 'com_menus.item':
-			case 'com_categories.category':
-				$key = 'params';
-				break;
-
-			case 'com_content.article':
-				$key = 'attribs';
-				break;
-		}
-
-		if (is_null($key))
-		{
-			return;
-		}
-
-		if (!isset($data->{$key}) || !isset($data->{$key}['socialmagick']))
-		{
-			return;
-		}
-
-		$data->socialmagick = $data->{$key}['socialmagick'];
-		unset ($data->{$key}['socialmagick']);
 	}
 
 	/**
@@ -481,15 +334,13 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			$result[] = $this->getDebugLinkPlaceholder();
 
 			$event->setArgument('result', $result);
-
-			return;
 		}
 	}
 
 	/**
 	 * Runs after rendering the document but before outputting it to the browser.
 	 *
-	 * Used to add the OpenGraph declaration to the document head and applying the debug image link.
+	 * Used to add the OpenGraph declaration to the document head and apply the debug image link.
 	 *
 	 * @param   Event  $event
 	 *
@@ -509,42 +360,5 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			$this->replaceDebugImagePlaceholder();
 		}
 
-	}
-
-	/**
-	 * AJAX handler
-	 *
-	 * @return  void
-	 * @since        1.0.0
-	 * @noinspection PhpUnused
-	 * @noinspection PhpUnusedParameterInspection
-	 */
-	public function onAjaxSocialmagick(Event $event)
-	{
-		$key     = trim($this->params->get('cron_url_key', ''));
-		$maxExec = max(1, (int) $this->params->get('cron_max_exec', 20));
-		$days    = max(1, (int) $this->params->get('old_images_after', 180));
-
-		if (empty($key))
-		{
-			header('HTTP/1.0 403 Forbidden');
-
-			return;
-		}
-
-		try
-		{
-			$this->getHelper()->deleteOldImages($days, $maxExec);
-		}
-		catch (Exception $e)
-		{
-			header('HTTP/1.0 500 Internal Server Error');
-
-			echo $e->getCode() . ' SocialMagick.php' . $e->getMessage();
-
-			return;
-		}
-
-		echo "OK";
 	}
 }

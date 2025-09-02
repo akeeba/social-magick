@@ -1,29 +1,24 @@
-# ![Lucid Fox Social Magick](https://github.com/lucid-fox/social-magick/blob/main/_assets/social-magick-og.jpeg?raw=true)
+# ![Social Magick](https://github.com/akeeba/social-magick/blob/main/assets/banner/banner.png?raw=true)
 
-A Joomla 4 and 5 plugin to automatically generate Open Graph images.
+Automatically generate OpenGraph images for Joomla! content.
 
-[Downloads](https://github.com/lucid-fox/social-magick/releases) • [Issues](https://github.com/lucid-fox/social-magick/issues)
+> [!WARNING]  
+> 🚧 **Work In Progress** 🚧 This plugin was recently transferred from Lucid Fox to Akeeba Ltd. We are reworking this plugin. Expect more news from this plugin in Q4 2025! 
 
 ## What is this
 
-This plugin allows you to automatically generate Open Graph images for your site's pages, superimposing text and
-graphics over an image or solid color background. Open Graph images are used by social media sites when sharing a URL to
-any of your site's pages on them.
+This plugin allows you to automatically generate Open Graph images for your site's pages, superimposing text and graphics over an image or a solid colour background. Open Graph images are used by social media sites when sharing a URL to any of your site's pages on them.
 
-For example:
-| Facebook | Twitter | LinkedIn | Slack |
-|----------|---------|----------|-------|
-|![Facebook Example](https://github.com/lucid-fox/social-magick/blob/main/_assets/Facebook-Example.png?raw=true)|![Twitter Example](https://github.com/lucid-fox/social-magick/blob/main/_assets/Twitter-Example.png?raw=true)|![LinkedIn Example](https://github.com/lucid-fox/social-magick/blob/main/_assets/LinkedIn-Example.png?raw=true)|![Slack Example](https://github.com/lucid-fox/social-magick/blob/main/_assets/Slack-Example.png?raw=true)|
-
-(Want to check what your site shows now? Check out [metatags.io](https://metatags.io/), a site that shows you previews of all social media cards for your link.)
+> [!TIP]
+> If you want to preview your site's OpenGraph images you can use third-party sites such as [metatags.io](https://metatags.io/) and [opengraph.dev](https://opengraph.dev/).
 
 ## Requirements
 
 This plugin has the following minimum requirements:
 
-* Joomla 4.3 or later; or Joomla 5.0
-* PHP 7.4, 8.0, 8.1, 8.2, or 8.3
-* The Imagick or GD PHP extension installed and enabled. (If you're not sure how to do this, ask your host.)
+* Joomla 5.3 or later
+* PHP 8.1, 8.2, 8.3, or 8.4
+* The Imagick or GD PHP extension is installed and enabled. (If you're not sure how to do this, ask your host.)
 
 ## Quick start
 
@@ -35,6 +30,10 @@ This plugin has the following minimum requirements:
 * Save your menu item.
 * Go to [metatags.io](https://metatags.io/) and paste the URL to the page of your site that corresponds to the menu item you selected. You can now see that it has a preview image.
 
-If you have menu items with core content (Joomla articles) categories and articles which make use of images you can select the Overlay template. You will need to set the “Extra image source” option to “Intro image” or “Full Article image”, depending on which image you want to use.
+If you have menu items with core content (Joomla articles) categories and articles which make use of images, you can select the Overlay template. You will need to set the “Extra image source” option to “Intro image” or “Full Article image”, depending on which image you want to use.
 
 The templates provided are meant as examples; while you are welcome to use them on your live site, you can also replace the template images with ones that do not have the Social Magick watermark.
+
+## History
+
+This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The code was written and had been maintained by us, with Crystal acting as the creative director. In 2025 Crystal decided to step back, and transferred full ownership of the product back to us.

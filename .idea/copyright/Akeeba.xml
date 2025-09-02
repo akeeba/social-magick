@@ -1,0 +1,8 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="Copyright.*20[0-9]{2,2}.*(Nicholas|Akeeba|Lucid)" />
+    <option name="keyword" value="Copyright.*20[0-9]{2,2}.*(Nicholas|Akeeba|Lucid)" />
+    <option name="notice" value="@package   socialmagick&#10;@copyright Copyright (c)&amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year Nicholas K. Dionysopoulos / Akeeba Ltd&#10;@license   GNU General Public License version 3, or later" />
+    <option name="myName" value="Akeeba" />
+  </copyright>
+</component>

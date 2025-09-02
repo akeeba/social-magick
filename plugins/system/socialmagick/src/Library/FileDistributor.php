@@ -1,13 +1,11 @@
 <?php
 /**
- * Social Magick – Automatically generate Open Graph images on your site
- *
  * @package   socialmagick
- * @copyright Copyright 2021-2023 Lucid Fox
- * @license   GNU GPL v3 or later
+ * @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
-namespace LucidFox\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Plugin\System\SocialMagick\Library;
 
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Filesystem\Folder;
@@ -58,7 +56,7 @@ class FileDistributor
 			throw new \InvalidArgumentException('Filename cannot include a path');
 		}
 
-		$basePath = rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . '/';
+		$basePath = rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . 'FileDistributor.php/';
 
 		// Get the flat directory structure path
 		$flatPath = $basePath . $fileName;
@@ -149,7 +147,7 @@ class FileDistributor
 		// If we don't distribute to levels return the flat directory path
 		if (($levels === 0))
 		{
-			return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . '/') : '') . $fileName;
+			return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . 'FileDistributor.php/') : '') . $fileName;
 		}
 
 		// Get the bare name (without an extension)
@@ -173,11 +171,11 @@ class FileDistributor
 		}
 
 		// Create the relative path of the file e.g. 'ef/cd/ab/0123456789abcdef0123456789abcdef.png'
-		$relativePath = implode('/', $paths) . '/';
+		$relativePath = implode('/', $paths) . 'FileDistributor.php/';
 		$relativePath = ($relativePath === '/') ? '' : $relativePath;
 		$relativePath .= $fileName;
 
 		// Return the filepath distributed in $level subdirectories
-		return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . '/') : '') . $relativePath;
+		return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . 'FileDistributor.php/') : '') . $relativePath;
 	}
 }

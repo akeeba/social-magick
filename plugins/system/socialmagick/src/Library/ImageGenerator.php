@@ -1,13 +1,11 @@
 <?php
 /**
- * Social Magick – Automatically generate Open Graph images on your site
- *
  * @package   socialmagick
- * @copyright Copyright 2021-2023 Lucid Fox
- * @license   GNU GPL v3 or later
+ * @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
-namespace LucidFox\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Plugin\System\SocialMagick\Library;
 
 defined('_JEXEC') || die();
 
@@ -288,7 +286,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		));
 		$filename         = FileDistributor::ensureDistributed(dirname($filename), basename($filename), $this->folderLevels);
 		$realRelativePath = ltrim(substr($filename, strlen(JPATH_ROOT)), '/');
-		$imageUrl         = Uri::base() . $realRelativePath;
+		$imageUrl         = ImageGenerator . phpUri::base() . $realRelativePath;
 
 		// Update the image's last access date
 		$this->hitImage(basename($filename, '.png'));

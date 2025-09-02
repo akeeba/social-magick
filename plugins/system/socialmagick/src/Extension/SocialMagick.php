@@ -1,13 +1,11 @@
 <?php
 /**
- * Social Magick – Automatically generate Open Graph images on your site
- *
  * @package   socialmagick
- * @copyright Copyright 2021-2023 Lucid Fox
- * @license   GNU GPL v3 or later
+ * @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
-namespace LucidFox\Plugin\System\SocialMagick\Extension;
+namespace Akeeba\Plugin\System\SocialMagick\Extension;
 
 defined('_JEXEC') || die();
 
@@ -21,11 +19,11 @@ use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Event\Event;
 use Joomla\Event\SubscriberInterface;
 use Joomla\Registry\Registry;
-use LucidFox\Plugin\System\SocialMagick\Extension\Traits\ConditionalMetaTrait;
-use LucidFox\Plugin\System\SocialMagick\Extension\Traits\DebugPlaceholderTrait;
-use LucidFox\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
-use LucidFox\Plugin\System\SocialMagick\Extension\Traits\OpenGraphImageTrait;
-use LucidFox\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ConditionalMetaTrait;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\DebugPlaceholderTrait;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\OpenGraphImageTrait;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
 use Throwable;
 
 /**
@@ -542,7 +540,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		{
 			header('HTTP/1.0 500 Internal Server Error');
 
-			echo $e->getCode() . ' ' . $e->getMessage();
+			echo $e->getCode() . ' SocialMagick.php' . $e->getMessage();
 
 			return;
 		}

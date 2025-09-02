@@ -1,16 +1,14 @@
 <?php
 
 /**
- * Social Magick – Automatically generate Open Graph images on your site
- *
  * @package   socialmagick
- * @copyright Copyright 2021-2023 Lucid Fox
- * @license   GNU GPL v3 or later
+ * @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /** @noinspection PhpComposerExtensionStubsInspection */
 
-namespace LucidFox\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Plugin\System\SocialMagick\Library;
 
 use Imagick;
 use ImagickDraw;

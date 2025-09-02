@@ -1,0 +1,64 @@
+# Basic release information
+release:
+  version: '%%VERSION%%'
+  date: '%%DATE%%'
+  category: 999
+  access: 1
+  release_notes: '%%DEFAULT_RELEASE_NOTES%%'
+  changelog: '%%DEFAULT_CHANGELOG%%'
+
+# Akeeba Release System API connection
+api:
+  type: 'joomla'
+  endpoint: '%%API.ENDPOINT%%'
+  connector: '%%API.CONNECTOR%%'
+  token: '%%API.TOKEN%%'
+  cacert: '%%CUSTOMCACERT%%'
+
+steps: [%%RELEASESTEPS%%]
+
+# File upload connections
+connections:
+  bunny:
+    type: 'bunny'
+    key: '%%BUNNY.ACCESS%%'
+    zone: '%%BUNNY.ZONE%%'
+    region: '%%BUNNY.REGION%%'
+    cdnhostname: '%%BUNNY.CDNHOSTNAME%%'
+    directory: 'downloads/socialmagick'
+  sftp:
+    type: '%%PRO.METHOD%%'
+    directory: '%%SFTP.DIR%%'
+    hostname: '%%SFTP.HOST%%'
+    port: '%%SFTP.PORT%%'
+    username: '%%SFTP.USERNAME%%'
+    password: '%%SFTP.PASSWORD%%'
+    public_key: '%%SFTP.PUBKEYFILE%%'
+    private_key: '%%SFTP.PRIVKEYFILE%%'
+    private_key_password: '%%SFTP.PRIVKEYFILE.PASS%%'
+    timeout: 900
+
+# Release source files configuration.
+files:
+  -
+    title: 'SocialMagick for Joomla'
+    connection: sftp
+    directory: '%%SFTP.DIR%%/files/normal/socialmagick'
+    source: '%%RELEASEDIR%%/plg_system_*.zip'
+    access: 1
+  -
+    title: 'Documentation (ePub)'
+    connection: bunny
+    source: '%%RELEASEDIR%%/socialmagick.epub'
+    access: 1
+
+# Update sources
+updates:
+  -
+    title: 'SocialMagick updates'
+    connection: bunny
+    directory: 'updates'
+    stream: 52
+    base_name: 'plgsocialmagick'
+    formats:
+      - 'xml'

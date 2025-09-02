@@ -37,3 +37,17 @@ The templates provided are meant as examples; while you are welcome to use them 
 ## History
 
 This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The code was written and had been maintained by us, with Crystal acting as the creative director. In 2025 Crystal decided to step back, and transferred full ownership of the product back to us.
+
+### TODO
+
+This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle at a later date...
+
+* [ ] Do not load the form for menu items if they are not form `com_content` or `com_categories`.
+* [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
+* [ ] Verify and fix cascading issues [gh-41]
+* [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).
+* [ ] User group restriction for OG image preview (see replaceDebugImagePlaceholder). See notes on [gh-26].
+* [ ] User group restriction / optional feature to display the debug image placeholder after clicking a button placed inline the article content. Unlike the debug feature, this would be possible to leave always enabled if needed. See notes on [gh-26].
+* [ ] Rewrite documentation as DocBook XML [gh-14]
+* [ ] Auto-generating article intro and/or full text images [gh-6]
+* [ ] Extra image crop focus: face [gh-10]

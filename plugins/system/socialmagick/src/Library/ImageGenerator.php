@@ -284,7 +284,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		));
 		$filename         = FileDistributor::ensureDistributed(dirname($filename), basename($filename), $this->folderLevels);
 		$realRelativePath = ltrim(substr($filename, strlen(JPATH_ROOT)), '/');
-		$imageUrl         = ImageGenerator . phpUri::base() . $realRelativePath;
+		$imageUrl         = Uri::base() . $realRelativePath;
 
 		// Update the image's last access date
 		$this->hitImage(basename($filename, '.png'));

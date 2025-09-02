@@ -56,7 +56,7 @@ class FileDistributor
 			throw new \InvalidArgumentException('Filename cannot include a path');
 		}
 
-		$basePath = rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . 'FileDistributor.php/';
+		$basePath = rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . '/';
 
 		// Get the flat directory structure path
 		$flatPath = $basePath . $fileName;
@@ -147,7 +147,7 @@ class FileDistributor
 		// If we don't distribute to levels return the flat directory path
 		if (($levels === 0))
 		{
-			return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . 'FileDistributor.php/') : '') . $fileName;
+			return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . '/') : '') . $fileName;
 		}
 
 		// Get the bare name (without an extension)
@@ -171,11 +171,11 @@ class FileDistributor
 		}
 
 		// Create the relative path of the file e.g. 'ef/cd/ab/0123456789abcdef0123456789abcdef.png'
-		$relativePath = implode('/', $paths) . 'FileDistributor.php/';
+		$relativePath = implode('/', $paths) . '/';
 		$relativePath = ($relativePath === '/') ? '' : $relativePath;
 		$relativePath .= $fileName;
 
 		// Return the filepath distributed in $level subdirectories
-		return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . 'FileDistributor.php/') : '') . $relativePath;
+		return ($absolute ? (rtrim($basePath, '/' . DIRECTORY_SEPARATOR) . '/') : '') . $relativePath;
 	}
 }

@@ -42,7 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle at a later date...
 
-* [ ] Do not load the form for menu items if they are not form `com_content` or `com_categories`.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] Verify and fix cascading issues [gh-41]
 * [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).

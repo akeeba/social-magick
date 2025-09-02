@@ -9,21 +9,18 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension;
 
 defined('_JEXEC') || die();
 
-use Exception;
-use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Form\Form;
-use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Table\Table;
-use Joomla\Database\DatabaseAwareInterface;
-use Joomla\Database\DatabaseAwareTrait;
-use Joomla\Event\Event;
-use Joomla\Event\SubscriberInterface;
-use Joomla\Registry\Registry;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ConditionalMetaTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\DebugPlaceholderTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\OpenGraphImageTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Database\DatabaseAwareInterface;
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Event\Event;
+use Joomla\Event\SubscriberInterface;
+use Joomla\Registry\Registry;
 use Throwable;
 
 /**

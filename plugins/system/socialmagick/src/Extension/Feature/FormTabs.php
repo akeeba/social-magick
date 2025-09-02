@@ -10,6 +10,7 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension\Feature;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Table\Table;
 use Joomla\Event\Event;
+use Joomla\Uri\Uri;
 
 trait FormTabs
 {
@@ -33,12 +34,26 @@ trait FormTabs
 		$result   = is_array($result) ? $result : [$result];
 		$result[] = true;
 
+		$formName = $form->getName();
+
+		// Quick exit for use cases we cannot handle.
+		if (!in_array($formName, ['com_menus.item', 'com_categories.categorycom_content', 'com_content.article']))
+		{
+			return;
+		}
+
+		// We can only handle menu items for com_content or com_categories
+		if ($formName == 'com_menus.item' && !$this->isMenuItemForComponent($data, ['com_content', 'com_categories']))
+		{
+			return;
+		}
+
 		$this->loadLanguage();
 		$this->loadLanguage('plg_system_socialmagick.sys');
 
-		Form::addFormPath(__DIR__ . '/../../form');
+		Form::addFormPath(__DIR__ . '/../../../form');
 
-		switch ($form->getName())
+		switch ($formName)
 		{
 			// A menu item is being added/edited
 			case 'com_menus.item':
@@ -161,5 +176,54 @@ trait FormTabs
 
 		$data->socialmagick = $data->{$key}['socialmagick'];
 		unset ($data->{$key}['socialmagick']);
+	}
+
+	/**
+	 * Checks if the com_menus form data says we're editing a menu item for an allowed component.
+	 *
+	 * @param   array|object  $formData         The com_menus form data.
+	 * @param   array         $validComponents  Allowed components to show an OpenGraph tab for.
+	 *
+	 * @return  bool
+	 * @since   3.0.0
+	 */
+	public function isMenuItemForComponent(array|object $formData, array $validComponents): bool
+	{
+		// Normalise the form data
+		if (is_array($formData))
+		{
+			$formData = (object) $formData;
+		}
+
+		// This must be a link to a component, obviously.
+		if (($formData->type ?? '') != 'component')
+		{
+			return false;
+		}
+
+		if (isset($formData->params) && is_array($formData->params) && in_array($formData->params['option'] ?? '', $validComponents, true))
+		{
+			return true;
+		}
+
+		if (isset($formData->request) && is_array($formData->request) && in_array($formData->request['option'] ?? '', $validComponents, true))
+		{
+			return true;
+		}
+
+		// 'index.php?option=com_ats&view=latest'
+		$link = $formData->link ?? '';
+
+		if (!empty($link))
+		{
+			$uri = new Uri($link);
+
+			if (in_array($uri->getVar('option', ''), $validComponents, true))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

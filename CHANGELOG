@@ -1,4 +1,4 @@
 <?php die(); ?>
 Social Magick 3.0.0
 --------------------------------------------------------------------------------
-+ First release as an Akeeba product
++ Hide the OpenGraph tab for menu items which are not related to core content

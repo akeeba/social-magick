@@ -13,9 +13,9 @@ use Joomla\Database\DatabaseDriver;
 
 class plgSystemSocialmagickInstallerScript extends InstallerScript
 {
-	protected $minimumJoomla = '4.2.0';
+	protected $minimumJoomla = '5.3.0';
 
-	protected $minimumPhp = '7.4.0';
+	protected $minimumPhp = '8.1.0';
 
 	protected $defaultSettingsJson = <<< JSON
 {

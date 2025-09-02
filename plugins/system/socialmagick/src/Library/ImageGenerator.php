@@ -27,8 +27,6 @@ use Throwable;
 /**
  * Automatic Open Graph image generator.
  *
- * @package     LucidFox\SocialMagick
- *
  * @since       1.0.0
  */
 final class ImageGenerator implements DatabaseAwareInterface

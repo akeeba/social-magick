@@ -39,11 +39,6 @@
             <fieldset name="basic"
                       label="PLG_SYSTEM_SOCIALMAGICK_BASIC_FIELDSET_LABEL">
                 <field
-                        type="note"
-                        description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BYMEACOFFEE"
-                />
-
-                <field
                         name="generate_images"
                         type="radio"
                         layout="joomla.form.field.radio.switcher"

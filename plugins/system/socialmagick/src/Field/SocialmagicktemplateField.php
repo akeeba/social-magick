@@ -49,7 +49,7 @@ class SocialmagicktemplateField extends ListField
 			return [];
 		}
 
-		$event = new Event('onSocialMagickGetTemplates');
+		$event   = new Event('onSocialMagickGetTemplates');
 		$results = $dispatcher->dispatch($event->getName(), $event)->getArgument('result', []) ?: [];
 
 		foreach ($results as $result)
@@ -71,7 +71,7 @@ class SocialmagicktemplateField extends ListField
 		if (empty($options))
 		{
 			return [
-				'' => '🚨 TEMPORARILY DISABLED. To enable: set Status to Enabled, click Save. 🚨'
+				'' => Text::_('PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DISABLED')
 			];
 		}
 

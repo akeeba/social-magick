@@ -2,11 +2,12 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/release" />
-      <excludeFolder url="file://$MODULE_DIR$/update" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/release"/>
+      <excludeFolder url="file://$MODULE_DIR$/update"/>
+      <excludeFolder url="file://$MODULE_DIR$/vendor/composer"/>
+      <sourceFolder url="file://$MODULE_DIR$/plugins/system/socialmagick/src" packagePrefix="Akeeba\Plugin\System\SocialMagick\" isTestSource="false"/>
     </content>
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="inheritedJdk"/>
+    <orderEntry type="sourceFolder" forTests="false"/>
   </component>
 </module>

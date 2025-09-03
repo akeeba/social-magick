@@ -94,7 +94,7 @@
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
                     class="btn-group btn-group-yesno"
-                    default="none"
+                    default="customfullintro"
                     showon="override:1[AND]generate_images:1"
             >
                 <option value="none">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
@@ -113,8 +113,9 @@
                     type="text"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
+                    default="ogimage"
                     filter="no_html"
-                    showon="override:1[AND]image_source:custom[AND]generate_images:1"
+                    showon="override:1[AND]image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]generate_images:1"
             />
 
             <field

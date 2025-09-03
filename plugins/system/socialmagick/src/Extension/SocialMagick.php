@@ -246,6 +246,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			'twitter_site'          => '',
 			'twitter_creator'       => '',
 			'fb_app_id'             => '',
+			'image_source'          => 'customfullintro',
 		];
 
 		foreach ($defaultPluginSettings as $key => $defaultValue)

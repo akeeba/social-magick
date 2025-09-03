@@ -175,23 +175,10 @@ trait OpenGraphImageTrait
 
 			case 'intro':
 			case 'fulltext':
-				if (empty($articleImages))
-				{
-					return null;
-				}
-
-				if (isset($articleImages['image_' . $imageSource]))
-				{
-					return ($articleImages['image_' . $imageSource]) ?: null;
-				}
-				elseif (isset($articleImages['image']))
-				{
-					return ($articleImages['image']) ?: null;
-				}
-				else
-				{
-					return null;
-				}
+			case 'category':
+				return empty($articleImages)
+					? null :
+					(($articleImages['image_' . $imageSource] ?? $articleImages['image'] ?? null) ?: null);
 
 			case 'custom':
 				if (empty($jcFields) || empty($imageField))

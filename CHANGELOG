@@ -2,3 +2,4 @@
 Social Magick 3.0.0
 --------------------------------------------------------------------------------
 + Hide the OpenGraph tab for menu items which are not related to core content
++ Image source can now cascade between custom field, intro text, and full text

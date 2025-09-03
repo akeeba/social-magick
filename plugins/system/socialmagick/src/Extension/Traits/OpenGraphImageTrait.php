@@ -155,6 +155,24 @@ trait OpenGraphImageTrait
 			case 'static':
 				return $staticImage;
 
+			case 'fullintro':
+				return $this->getExtraImage('full', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage);
+
+			case 'introfull':
+				return $this->getExtraImage('full', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage);
+
+			case 'customfullintro':
+				return $this->getExtraImage('custom', $imageField, $staticImage)
+					?? $this->getExtraImage('full', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage);
+
+			case 'customintrofull':
+				return $this->getExtraImage('custom', $imageField, $staticImage)
+					?? $this->getExtraImage('full', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage);
+
 			case 'intro':
 			case 'fulltext':
 				if (empty($articleImages))

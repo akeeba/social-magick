@@ -36,12 +36,13 @@ The templates provided are meant as examples; while you are welcome to use them 
 
 ## History
 
-This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The code was written and had been maintained by us, with Crystal acting as the creative director. In 2025 Crystal decided to step back, and transferred full ownership of the product back to us.
+This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The code was written and had been maintained by us, with Crystal acting as the creative director. In 2025 Crystal decided to step back and transfer full ownership of the product back to us.
 
 ### TODO
 
-This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle at a later date...
+This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
+* [ ] Component to manage the templates; the current situation is, frankly, ridiculous!
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] Verify and fix cascading issues [gh-41]
 * [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).

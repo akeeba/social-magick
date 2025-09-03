@@ -4,4 +4,5 @@
  * @license   GNU General Public License version 3, or later
  */
 
+DROP TABLE IF EXISTS "#__socialmagick_templates";
 DROP TABLE IF EXISTS "#__socialmagick_images";

@@ -1,0 +1,152 @@
+<?php
+/**
+ * @package   socialmagick
+ * @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
+namespace Akeeba\Component\SocialMagick\Administrator\Dispatcher;
+
+defined('_JEXEC') || die;
+
+use Akeeba\Component\SocialMagick\Administrator\Mixin\TriggerEventTrait;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Dispatcher\ComponentDispatcher;
+use Joomla\CMS\Document\HtmlDocument;
+use Throwable;
+
+/**
+ * Component Dispatcher (essentially, our front controller).
+ *
+ * @since  3.0.0
+ */
+class Dispatcher extends ComponentDispatcher
+{
+	use TriggerEventTrait;
+
+	protected $defaultController = 'templates';
+
+	public function dispatch()
+	{
+		try
+		{
+			// Check the minimum supported PHP version
+			$minPHPVersion = '8.1.0';
+			$softwareName  = 'Social Magick';
+
+			if (version_compare(PHP_VERSION, $minPHPVersion, 'lt'))
+			{
+				throw new \RuntimeException(
+					sprintf(
+						'%s requires PHP %s or later.',
+						$softwareName,
+						$minPHPVersion
+					)
+				);
+			}
+
+			$this->triggerEvent('onBeforeDispatch');
+
+			parent::dispatch();
+
+			// This will only execute if there is no redirection set by the Controller
+			$this->triggerEvent('onAfterDispatch');
+		}
+		catch (Throwable $e)
+		{
+			$title = 'Social Magick';
+			$isPro = false;
+
+			if (!(include_once JPATH_ADMINISTRATOR . '/components/com_socialmagick/tmpl/common/errorhandler.php'))
+			{
+				throw $e;
+			}
+		}
+	}
+
+	protected function onBeforeDispatch()
+	{
+		$this->loadLanguage();
+
+		$this->applyViewAndController();
+
+		$this->loadCommonStaticMedia();
+	}
+
+	protected function loadLanguage(): void
+	{
+		$jLang = $this->app->getLanguage();
+
+		$jLang->load($this->option, JPATH_ADMINISTRATOR);
+
+		if (!$this->app->isClient('administrator'))
+		{
+			$jLang->load($this->option, JPATH_SITE);
+		}
+	}
+
+	protected function loadCommonStaticMedia()
+	{
+		// Make sure we run under a CMS application
+		if (!($this->app instanceof CMSApplication))
+		{
+			return;
+		}
+
+		// Make sure the document is HTML
+		$document = $this->app->getDocument();
+
+		if (!($document instanceof HtmlDocument))
+		{
+			return;
+		}
+
+		// Finally, load our 'common' preset
+		$document->getWebAssetManager()
+			->useStyle('com_socialmagick.backend');
+	}
+
+	protected function applyViewAndController(): void
+	{
+		$controller = $this->input->getCmd('controller', null);
+		$view       = $this->input->getCmd('view', null);
+		$task       = $this->input->getCmd('task', 'main');
+
+		if (strpos($task, '.') !== false)
+		{
+			// Explode the controller.task command.
+			[$controller, $task] = explode('.', $task);
+		}
+
+		if (empty($controller) && empty($view))
+		{
+			$controller = $this->defaultController;
+			$view       = $this->defaultController;
+		}
+		elseif (empty($controller) && !empty($view))
+		{
+			$view = $this->mapView($view);
+			$controller = $view;
+		}
+		elseif (!empty($controller) && empty($view))
+		{
+			$view = $controller;
+		}
+		else
+		{
+			$view = $controller;
+		}
+
+		$controller = strtolower($controller);
+		$view       = strtolower($view);
+
+		$this->input->set('view', $view);
+		$this->input->set('controller', $controller);
+		$this->input->set('task', $task);
+	}
+
+	protected function mapView(string $view)
+	{
+		return strtolower($view);
+	}
+}

@@ -1,0 +1,18 @@
+/*!*
+ * @package   socialmagick
+ * @copyright Copyright (c)2024-2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
+.icon-socialmagick,
+.icon-socialmagick-j4,
+.icon-socialmagick-j5,
+.icon-socialmagick-j6 {
+  &:before {
+    // TODO Set up an icon...
+  }
+}
+
+a.tbody-icon + div[role="tooltip"] {
+  margin-top: 2em
+}

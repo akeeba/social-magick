@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--~
+  ~ @package   socialmagick
+  ~ @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<form addfieldprefix="Akeeba\Component\SocialMagic\Administrator\Field">
+    <config>
+        <inlinehelp button="show"/>
+    </config>
+
+    <fieldset name="details">
+        <!-- This field is required for saving an edited record correctly. DO NOT REMOVE. -->
+        <field
+                name="id"
+                type="hidden"
+                readonly="true"
+                class="readonly"
+        />
+
+        <field
+                name="title"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_TITLE"
+                required="true"
+        />
+    </fieldset>
+</form>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--~
+  ~ @package   socialmagick
+  ~ @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<extension type="package" method="upgrade">
+    <name>pkg_socialmagick</name>
+    <author>Nicholas K. Dionysopoulos</author>
+    <creationDate>##DATE##</creationDate>
+    <packagename>socialmagick</packagename>
+    <version>##VERSION##</version>
+    <url>https://www.akeeba.com</url>
+    <packager>Akeeba Ltd</packager>
+    <packagerurl>https://www.akeeba.com</packagerurl>
+    <copyright>Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd</copyright>
+    <license>GNU GPL v3 or later</license>
+    <description>PKG_SOCIALMAGICK_XML_DESCRIPTION</description>
+    <blockChildUninstall>true</blockChildUninstall>
+
+    <files>
+        <file type="component" id="com_socialmagick">com_socialmagick.zip</file>
+    </files>
+
+    <languages folder="language">
+        <language tag="en-GB">en-GB/pkg_socialmagick.sys.ini</language>
+    </languages>
+
+    <scriptfile>script.socialmagick.php</scriptfile>
+
+    <updateservers>
+        <server type="extension" priority="1" name="Social Magick Updates">https://cdn.akeeba.com/updates/pkgsocialmagick.xml</server>
+    </updateservers>
+</extension>

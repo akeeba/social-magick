@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="SCSS" pattern="file[SocialMagick]:component/media/css/*.scss" />
+</component>

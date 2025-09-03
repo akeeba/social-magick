@@ -34,5 +34,8 @@
 # Files for release
 /release/**
 
+# Cached copy of the component XML manifest
+/component/backend/socialmagick.xml
+
 ### Junk
 /documentation/*~

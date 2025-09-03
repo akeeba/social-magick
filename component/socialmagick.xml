@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--~
+  ~ @package   socialmagick
+  ~ @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<extension type="component" method="upgrade">
+    <name>com_socialmagick</name>
+    <creationDate>2025-09-03</creationDate>
+    <author>Nicholas K. Dionysopoulos</author>
+    <authorEmail>nicholas@akeeba.com</authorEmail>
+    <authorUrl>https://www.akeeba.com</authorUrl>
+    <copyright>Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd</copyright>
+    <license>GNU GPL v3 or later</license>
+    <version>3.0.0</version>
+    <description>COM_SOCIALMAGICK_XML_DESCRIPTION</description>
+    <namespace path="src">Akeeba\Component\SocialMagick</namespace>
+
+    <administration>
+        <menu view="items">COM_SOCIALMAGICK</menu>
+
+        <submenu>
+            <menu view="templates">COM_SOCIALMAGICK_TITLE_TEMPLATES</menu>
+        </submenu>
+
+        <files folder="backend">
+            <folder>forms</folder>
+            <folder>language</folder>
+            <folder>services</folder>
+            <folder>sql</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+        </files>
+
+        <languages folder="backend/language">
+            <language tag="en-GB">en-GB/com_socialmagick.ini</language>
+            <language tag="en-GB">en-GB/com_socialmagick.sys.ini</language>
+        </languages>
+
+    </administration>
+
+    <media destination="com_socialmagick" folder="media">
+        <folder>css</folder>
+        <folder>images</folder>
+        <folder>js</folder>
+
+        <filename>joomla.asset.json</filename>
+    </media>
+
+    <!-- Database schema -->
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+            <file driver="postgresql" charset="utf8">sql/install.postgresql.utf8.sql</file>
+        </sql>
+    </install>
+
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+            <file driver="postgresql" charset="utf8">sql/install.postgresql.utf8.sql</file>
+        </sql>
+    </uninstall>
+
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates/mysql</schemapath>
+            <schemapath type="postgresql">sql/updates/postgresql</schemapath>
+        </schemas>
+    </update>
+</extension>

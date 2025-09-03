@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--~
+  ~ @package   socialmagick
+  ~ @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+<access component="com_socialmagick">
+	<section name="component">
+		<action name="core.admin" title="JACTION_ADMIN" />
+		<action name="core.manage" title="JACTION_MANAGE" />
+		<action name="core.create" title="JACTION_CREATE" />
+		<action name="core.delete" title="JACTION_DELETE" />
+		<action name="core.edit" title="JACTION_EDIT" />
+		<action name="core.edit.state" title="JACTION_EDITSTATE" />
+	</section>
+</access>

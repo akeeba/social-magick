@@ -8,18 +8,24 @@
 <project name="SocialMagick" default="git" >
 	<import file="${phing.dir}/../buildfiles/phing/common.xml" />
 
-	<patternset id="plg_system_socialmagick">
-		<include name="**"/>
-		<!--<exclude name="media/scss/**" />-->
-	</patternset>
+    <fileset dir="${dirs.component}" id="component" expandsymboliclinks="true">
+        <include name="**" />
 
-	<target name="package-pkg" description="Installation package" depends="new-release, setup-properties, package-plugins">
-		<!-- Rename the generated plugin file to include the version number -->
-		<move file="${dirs.release}/plg_system_socialmagick.zip"
-			  tofile="${dirs.release}/plg_system_socialmagick-${version}.zip" />
-	</target>
+        <exclude name="media/css/*.scss" />
+        <exclude name="media/css/*.map" />
+    </fileset>
 
-	<target name="documentation" description="The documentation"
+    <fileset dir="${dirs.release}" id="package">
+        <include name="com_*.zip" />
+        <include name="plg_*.zip" />
+        <include name="pkg_*.xml" />
+        <include name="language/**"/>
+        <include name="*.txt" />
+        <include name="script.*.php" />
+    </fileset>
+
+
+    <target name="documentation" description="The documentation"
 			depends="doc-epub"/>
 
 	<target name="docsdeploy"

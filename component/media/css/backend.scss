@@ -9,7 +9,11 @@
 .icon-socialmagick-j5,
 .icon-socialmagick-j6 {
   &:before {
-    // TODO Set up an icon...
+    content: url('../images/logo-white.svg');
+    display: block;
+    width: 1em;
+    height: 1em;
+    margin: 0 0.25em 0 0;
   }
 }
 

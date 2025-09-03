@@ -31,6 +31,8 @@ use Joomla\CMS\Filesystem\Folder;
  * One level of distributed folders is enough for a couple million photos. Two levels are enough for hundreds of
  * millions of photos. Anything bigger is an overkill but you MIGHT need it if you see that there's a bias towards a
  * subset of the subfolders (after all MD5 is NOT totally random or perfectly distributed).
+ *
+ * @since  1.0.0
  */
 class FileDistributor
 {
@@ -47,6 +49,7 @@ class FileDistributor
 	 * @param   int     $levels    How many levels of directories you want to create
 	 *
 	 * @return  string
+	 * @since   1.0.0
 	 */
 	public static function ensureDistributed(string $basePath, string $fileName, int $levels = 1): string
 	{
@@ -136,6 +139,21 @@ class FileDistributor
 		return $absoluteDistributedPathName;
 	}
 
+	/**
+	 * Generates a distributed file path by organizing the file into subdirectories.
+	 *
+	 * Distribution is based on the provided levels. Subdirectories are created using
+	 * segments derived from the file name. The result can be an absolute or relative path.
+	 *
+	 * @param   string  $basePath  Absolute filesystem location of the path containing the distributed folders
+	 * @param   string  $fileName  Filename of the file to put in a distributed folder
+	 * @param   int     $levels    How many levels of directories you want to create
+	 * @param   bool    $absolute  Whether to generate an absolute path or keep it relative. Default is true.
+	 *
+	 * @return  string  The distributed file path.
+	 * @throws  \InvalidArgumentException If the file name contains a path.
+	 * @since   1.0.0
+	 */
 	public static function getDistributedPath(string $basePath, string $fileName, int $levels = 1, bool $absolute = true): string
 	{
 		// If the filename contains a path throw an exception

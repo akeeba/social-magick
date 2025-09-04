@@ -10,7 +10,7 @@
         <inlinehelp button="show"/>
     </config>
 
-    <fieldset name="details">
+    <fieldset name="basic" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_BASIC">
         <!-- This field is required for saving an edited record correctly. DO NOT REMOVE. -->
         <field
                 name="id"
@@ -24,6 +24,353 @@
                 type="text"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_TITLE"
                 required="true"
+        />
+
+        <field
+                name="enabled"
+                type="list"
+                layout="joomla.form.field.radio.switcher"
+                label="JENABLED"
+                description="JFIELD_ENABLED_DESC"
+                default="1"
+                validate="options"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="template-w"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEMPLATE_W_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEMPLATE_W_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="1200"
+        />
+
+        <field
+                name="template-h"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEMPLATE_H_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEMPLATE_H_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="630"
+        />
+    </fieldset>
+
+    <fieldset name="composition" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_COMPOSITION">
+        <field
+                name="base-color"
+                type="color"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_BASE_COLOR_LABEL"
+                default="#000000"
+                format="hex"
+                showon="base-image:"
+        />
+
+        <field
+                name="base-color-alpha"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_BASE_COLOR_ALPHA_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_BASE_COLOR_ALPHA_DESC"
+                min="0"
+                max="100"
+                default="0"
+                step="1"
+                showon="base-image:"
+        />
+
+        <field
+                name="base-image"
+                type="media"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_DESC"
+                default=""
+                schemes="http,https,ftp,ftps,data,file"
+                validate="url"
+                relative="true"
+                directory="og-templates"
+        />
+    </fieldset>
+
+    <fieldset name="extra_image" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_EXTRA_IMAGE">
+        <field
+                name="use-article-image"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_USE_ARTICLE_IMAGE_LABEL"
+                class="btn-group btn-group-yesno"
+                default="0"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="image_source"
+                type="list"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_DESC"
+                class="btn-group btn-group-yesno"
+                default="customfullintro"
+                showon="use-article-image:1"
+        >
+            <option value="intro">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_INTRO</option>
+            <option value="fulltext">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_FULLTEXT</option>
+            <option value="custom">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
+            <option value="fullintro">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_FULLINTRO</option>
+            <option value="introfull">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_INTROFULL</option>
+            <option value="customfullintro">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO</option>
+            <option value="customintrofull">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_CUSTOMINTROFULL</option>
+            <option value="static">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_STATIC</option>
+        </field>
+
+        <field
+                name="image_field"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_FIELD_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_FIELD_DESC"
+                default="ogimage"
+                filter="no_html"
+                showon="image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]use-article-image:1"
+        />
+
+        <field
+                name="static_image"
+                type="media"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_STATIC_IMAGE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_STATIC_IMAGE_DESC"
+                hide_none="1"
+                default=""
+                showon="image_source:static[AND]use-article-image!:0"
+        />
+
+        <field
+                name="image-z"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_DESC"
+                class="btn-group btn-group-yesno"
+                default="under"
+                showon="use-article-image:1"
+        >
+            <option value="over">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_OPT_OVER</option>
+            <option value="under">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_OPT_UNDER</option>
+        </field>
+
+        <field
+                name="image-cover"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_COVER_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_COVER_DESC"
+                class="btn-group btn-group-yesno"
+                showon="use-article-image:1"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="image-width"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_WIDTH_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_WIDTH_DESC"
+                addonAfter="px"
+                default="1200"
+                showon="use-article-image:1[AND]image-cover:0"
+                filter="integer"
+        />
+
+        <field
+                name="image-height"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_HEIGHT_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_HEIGHT_DESC"
+                addonAfter="px"
+                default="630"
+                showon="use-article-image:1[AND]image-cover:0"
+                filter="integer"
+        />
+
+        <field
+                name="image-x"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_X_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_X_DESC"
+                addonAfter="px"
+                default="0"
+                filter="integer"
+                showon="use-article-image:1[AND]image-cover:0"
+        />
+
+        <field
+                name="image-y"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Y_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Y_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+                showon="use-article-image:1[AND]image-cover:0"
+        />
+    </fieldset>
+
+    <fieldset name="text" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_TEXT">
+        <field
+                name="overlay_text"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_OVERLAY_TEXT_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_OVERLAY_TEXT_DESC"
+                class="btn-group btn-group-yesno"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="text-font"
+                type="filelist"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_FONT_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_FONT_DESC"
+                directory="plugins/system/socialmagick/fonts/"
+                hide_none="true"
+                hide_default="true"
+                showon="overlay_text:1"
+        />
+
+        <field
+                name="font-size"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_FONT_SIZE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_FONT_SIZE_DESC"
+                addonAfter="pt"
+                filter="integer"
+                default="24"
+                showon="overlay_text:1"
+        />
+
+        <field
+                name="text-color"
+                type="color"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_COLOR_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_COLOR_DESC"
+                default="#ffffff"
+                format="hex"
+                showon="overlay_text:1"
+        />
+
+        <field
+                name="text-height"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_HEIGHT_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_HEIGHT_DESC"
+                addonAfter="px"
+                default="630"
+                filter="integer"
+                showon="overlay_text:1"
+        />
+
+        <field
+                name="text-width"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_WIDTH_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_WIDTH_DESC"
+                addonAfter="px"
+                default="1200"
+                filter="integer"
+                showon="overlay_text:1"
+        />
+
+        <field
+                name="text-align"
+                type="list"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_ALIGN_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_ALIGN_DESC"
+                default="left"
+                showon="overlay_text:1"
+        >
+            <option value="left">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_ALIGN_OPT_LEFT</option>
+            <option value="center">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_ALIGN_OPT_CENTER</option>
+            <option value="right">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_ALIGN_OPT_RIGHT</option>
+        </field>
+
+        <field
+                name="text-y-center"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_Y_CENTER_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_Y_CENTER_DESC"
+                class="btn-group btn-group-yesno"
+                default="1"
+                showon="overlay_text:1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="text-y-adjust"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_Y_ADJUST_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_Y_ADJUST_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+                showon="text-y-center:1[AND]overlay_text:1"
+        />
+
+        <field
+                name="text-y-absolute"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_Y_ABSOLUTE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_Y_ABSOLUTE_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+                showon="text-y-center:0[AND]overlay_text:1"
+        />
+
+        <field
+                name="text-x-center"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_X_CENTER_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_X_CENTER_DESC"
+                class="btn-group btn-group-yesno"
+                default="1"
+                showon="overlay_text:1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="text-x-adjust"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_X_ADJUST_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_X_ADJUST_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+                showon="text-x-center:1[AND]overlay_text:1"
+        />
+
+        <field
+                name="text-x-absolute"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_X_ABSOLUTE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_X_ABSOLUTE_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+                showon="text-x-center:0[AND]overlay_text:1"
         />
     </fieldset>
 </form>

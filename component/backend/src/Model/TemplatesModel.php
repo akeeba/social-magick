@@ -32,7 +32,7 @@ class TemplatesModel extends ListModel
 		parent::__construct($config, $factory);
 	}
 
-	protected function populateState($ordering = 'word', $direction = 'asc')
+	protected function populateState($ordering = 'ordering', $direction = 'asc')
 	{
 		$app = Factory::getApplication();
 
@@ -61,7 +61,7 @@ class TemplatesModel extends ListModel
 		$db = $this->getDatabase();
 		$query = $db->createQuery()
 			->select('*')
-			->from($db->quoteName('#__admintools_badwords'));
+			->from($db->quoteName('#__socialmagick_templates'));;
 
 		$search = $this->getState('filter.search');
 
@@ -84,7 +84,7 @@ class TemplatesModel extends ListModel
 		}
 
 		// List ordering clause
-		$orderCol  = $this->state->get('list.ordering', 'word');
+		$orderCol  = $this->state->get('list.ordering', 'ordering');
 		$orderDirn = $this->state->get('list.direction', 'asc');
 		$ordering  = $db->escape($orderCol) . ' ' . $db->escape($orderDirn);
 

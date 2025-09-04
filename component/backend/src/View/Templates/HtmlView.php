@@ -65,7 +65,7 @@ class HtmlView extends BaseHtmlView
 	 * @var    array
 	 * @since  3.0.0
 	 */
-	protected array $items = [];
+	protected array|false $items = [];
 
 	/**
 	 * The pagination object
@@ -141,11 +141,11 @@ class HtmlView extends BaseHtmlView
 		// Get the toolbar object instance
 		$toolbar = $this->getToolbarCompat();
 
-		ToolbarHelper::title(sprintf(Text::_('COM_ADMINTOOLS_TITLE_BADWORDS')), 'icon-socialmagick');
+		ToolbarHelper::title(sprintf(Text::_('COM_SOCIALMAGICK_TITLE_TEMPLATES')), 'icon-socialmagick');
 
-		$canCreate    = $user->authorise('core.create', 'com_admintools');
-		$canDelete    = $user->authorise('core.delete', 'com_admintools');
-		$canEditState = $user->authorise('core.edit.state', 'com_admintools');
+		$canCreate    = $user->authorise('core.create', 'com_socialmagick');
+		$canDelete    = $user->authorise('core.delete', 'com_socialmagick');
+		$canEditState = $user->authorise('core.edit.state', 'com_socialmagick');
 
 		{
 			$toolbar

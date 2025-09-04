@@ -33,7 +33,9 @@ class HtmlView extends BaseHtmlView
 	 *
 	 * @var Form
 	 */
-	public $form;
+	public Form $form;
+
+	public object $item;
 
 	public function display($tpl = null)
 	{
@@ -41,6 +43,7 @@ class HtmlView extends BaseHtmlView
 		$model = $this->getModel();
 
 		$this->form      = $model->getForm();
+		$this->item      = $model->getItem();
 
 		// Push translations
 		Text::script('JNO', true);
@@ -72,9 +75,9 @@ class HtmlView extends BaseHtmlView
 			'btn-success'
 		);
 
-		ToolbarHelper::inlinehelp();
-
 		ToolbarHelper::cancel('template.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
+
+		ToolbarHelper::inlinehelp();
 
 		//ToolbarHelper::help(null, false, 'https://www.akeeba.com/documentation/socialmagick/template.html');
 	}

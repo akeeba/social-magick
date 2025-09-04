@@ -13,31 +13,58 @@ use Joomla\CMS\Router\Route;
 
 /** @var $this \Akeeba\Component\SocialMagick\Administrator\View\Template\HtmlView */
 
-$viewName = $this->getName();
+// Enable keep-alive and form validation JavaScript.
+$wa = $this->getDocument()->getWebAssetManager()
+		->useScript('keepalive')
+		->useScript('form.validate');
+
 ?>
 
-<form action="<?= Route::_('index.php?option=com_socialmagick&view=' . $viewName) ?>" id="adminForm" method="post" name="adminForm">
+<form action="<?= Route::_('index.php?option=com_socialmagick&view=template') ?>"
+	  method="post" name="adminForm" id="item-form" class="form-validate"
+	  aria-label="<?= Text::_('COM_SOCIALMAGICK_TITLE_TEMPLATE_' . ((int) $this->item->id === 0 ? 'ADD' : 'EDIT'), true) ?>"
+>
+	<?php // --- Hidden fields ?>
+	<input type="hidden" name="task" id="task" value="save" />
+	<input type="hidden" name="id" id="id" value="<?= (int) ($this->item->id ?? 0) ?>" />
+	<?= HTMLHelper::_('form.token') ?>
 
-	<?= HTMLHelper::_('uitab.startTabSet', 'com_socialmagick_template', ['active' => 'details']); ?>
-	<?php foreach ($this->form->getFieldsets() as $fieldset): ?>
-		<?= HTMLHelper::_('uitab.addTab', 'com_socialmagick_template', $fieldset->name, Text::_($fieldset->label)); ?>
-		<div class="card card-body mb-3">
+	<?php // --- Title (rendered Joomla-style) ?>
+	<div class="row title-alias form-vertical mb-3">
+		<div class="col-12">
+			<?= $this->form->renderField('title') ?>
+		</div>
+	</div>
+
+	<?php // --- Main fields ?>
+	<div class="main-card">
+		<?= HTMLHelper::_('uitab.startTabSet', 'com_socialmagick_template', ['active' => 'basic', 'recall' => true, 'breakpoint' => 768]); ?>
+
+		<?php // --- Tab: Basic ?>
+		<?= HTMLHelper::_('uitab.addTab', 'com_socialmagick_template', 'basic', Text::_('COM_SOCIALMAGICK_TEMPLATES_FIELDSET_BASIC')); ?>
+		<?= $this->loadTemplate('basic') ?>
+		<?= HTMLHelper::_('uitab.endTab'); ?>
+
+		<?php foreach ($this->form->getFieldsets() as $fieldset): ?>
+			<?php if (in_array($fieldset->name, ['basic'])): continue; endif; ?>
+			<?= HTMLHelper::_('uitab.addTab', 'com_socialmagick_template', $fieldset->name, Text::_($fieldset->label)); ?>
+
+			<?php
+			// Load an optional template
+			try { echo $this->loadAnyTemplate('default_' . $fieldset->name, false); } catch (Throwable) {}
+			?>
+
 			<?php if ($fieldset->description): ?>
 				<div class="alert alert-info">
 					<?= Text::_($fieldset->description) ?>
 				</div>
 			<?php endif; ?>
 
-			<?php foreach ($this->form->getFieldset($fieldset->name) as $field) {
-				echo $field->renderField();
-			}
-			?>
-		</div>
-		<?= HTMLHelper::_('uitab.endTab'); ?>
-	<?php endforeach; ?>
+			<?= $this->form->renderFieldset($fieldset->name) ?>
+			<?= HTMLHelper::_('uitab.endTab'); ?>
+		<?php endforeach; ?>
 
-	<?= HTMLHelper::_('uitab.endTabSet'); ?>
+		<?= HTMLHelper::_('uitab.endTabSet'); ?>
+	</div>
 
-	<input type="hidden" name="task" value="save" />
-	<?= HTMLHelper::_('form.token') ?>
 </form>

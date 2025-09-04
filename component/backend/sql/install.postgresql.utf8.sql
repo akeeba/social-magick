@@ -8,6 +8,7 @@
 CREATE TABLE IF NOT EXISTS "#__socialmagick_templates" (
     "id"                SERIAL         NOT NULL,
     "title"             VARCHAR(255),
+    "enabled"           INTEGER        NOT NULL DEFAULT '1',
     "created"           TIMESTAMP      NULL     DEFAULT NULL,
     "created_by"        INTEGER        NOT NULL DEFAULT '0',
     "modified"          TIMESTAMP      NULL     DEFAULT NULL,

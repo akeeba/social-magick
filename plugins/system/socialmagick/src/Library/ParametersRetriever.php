@@ -9,7 +9,6 @@ namespace Akeeba\Plugin\System\SocialMagick\Library;
 
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
-use Joomla\CMS\Menu\AbstractMenu;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Component\Categories\Administrator\Model\CategoryModel;
@@ -102,6 +101,30 @@ final class ParametersRetriever
 	private CMSApplication $application;
 
 	/**
+	 * Joomla's com_content MVC Factory
+	 *
+	 * @var   MVCFactoryInterface
+	 * @since 3.0.0
+	 */
+	private MVCFactoryInterface $mvcFactory;
+
+	/**
+	 * A cached copy of com_content's ArticleModel
+	 *
+	 * @var   ArticleModel
+	 * @since 3.0.0
+	 */
+	private ArticleModel $articleModel;
+
+	/**
+	 * A cached copy of com_content's CategoryModel
+	 *
+	 * @var   CategoryModel
+	 * @since 3.0.0
+	 */
+	private CategoryModel $categoryModel;
+
+	/**
 	 * Public constructor
 	 *
 	 * @param   CMSApplication  $application  The application we're running under
@@ -113,6 +136,71 @@ final class ParametersRetriever
 		$this->application = $application;
 	}
 
+	/**
+	 * Merges the `$overrides` parameters into the `$source` parameters, aware of the inheritance rules.
+	 *
+	 * @param   array  $source
+	 * @param   array  $overrides
+	 *
+	 * @return array
+	 */
+	public function inheritanceAwareMerge(array $source, array $overrides): array
+	{
+		$overrideImageParams = isset($overrides['override']) && $overrides['override'] == 1;
+		$overrideOGParams    = isset($overrides['og_override']) && $overrides['og_override'] == 1;
+
+		if (!$overrideImageParams && !$overrideOGParams)
+		{
+			return $source;
+		}
+
+		$temp = [];
+
+		$temp['override'] = $overrideImageParams || ($source['override'] ?? null) == 1 ? 1 : 0;;
+		$temp['og_override'] = $overrideOGParams || ($source['og_override'] ?? null) == 1 ? 1 : 0;;
+
+		foreach ($source as $key => $value)
+		{
+			// Start by using the source value
+			$temp[$key] = $value;
+
+			// If there is no override value under this key, well, we're done.
+			if (!isset($overrides[$key]))
+			{
+				continue;
+			}
+
+			// Ignore override and og_override; I have already handled that.
+			if (in_array($key, ['override', 'og_override'], true))
+			{
+				continue;
+			}
+
+			// Is it a valid override?
+			$isOGKey = str_starts_with($key, 'og_');
+
+			if (
+				($isOGKey && !$overrideOGParams)
+				|| (!$isOGKey && !$overrideImageParams)
+			)
+			{
+				continue;
+			}
+
+			// Does this override anything, or does it basically say "nah, use the default"?
+			$newValue = $overrides[$key];
+
+			if ($newValue === '' || $newValue < 0)
+			{
+				continue;
+			}
+
+			// Okay, that's an override alright!
+			$temp[$key] = $newValue;
+		}
+
+		return $temp;
+	}
 
 	/**
 	 * Get the Social Magick parameters for a menu item.
@@ -133,25 +221,20 @@ final class ParametersRetriever
 			return $this->menuParameters[$id];
 		}
 
-		// If there is no menu item or it's the wrong one retrieve it from Joomla
+		// If there is no menu item, or it's the wrong one, retrieve it from Joomla.
 		if (empty($menuItem) || ($menuItem->id != $id))
 		{
-			$menu     = AbstractMenu::getInstance('site');
-			$menuItem = $menu->getItem($id);
+			$menuItem = $this->application->getMenu()->getItem($id);
 		}
 
 		// Still no menu item? We return the default parameters.
 		if (empty($menuItem) || ($menuItem->id != $id))
 		{
 			// This trick allows us to copy an array without creating a reference to the original.
-			$this->menuParameters[$id] = array_merge([], $this->defaultParameters);
-
-			return $this->menuParameters[$id];
+			return $this->menuParameters[$id] = array_merge([], $this->defaultParameters);
 		}
 
-		$this->menuParameters[$id] = $this->getParamsFromRegistry($menuItem->getParams());
-
-		return $this->menuParameters[$id];
+		return $this->menuParameters[$id] = $this->getParamsFromRegistry($menuItem->getParams());
 	}
 
 	/**
@@ -170,28 +253,24 @@ final class ParametersRetriever
 	 */
 	public function getArticleParameters(int $id, $article = null): array
 	{
-		// Return cached results quickly
+		// Return cached results quickly.
 		if (isset($this->articleParameters[$id]))
 		{
 			return $this->articleParameters[$id];
 		}
 
-		// If we were given an invalid article object I need to find a new one
+		// If we were given an invalid article object, I need to find a new one.
 		if (empty($article) || !is_object($article) || ($article->id != $id))
 		{
 			$article = $this->getArticleById($id);
 		}
 
-		// Get the article parameters
-		$this->articleParameters[$id] = $this->getParamsFromRegistry(new Registry($article->attribs));
+		// Get the article parameters from the category, and from the article itself.
+		$catParams     = $this->getCategoryArticleParameters($article->catid);
+		$articleParams = $this->getParamsFromRegistry(new Registry($article->attribs));
 
-		// If the article doesn't override parameters get category parameters (auto-recursively to parent categories)
-		if ($this->articleParameters[$id]['override'] != 1)
-		{
-			$this->articleParameters[$id] = $this->getCategoryArticleParameters($article->catid);
-		}
-
-		return $this->articleParameters[$id];
+		// Return article parameters by merging the parameters coming from categories and the article itself.
+		return $this->articleParameters[$id] = $this->inheritanceAwareMerge($catParams, $articleParams);
 	}
 
 	/**
@@ -221,28 +300,12 @@ final class ParametersRetriever
 			$category = $this->getCategoryById($id);
 		}
 
-		// Get the category's article parameters
-		$this->categoryArticleParameters[$id] = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.article_');
-
-		// If the override option is set for this category we're done. Return now.
-		if ($this->categoryArticleParameters[$id]['override'] == 1)
-		{
-			return $this->categoryArticleParameters[$id];
-		}
-
-		// Since there's no override I need to check the parent category for a Social Magick override
+		// Get parameters recursing all the way to the root category.
 		$parentCategory = $this->getParentCategory($id);
+		$parentParams   = empty($parentCategory) ? [] : $this->getCategoryArticleParameters($parentCategory->id);
+		$catParams      = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.article_');
 
-		// No parent category? I've reached the top and I'm done. Return now.
-		if (empty($parentCategory))
-		{
-			return $this->categoryArticleParameters[$id];
-		}
-
-		// Recursively get the parent category's / categories' options until I hit an override switch.
-		$this->categoryArticleParameters[$id] = $this->getCategoryArticleParameters($parentCategory->id, $parentCategory);
-
-		return $this->categoryArticleParameters[$id];
+		return $this->categoryArticleParameters[$id] = $this->inheritanceAwareMerge($parentParams, $catParams);
 	}
 
 	/**
@@ -271,28 +334,25 @@ final class ParametersRetriever
 			$category = $this->getCategoryById($id);
 		}
 
-		// Get the category parameters
-		$this->categoryParameters[$id] = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.category_');
-
-		// If the override option is set for this category we're done. Return now.
-		if ($this->categoryParameters[$id]['override'] == 1)
-		{
-			return $this->categoryParameters[$id];
-		}
-
-		// Since there's no override I need to check the parent category for a Social Magick override
+		// Get parameters recursing all the way to the root category.
 		$parentCategory = $this->getParentCategory($id);
+		$parentParams   = empty($parentCategory) ? [] : $this->getCategoryParameters($parentCategory->id);
+		$catParams      = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.category_');
 
-		// No parent category? I've reached the top and I'm done. Return now.
-		if (empty($parentCategory))
-		{
-			return $this->categoryParameters[$id];
-		}
+		return $this->categoryParameters[$id] = $this->inheritanceAwareMerge($parentParams, $catParams);
+	}
 
-		// Recursively get the parent category's / categories' options until I hit an override switch.
-		$this->categoryArticleParameters[$id] = $this->getCategoryArticleParameters($parentCategory->id, $parentCategory);
-
-		return $this->categoryParameters[$id];
+	/**
+	 * Retrieve the default parameters for the application or component.
+	 *
+	 * This method returns an array containing the default configuration parameters.
+	 *
+	 * @return  array The default parameters.
+	 * @since   3.0.0
+	 */
+	public function getDefaultParameters(): array
+	{
+		return $this->defaultParameters;
 	}
 
 	/**
@@ -311,17 +371,11 @@ final class ParametersRetriever
 			return $this->articlesById[$id];
 		}
 
-		/** @var ArticleModel $model */
 		try
 		{
-			/** @var MVCFactoryInterface $factory */
-			$factory = $this->application->bootComponent('com_content')->getMVCFactory();
-			/** @var ArticleModel $model */
-			$model = $factory->createModel('Article', 'Administrator');
-
-			$this->articlesById[$id] = $model->getItem($id) ?: null;
+			$this->articlesById[$id] = $this->getArticleModel()->getItem($id) ?: null;
 		}
-		catch (Exception $e)
+		catch (Exception)
 		{
 			$this->articlesById[$id] = null;
 		}
@@ -347,12 +401,7 @@ final class ParametersRetriever
 
 		try
 		{
-			/** @var MVCFactoryInterface $factory */
-			$factory = $this->application->bootComponent('com_categories')->getMVCFactory();
-			/** @var CategoryModel $model */
-			$model = $factory->createModel('Category', 'Administrator');
-
-			$this->categoriesById[$id] = $model->getItem($id) ?: null;
+			$this->categoriesById[$id] = $this->getCategoryModel()->getItem($id) ?: null;
 		}
 		catch (Exception $e)
 		{
@@ -360,6 +409,51 @@ final class ParametersRetriever
 		}
 
 		return $this->categoriesById[$id];
+	}
+
+	/**
+	 * Retrieves the article model instance.
+	 *
+	 * This method ensures the article model is initialised and returned. If the model
+	 * is not already set, it will be created using the MVC factory with a specific configuration.
+	 *
+	 * @return  ArticleModel  The article model instance.
+	 * @throws  Exception
+	 * @since   3.0.0
+	 */
+	private function getArticleModel(): ArticleModel
+	{
+		/** @noinspection PhpIncompatibleReturnTypeInspection */
+		return $this->articleModel ??= $this->getMVCFactory()
+			->createModel('Article', 'Administrator', ['ignore_request' => true]);
+	}
+
+	/**
+	 * Retrieves the Category model instance, creating it if not already instantiated.
+	 *
+	 * This method uses the MVC factory to create a model for the Category within the Administrator context,
+	 * with request parameters ignored during the creation process.
+	 *
+	 * @return  CategoryModel  The category model instance.
+	 * @throws  Exception
+	 * @since   3.0.0
+	 */
+	private function getCategoryModel(): CategoryModel
+	{
+		/** @noinspection PhpIncompatibleReturnTypeInspection */
+		return $this->categoryModel ??= $this->getMVCFactory()
+			->createModel('Category', 'Administrator', ['ignore_request' => true]);
+	}
+
+	/**
+	 * Returns a cached copy of com_content's MVC factory.
+	 *
+	 * @return  MVCFactoryInterface
+	 * @since   3.0.0
+	 */
+	private function getMVCFactory(): MVCFactoryInterface
+	{
+		return $this->mvcFactory ??= $this->application->bootComponent('com_content')->getMVCFactory();
 	}
 
 	/**

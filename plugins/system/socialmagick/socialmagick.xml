@@ -44,7 +44,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_GENERATE_IMAGES_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_GENERATE_IMAGES_DESC"
-                        class="btn-group btn-group-yesno"
                         default="1"
                 >
                     <option value="0">JNO</option>
@@ -120,7 +119,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_DESC"
-                        class="btn-group btn-group-yesno"
                         default="1"
                 >
                     <option value="0">JNO</option>
@@ -133,7 +131,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_DESC"
-                        class="btn-group btn-group-yesno"
                         default="1"
                 >
                     <option value="0">JNO</option>
@@ -205,7 +202,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_ADD_PSEUDO_CRON_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_ADD_PSEUDO_CRON_DESC"
-                        class="btn-group btn-group-yesno"
                         default="1"
                 >
                     <option value="0">JNO</option>
@@ -261,7 +257,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_ADD_OG_DECLARATION_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_ADD_OG_DECLARATION_DESC"
-                        class="btn-group btn-group-yesno"
                         default="1"
                 >
                     <option value="0">JNO</option>
@@ -284,7 +279,6 @@
                         type="radio"
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_DEVMODE_LABEL"
-                        class="btn-group btn-group-yesno"
                         default="0"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_DEVMODE_DESC"
                 >
@@ -298,7 +292,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXTDEBUG_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXTDEBUG_DESC"
-                        class="btn-group btn-group-yesno"
                         default="0"
                 >
                     <option value="0">JNO</option>
@@ -311,7 +304,6 @@
                         layout="joomla.form.field.radio.switcher"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_DEBUGLINK_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_DEBUGLINK_DESC"
-                        class="btn-group btn-group-yesno"
                         default="0"
                 >
                     <option value="0">JNO</option>

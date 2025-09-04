@@ -14,7 +14,21 @@
                     type="note"
                     class="alert alert-info"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_NOTES"
+                    showon="override:1"
             />
+
+            <field
+                    name="override"
+                    type="radio"
+                    layout="joomla.form.field.radio.switcher"
+                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
+                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_MENU_OVERRIDE_LABEL"
+                    class="btn-group btn-group-yesno"
+                    default="0"
+            >
+                <option value="0">JNO</option>
+                <option value="1">JYES</option>
+            </field>
 
             <field
                     name="generate_images"
@@ -23,6 +37,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
+                    showon="override:1"
             >
                 <option value="0">JNO</option>
                 <option value="-1">JGLOBAL_INHERIT</option>
@@ -35,7 +50,7 @@
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DESC"
                     validate="options"
-                    showon="generate_images!:0"
+                    showon="generate_images!:0[AND]override:1"
             >
                 <option value="">JGLOBAL_INHERIT</option>
             </field>
@@ -46,7 +61,7 @@
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
                     filter="no_html"
-                    showon="generate_images!:0"
+                    showon="generate_images!:0[AND]override:1"
             />
 
             <field
@@ -55,9 +70,8 @@
                     layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_DESC"
-                    class="btn-group btn-group-yesno"
                     default="1"
-                    showon="generate_images!:0"
+                    showon="generate_images!:0[AND]override:1"
             >
                 <option value="0">JNO</option>
                 <option value="1">JYES</option>
@@ -69,9 +83,8 @@
                     layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
-                    class="btn-group btn-group-yesno"
                     default="1"
-                    showon="generate_images!:0"
+                    showon="generate_images!:0[AND]override:1"
             >
                 <option value="0">JNO</option>
                 <option value="1">JYES</option>
@@ -82,10 +95,9 @@
                     type="list"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
-                    class="btn-group btn-group-yesno"
                     default="customfullintro"
                     validate="options"
-                    showon="generate_images!:0"
+                    showon="generate_images!:0[AND]override:1"
             >
                 <option value="none">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
                 <option value="intro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTRO</option>
@@ -105,7 +117,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
                     default="ogimage"
                     filter="no_html"
-                    showon="image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]generate_images!:0"
+                    showon="image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]generate_images!:0[AND]override:1"
             />
 
             <field
@@ -115,7 +127,15 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_DESC"
                     hide_none="1"
                     default=""
-                    showon="image_source:static[AND]generate_images!:0"
+                    showon="image_source:static[AND]generate_images!:0[AND]override:1"
+            />
+
+            <field
+                    type="note"
+                    class="alert alert-info"
+                    label="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_LABEL"
+                    description="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_DESC"
+                    showon="override_og:1"
             />
 
             <field
@@ -124,20 +144,11 @@
                     layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
-                    class="btn-group btn-group-yesno"
                     default="0"
-                    showon="generate_images!:0"
             >
                 <option value="0">JNO</option>
                 <option value="1">JYES</option>
             </field>
-
-            <field
-                    type="note"
-                    class="alert alert-info"
-                    label="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_DESC"
-            />
 
             <field
                     name="og_title"
@@ -146,6 +157,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_DESC"
                     validate="options"
                     default="-1"
+                    showon="override_og:1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_NO</option>
@@ -160,7 +172,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_DESC"
                     default=""
                     filter="no_html"
-                    showon="og_title:2"
+                    showon="og_title:2[AND]override_og:1"
             />
 
             <field
@@ -170,6 +182,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_DESC"
                     validate="options"
                     default="-1"
+                    showon="override_og:1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_NO</option>
@@ -184,7 +197,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_DESC"
                     default=""
                     filter="no_html"
-                    showon="og_description:2"
+                    showon="og_description:2[AND]override_og:1"
             />
 
             <field
@@ -195,6 +208,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
+                    showon="override_og:1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">JNO</option>
@@ -209,6 +223,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
+                    showon="override_og:1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">JNO</option>
@@ -222,6 +237,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_DESC"
                     validate="options"
                     default="-1"
+                    showon="override_og:1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_NONE</option>
@@ -236,7 +252,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_SITE_DESC"
                     default=""
                     filter="no_html"
-                    showon="twitter_card!:0"
+                    showon="twitter_card!:0[AND]override_og:1"
             />
 
             <field
@@ -246,7 +262,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_DESC"
                     default=""
                     filter="no_html"
-                    showon="twitter_card!:0"
+                    showon="twitter_card!:0[AND]override_og:1"
             />
 
             <field
@@ -256,6 +272,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_FB_APP_ID_DESC"
                     default=""
                     filter="no_html"
+                    showon="override_og:1"
             />
         </fieldset>
     </fields>

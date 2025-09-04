@@ -550,7 +550,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		try
 		{
 			$this->templates = array_map(
-				fn($template) => json_decode($template['params'], true),
+				fn($params) => json_decode($params, true),
 				$db->setQuery($query)->loadAssocList('id', 'params')
 			);
 		}

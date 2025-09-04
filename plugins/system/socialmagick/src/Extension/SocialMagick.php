@@ -68,13 +68,13 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			'onAfterRender'              => 'onAfterRender',
-			'onAjaxSocialmagick'         => 'onAjaxSocialmagick',
-			'onBeforeRender'             => 'onBeforeRender',
-			'onContentBeforeDisplay'     => 'onContentBeforeDisplay',
-			'onContentBeforeSave'        => 'onContentBeforeSave',
-			'onContentPrepareData'       => 'onContentPrepareData',
-			'onContentPrepareForm'       => 'onContentPrepareForm',
+			'onAfterRender'          => 'onAfterRender',
+			'onAjaxSocialmagick'     => 'onAjaxSocialmagick',
+			'onBeforeRender'         => 'onBeforeRender',
+			'onContentBeforeDisplay' => 'onContentBeforeDisplay',
+			'onContentBeforeSave'    => 'onContentBeforeSave',
+			'onContentPrepareData'   => 'onContentPrepareData',
+			'onContentPrepareForm'   => 'onContentPrepareForm',
 		];
 	}
 
@@ -91,160 +91,56 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	public function onBeforeRender(Event $event): void
 	{
-		// Is this plugin even supported?
-		if (!$this->getHelper()->isAvailable())
+		// Should I proceed?
+		if (!$this->shouldProcessOpenGraph())
 		{
 			return;
 		}
 
-		// Is this the frontend HTML application?
-		if (!is_object($this->getApplication()) || !($this->getApplication() instanceof CMSApplication))
+		// Get the active menu item.
+		$app            = $this->getApplication();
+		$activeMenuItem = $app->getMenu()->getActive();
+
+		// Populate $this->article and $this->content, if they exist
+		$this->handleCoreContentMenuItems();
+
+		// Start with the plugin parameters
+		$parametersRetriever = $this->getParamsRetriever();
+		$params              = array_merge($parametersRetriever->getDefaultParameters(), $this->params->toArray());
+
+		if ($this->article)
 		{
-			return;
+			$extraParams = $parametersRetriever->getArticleParameters($this->article);
+			$params      = $parametersRetriever->inheritanceAwareMerge($params, $extraParams);
+		}
+		elseif ($this->category)
+		{
+			$extraParams = $parametersRetriever->getCategoryParameters($this->category);
+			$params      = $parametersRetriever->inheritanceAwareMerge($params, $extraParams);
 		}
 
-		if (!method_exists($this->getApplication(), 'isClient') || !$this->getApplication()->isClient('site'))
-		{
-			return;
-		}
-
-		try
-		{
-			if ($this->getApplication()->getDocument()->getType() != 'html')
-			{
-				return;
-			}
-		}
-		catch (Throwable $e)
-		{
-			return;
-		}
-
-		// Try to get the active menu item
-		try
-		{
-			//$menu        = AbstractMenu::getInstance('site');
-			$menu        = $this->getApplication()->getMenu();
-			$currentItem = $menu->getActive();
-		}
-		catch (Throwable $e)
-		{
-			return;
-		}
-
-		// Make sure there *IS* an active menu item.
-		if (empty($currentItem))
-		{
-			return;
-		}
-
-		// Get the menu item parameters
-		$params = $this->getParamsRetriever()->getMenuParameters($currentItem->id, $currentItem);
+		// Get the menu item parameters and cascade them.
+		$paramsFromMenu = $parametersRetriever->getMenuParameters($activeMenuItem->id, $activeMenuItem);
+		$params         = $parametersRetriever->inheritanceAwareMerge($params, $paramsFromMenu);
 
 		/**
-		 * In Joomla 4 when you access a /component/whatever URL you have the ItemID for the home page as the active
-		 * item BUT the option parameter in the application is different. Let's detect that and get out if that's the
-		 * case.
+		 * Get the effective template ID.
+		 *
+		 * We are doing the following (first non-empty template ID found wins):
+		 * * The `template` key from `$params`. Only set if there are (cascaded) overrides.
+		 * * The default template ID set up in the extension.
+		 * * The first published template's ID
+		 * * Fallback to 0 which just uses some rather useless defaults.
 		 */
-		$menuOption    = $currentItem->query['option'] ?? '';
-		$currentOption = $this->getApplication()->input->getCmd('option', $menuOption);
+		$firstTemplateKey          = array_key_first($this->getHelper()->getTemplates() ?? []);
+		$configuredDefaultTemplate = $this->params->get('default_template', $firstTemplateKey) ?: null;
+		$templateFromParams        = ($params['template'] ?? null) ?: null;
+		$templateId                = $templateFromParams ?? $configuredDefaultTemplate ?? $firstTemplateKey ?? 0;
 
-		if (!empty($menuOption) && ($menuOption !== $currentOption))
-		{
-			$menuOption = $currentOption;
-		}
+		$params['template'] = $templateId;
 
-		// Apply core content settings overrides, if applicable
-		if ($menuOption == 'com_content')
-		{
-			$task        = $this->getApplication()->input->getCmd('task', $currentItem->query['task'] ?? '');
-			$defaultView = '';
-
-			if (strpos($task, '.') !== false)
-			{
-				[$defaultView,] = explode('.', $task);
-			}
-
-			$view = $this->getApplication()->input->getCmd('view', ($currentItem->query['view'] ?? '') ?: $defaultView);
-
-			switch ($view)
-			{
-				case 'categories':
-				case 'category':
-					// Apply category overrides if applicable
-					$category = $this->category ?: $this->getApplication()->input->getInt('id', $currentItem->query['id'] ?? null);
-
-					if ($category)
-					{
-						$catParams = $this->getParamsRetriever()->getCategoryParameters($category);
-
-						if ($catParams['override'] == 1)
-						{
-							$params = $catParams;
-						}
-					}
-
-					$this->article  = null;
-					$this->category = $category;
-					break;
-
-				case 'archive':
-				case 'article':
-				case 'featured':
-					// Apply article overrides if applicable
-					$article = $this->article ?: $this->getApplication()->input->getInt('id', $currentItem->query['id'] ?? null);
-
-					if ($article)
-					{
-						$articleParams = $this->getParamsRetriever()->getArticleParameters($article);
-
-						if ($articleParams['override'] == 1)
-						{
-							$params = $articleParams;
-						}
-					}
-
-					$this->article  = $article;
-					$this->category = null;
-
-					break;
-			}
-		}
-
-		// Apply default site-wide settings if applicable
-		$templateKeys    = array_keys($this->getHelper()->getTemplates() ?? []);
-		$defaultTemplate = count($templateKeys) ? array_shift($templateKeys) : '';
-
-		$defaultPluginSettings = [
-			'template'              => $defaultTemplate,
-			'generate_images'       => 1,
-			'og_title'              => 1,
-			'og_title_custom'       => '',
-			'og_description'        => 1,
-			'og_description_custom' => '',
-			'og_url'                => 1,
-			'og_site_name'          => 1,
-			'twitter_card'          => 2,
-			'twitter_site'          => '',
-			'twitter_creator'       => '',
-			'fb_app_id'             => '',
-			'image_source'          => 'customfullintro',
-		];
-
-		foreach ($defaultPluginSettings as $key => $defaultValue)
-		{
-			$inheritValue = is_numeric($defaultValue) ? -1 : '';
-			$paramsValue  = trim($params[$key]);
-			$paramsValue  = is_numeric($paramsValue) ? ((int) $paramsValue) : $paramsValue;
-
-			if ($paramsValue === $inheritValue)
-			{
-				$params[$key] = $this->params->get($key, $defaultValue);
-			}
-		}
-
-		// Generate an Open Graph image, if applicable.
-		if ($params['generate_images'] == 1)
+		// Generate an Open Graph image if supported and if we are requested to do so.
+		if ($this->getHelper()->isAvailable() && $params['generate_images'] == 1)
 		{
 			$this->applyOGImage($params);
 		}
@@ -340,5 +236,116 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			$this->replaceDebugImagePlaceholder();
 		}
 
+	}
+
+	private function handleCoreContentMenuItems(): void
+	{
+		/**
+		 * Make sure we have the correct menu item.
+		 *
+		 * In Joomla 4 and later versions, when you access a `/component/something` URL you get the ItemID for the home
+		 * page item as your active menu item. However, the `option` parameter in the application's global input object
+		 * points to a different component. We detect this discrepancy and place the correct `option` to the $menuOption
+		 * variable. Namely:
+		 *
+		 * - Accessing a regular menu item: you get the `option` from the menu item's `query` array.
+		 * - Accessing an ad-hoc component menu item: you get the `option` from the application's global input object.
+		 */
+		$app           = $this->getApplication();
+		$menuOption    = $activeMenuItem->query['option'] ?? '';
+		$currentOption = $app->getInput()->getCmd('option', $menuOption);
+
+		if (!empty($menuOption) && ($menuOption !== $currentOption))
+		{
+			$menuOption = $currentOption;
+		}
+
+		// Reset the found article and category objects.
+		$this->article  = null;
+		$this->category = null;
+
+		// We can only handle com_content menu items here.
+		if ($menuOption != 'com_content')
+		{
+			return;
+		}
+
+		$task        = $app->getInput()->getCmd('task', $activeMenuItem->query['task'] ?? '');
+		$defaultView = '';
+
+		if (strpos($task, '.') !== false)
+		{
+			[$defaultView,] = explode('.', $task);
+		}
+
+		$view = $app->getInput()->getCmd('view', ($activeMenuItem->query['view'] ?? '') ?: $defaultView);
+
+		switch ($view)
+		{
+			case 'categories':
+			case 'category':
+				$this->category = ($this->category ?: $app->getInput()->getInt('id', $activeMenuItem->query['id'] ?? null));
+				break;
+
+			case 'archive':
+			case 'article':
+			case 'featured':
+				// Apply article overrides if applicable
+				$this->article = ($this->article ?: $app->getInput()->getInt('id', $activeMenuItem->query['id'] ?? null));
+
+				break;
+		}
+	}
+
+	/**
+	 * Determine whether to proceed with processing the OpenGraph data for this page.
+	 *
+	 * It asserts the following conditions:
+	 *
+	 * * We are in the frontend (site) application.
+	 * * There is an active menu item.
+	 *
+	 * @return  bool
+	 * @since   3.0.0
+	 */
+	private function shouldProcessOpenGraph(): bool
+	{
+		// Is this the frontend HTML application?
+		try
+		{
+			$app = $this->getApplication();
+
+			if (
+				!is_object($app)
+				|| !($app instanceof CMSApplication)
+				|| !$app->isClient('site')
+				|| $app->getDocument()->getType() != 'html'
+			)
+			{
+				return false;
+			}
+		}
+		catch (Throwable)
+		{
+			return false;
+		}
+
+		// Try to get the active menu item
+		try
+		{
+			$activeMenuItem = $app->getMenu()->getActive();
+		}
+		catch (Throwable)
+		{
+			return false;
+		}
+
+		// Make sure there *IS* an active menu item.
+		if (empty($activeMenuItem))
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

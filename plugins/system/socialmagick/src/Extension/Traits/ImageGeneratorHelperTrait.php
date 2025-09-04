@@ -24,8 +24,7 @@ trait ImageGeneratorHelperTrait
 	protected function getHelper(): ?ImageGenerator
 	{
 		$this->helper ??= call_user_func(function () {
-			$helper = new ImageGenerator($this->params);
-			$helper->setDatabase($this->getDatabase());
+			$helper = new ImageGenerator($this->params, $this->getDatabase());
 			/** @noinspection PhpParamsInspection */
 			$helper->setApplication($this->getApplication());
 

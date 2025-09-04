@@ -42,7 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
-* [ ] Component to manage the templates; the current situation is, frankly, ridiculous!
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] Verify and fix cascading issues [gh-41]
 * [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).
@@ -51,3 +50,35 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 * [ ] Rewrite documentation as DocBook XML [gh-14]
 * [ ] Auto-generating article intro and/or full text images [gh-6]
 * [ ] Extra image crop focus: face [gh-10]
+
+#### Notes
+
+Remove now-obsolete translations strings from en-GB.plg_system_socialmagick.ini
+
+Remove the en-GB prefix from the plugin language file.
+
+Make sure that the color is applied even when we do have a template image as long as its opacity is greater than 0.
+
+Move parameters from the plugin to the component. Currently, plugin parameters are used in:
+
+* \Akeeba\Plugin\System\SocialMagick\Extension\SocialMagick::onBeforeRender
+* \Akeeba\Plugin\System\SocialMagick\Extension\SocialMagick::onContentBeforeDisplay
+* \Akeeba\Plugin\System\SocialMagick\Extension\SocialMagick::onAfterRender
+* \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax::onAjaxSocialmagick
+* \Akeeba\Plugin\System\SocialMagick\Extension\Feature\FormTabs::isMenuItemForComponent
+* \Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait::getHelper
+
+Refactor cleaning old images:
+* Move code from \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax into its own model
+* Create an AJAX handler in the component's frontend
+* Create a CLI plugin
+* Create a Joomla Scheduled Tasks plugin
+
+Add a preview feature to the component. For the extra image use a 4K stock photo with a person, left aligned. 
+
+Add image effects (I need this for myself, basically):
+* opacity
+* grayscale
+* sepia
+
+Add an option to control whether the OpenGraph options should be displayed to menu items that are NOT for articles / categories (we can still generate OG images and select a custom extra image).

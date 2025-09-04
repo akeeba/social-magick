@@ -75,25 +75,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			'onContentBeforeSave'        => 'onContentBeforeSave',
 			'onContentPrepareData'       => 'onContentPrepareData',
 			'onContentPrepareForm'       => 'onContentPrepareForm',
-			'onSocialMagickGetTemplates' => 'onSocialMagickGetTemplates',
 		];
-	}
-
-	/**
-	 * Returns all Social Magick templates known to the plugin
-	 *
-	 * @param   Event  $event
-	 *
-	 * @return  void
-	 *
-	 * @since        1.0.0
-	 */
-	public function onSocialMagickGetTemplates(Event $event): void
-	{
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = $this->getHelper()->getTemplates();
-		$event->setArgument('result', $result);
 	}
 
 	/**

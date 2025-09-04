@@ -22,7 +22,6 @@ trait OpenGraphImageTrait
 	/**
 	 * Get the appropriate text for rendering on the auto-generated Open Graph image
 	 *
-	 * @param   MenuItem  $currentItem  The current menu item.
 	 * @param   string    $customText   Any custom text the admin has entered for this menu item/
 	 * @param   bool      $useArticle   Should I do a fallback to the core content article's title, if one exists?
 	 * @param   bool      $useTitle     Should I do a fallback to the Joomla page title?
@@ -31,33 +30,25 @@ trait OpenGraphImageTrait
 	 *
 	 * @since   1.0.0
 	 */
-	private function getText(MenuItem $currentItem, string $customText, bool $useArticle, bool $useTitle): string
+	private function getText(?string $customText = null, bool $useArticle = false, bool $useTitle = false): string
 	{
-		// First try using the magic socialMagickText app object variable.
-		try
+		// 01. Try using a global variable used by template overrides
+		global $socialMagickText;
+
+		if (isset($socialMagickText) && is_string($socialMagickText) && !empty(trim($socialMagickText)))
 		{
-			/** @noinspection PhpUndefinedFieldInspection */
-			$appText = trim(@$this->getApplication()->socialMagickText ?? '');
-		}
-		catch (Exception $e)
-		{
-			$appText = '';
+			return trim($socialMagickText);
 		}
 
-		if (!empty($appText))
-		{
-			return $appText;
-		}
-
-		// The fallback to the custom text entered by the admin
-		$customText = trim($customText);
+		// 02. Explicitly entered custom text
+		$customText = trim($customText ?? '');
 
 		if (!empty($customText))
 		{
 			return $customText;
 		}
 
-		// The fallback to the core content article title, if one exists and this feature is enabled
+		// 03. Core content article title, if one exists and this feature is enabled.
 		if ($useArticle)
 		{
 			$title = '';
@@ -73,15 +64,20 @@ trait OpenGraphImageTrait
 				$title    = empty($category) ? '' : ($category->title ?? '');
 			}
 
+			$title = trim($title);
+
 			if (!empty($title))
 			{
 				return $title;
 			}
 		}
 
-		// Finally fall back to the page title, if this feature is enabled
+		// 04. Joomla! page title, if this feature is enabled
 		if ($useTitle)
 		{
+			$menu        = $this->getApplication()->getMenu();
+			$currentItem = $menu->getActive();
+
 			return $currentItem->getParams()->get('page_title', $this->getApplication()->getDocument()->getTitle());
 		}
 
@@ -160,8 +156,8 @@ trait OpenGraphImageTrait
 					?? $this->getExtraImage('intro', $imageField, $staticImage);
 
 			case 'introfull':
-				return $this->getExtraImage('full', $imageField, $staticImage)
-					?? $this->getExtraImage('intro', $imageField, $staticImage);
+				return $this->getExtraImage('intro', $imageField, $staticImage)
+					?? $this->getExtraImage('full', $imageField, $staticImage);
 
 			case 'customfullintro':
 				return $this->getExtraImage('custom', $imageField, $staticImage)
@@ -170,8 +166,8 @@ trait OpenGraphImageTrait
 
 			case 'customintrofull':
 				return $this->getExtraImage('custom', $imageField, $staticImage)
-					?? $this->getExtraImage('full', $imageField, $staticImage)
-					?? $this->getExtraImage('intro', $imageField, $staticImage);
+					?? $this->getExtraImage('intro', $imageField, $staticImage)
+					?? $this->getExtraImage('full', $imageField, $staticImage);
 
 			case 'intro':
 			case 'fulltext':
@@ -234,7 +230,7 @@ trait OpenGraphImageTrait
 
 		try
 		{
-			if ($this->getApplication()->getDocument()->getType() != 'html')
+			if ($app->getDocument()->getType() != 'html')
 			{
 				return;
 			}
@@ -335,10 +331,6 @@ trait OpenGraphImageTrait
 	 */
 	private function applyOGImage(array $params): void
 	{
-		//$menu        = AbstractMenu::getInstance('site');
-		$menu        = $this->getApplication()->getMenu();
-		$currentItem = $menu->getActive();
-
 		// Get the applicable options
 		$template    = $params['template'];
 		$customText  = $params['custom_text'];
@@ -350,7 +342,7 @@ trait OpenGraphImageTrait
 		$overrideOG  = $params['override_og'] == 1;
 
 		// Get the text to render.
-		$text = $this->getText($currentItem, $customText, $useArticle, $useTitle);
+		$text = $this->getText($customText, $useArticle, $useTitle);
 
 		$templates      = $this->getHelper()->getTemplates();
 		$templateParams = $templates[$template] ?? [];
@@ -379,7 +371,7 @@ trait OpenGraphImageTrait
 		$template = trim(@$this->getApplication()->socialMagickTemplate ?? '') ?: $template;
 
 		// Generate (if necessary) and apply the Open Graph image
-		$this->getHelper()->applyOGImage($text, $template, $extraImage, $overrideOG);
+		$this->getHelper()->applyOGImage($text, (int) $template, $extraImage, $overrideOG);
 	}
 
 	/**

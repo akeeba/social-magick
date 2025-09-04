@@ -9,13 +9,12 @@ namespace Akeeba\Plugin\System\SocialMagick\Field;
 
 defined('_JEXEC') || die();
 
-use Joomla\CMS\Event\GenericEvent;
+use Akeeba\Component\SocialMagick\Administrator\Extension\SocialMagickComponent;
+use Akeeba\Component\SocialMagick\Administrator\Model\TemplatesModel;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\Event\Event;
-use Throwable;
 
 /**
  * Select a SocialMagick template
@@ -37,41 +36,19 @@ class SocialmagicktemplateField extends ListField
 
 	protected function getOptions()
 	{
-		$templates = [];
+		/** @var SocialMagickComponent $extension */
+		$extension = Factory::getApplication()->bootComponent('com_socialmagick');
+		/** @var TemplatesModel $templatesModel */
+		$templatesModel = $extension->getMVCFactory()->createModel('Templates', 'Administrator', ['ignore_request' => true]);
+		$templates      = $templatesModel->listEnabledTemplates();
 
-		try
-		{
-			$app        = Factory::getApplication();
-			$dispatcher = $app->getDispatcher();
-		}
-		catch (Throwable $e)
-		{
-			return [];
-		}
-
-		$event   = new Event('onSocialMagickGetTemplates');
-		$results = $dispatcher->dispatch($event->getName(), $event)->getArgument('result', []) ?: [];
-
-		foreach ($results as $result)
-		{
-			if (empty($result) || !is_array($result))
-			{
-				return [
-					'' => Text::_('PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DISABLED')
-				];
-			}
-
-			$templates = array_merge($templates, array_keys($result));
-		}
-
-		$options = array_map(fn($templateName) => HTMLHelper::_('select.option', $templateName, $templateName), $templates);
-
-		$options = array_merge($options, parent::getOptions() ?? []);
+		$options = array_map(fn($k, $templateName) => HTMLHelper::_('select.option', $k, $templateName), array_keys($templates), array_values($templates));
+		$options = array_merge(parent::getOptions() ?? [], $options);
 
 		if (empty($options))
 		{
 			return [
-				'' => Text::_('PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DISABLED')
+				'' => Text::_('PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_NONE_EXISTS'),
 			];
 		}
 

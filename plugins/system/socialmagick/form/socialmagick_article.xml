@@ -48,8 +48,11 @@
                     type="socialmagicktemplate"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DESC"
+                    validate="options"
                     showon="override:1[AND]generate_images:1"
-            />
+            >
+                <option value="">JGLOBAL_INHERIT</option>
+            </field>
 
             <field
                     name="custom_text"
@@ -95,6 +98,7 @@
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
                     class="btn-group btn-group-yesno"
                     default="customfullintro"
+                    validate="options"
                     showon="override:1[AND]generate_images:1"
             >
                 <option value="none">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
@@ -154,6 +158,7 @@
                     type="list"
                     label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_DESC"
+                    validate="options"
                     default="-1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
@@ -177,6 +182,7 @@
                     type="list"
                     label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_DESC"
+                    validate="options"
                     default="-1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
@@ -228,6 +234,7 @@
                     type="list"
                     label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_DESC"
+                    validate="options"
                     default="-1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>

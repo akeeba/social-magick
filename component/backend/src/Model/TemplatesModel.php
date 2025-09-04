@@ -32,6 +32,36 @@ class TemplatesModel extends ListModel
 		parent::__construct($config, $factory);
 	}
 
+	/**
+	 * Returns a list of all enabled templates.
+	 *
+	 * This is used by SocialmagicktemplateField to get a very quick list of templates without using too much memory.
+	 *
+	 * @return  array
+	 * @since   3.0.0
+	 */
+	public function listEnabledTemplates(): array
+	{
+		/** @var DatabaseDriver $db */
+		$db = $this->getDatabase();
+		$query = $db->createQuery()
+			->select([
+				$db->quoteName('id'),
+				$db->quoteName('title'),
+			])
+			->from($db->quoteName('#__socialmagick_templates'))
+			->where($db->quoteName('enabled') . ' = 1');
+
+		try
+		{
+			return $db->setQuery($query)->loadAssocList('id', 'title') ?: [];
+		}
+		catch (\Exception $e)
+		{
+			return [];
+		}
+	}
+
 	protected function populateState($ordering = 'ordering', $direction = 'asc')
 	{
 		$app = Factory::getApplication();

@@ -21,6 +21,8 @@ use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Database\DatabaseDriver;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
 use Throwable;
 
@@ -49,7 +51,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	private bool $devMode = false;
 
 	/**
-	 * Open Graph image templates, parsed from the plugin options
+	 * Open Graph image templates, loaded from the database
 	 *
 	 * @var   array
 	 * @since 1.0.0
@@ -102,8 +104,9 @@ final class ImageGenerator implements DatabaseAwareInterface
 	 *
 	 * @since   1.0.0
 	 */
-	public function __construct(Registry $pluginParams)
+	public function __construct(Registry $pluginParams, DatabaseInterface $db)
 	{
+		$this->setDatabase($db);
 		$this->devMode             = $pluginParams->get('devmode', 0) == 1;
 		$this->outputFolder        = $pluginParams->get('output_folder', 'images/og-generated') ?: 'images/og-generated';
 		$this->folderLevels        = $pluginParams->get('folder_levels', 0);
@@ -114,7 +117,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		$textDebug    = $pluginParams->get('textdebug', '0') == 1;
 		$quality      = 100 - $pluginParams->get('quality', '95');
 
-		$this->parseImageTemplates($pluginParams->get('og-templates', null));
+		$this->loadImageTemplates();
 
 		switch ($rendererType)
 		{
@@ -143,7 +146,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	 * Generates an Open Graph image given set parameters, and sets appropriate meta tags.
 	 *
 	 * @param   string       $text        Test to overlay on image.
-	 * @param   string       $template    Preset template name.
+	 * @param   int          $templateId  Preset template ID.
 	 * @param   string|null  $extraImage  Additional image to layer below template.
 	 * @param   bool         $force       Should I override an already set OpenGraph image?
 	 *
@@ -151,7 +154,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	 *
 	 * @since   1.0.0
 	 */
-	public function applyOGImage(string $text, string $template, ?string $extraImage = null, bool $force = false): void
+	public function applyOGImage(string $text, int $templateId, ?string $extraImage = null, bool $force = false): void
 	{
 		// Don't try if the server requirements are not met
 		if (!$this->isAvailable())
@@ -186,7 +189,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		// Try to generate (or get an already generated) image
 		try
 		{
-			[$imageURL, $templateHeight, $templateWidth] = $this->getOGImage($text, $template, $extraImage);
+			[$imageURL, $templateHeight, $templateWidth] = $this->getOGImage($text, $templateId, $extraImage);
 		}
 		catch (Exception $e)
 		{
@@ -230,17 +233,15 @@ final class ImageGenerator implements DatabaseAwareInterface
 	/**
 	 * Returns the generated Open Graph image and its information.
 	 *
-	 * @param   string       $text
-	 * @param   string       $template
-	 * @param   string|null  $extraImage
+	 * @param   string       $text        The text to render
+	 * @param   int          $templateId  The template ID
+	 * @param   string|null  $extraImage  The location of the extra image to render
 	 *
 	 * @return  array [$imageURL, $height, $width]
 	 *
-	 * @throws \ImagickException
-	 *
 	 * @since  1.0.0
 	 */
-	public function getOGImage(string $text, string $templateName, ?string $extraImage): array
+	public function getOGImage(string $text, int $templateId, ?string $extraImage): array
 	{
 		// Get the image template
 		$template = array_merge([
@@ -269,7 +270,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 			'image-height'      => 630,
 			'image-x'           => 0,
 			'image-y'           => 0,
-		], $this->templates[$templateName] ?? []);
+		], $this->templates[$templateId] ?? []);
 
 		$templateWidth  = $template['template-w'] ?? 1200;
 		$templateHeight = $template['template-h'] ?? 630;
@@ -280,7 +281,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		$filename         = Path::clean(sprintf("%s/%s/%s.png",
 			JPATH_ROOT,
 			$outputFolder,
-			md5($text . $templateName . serialize($template) . ($extraImage ?? '') . $this->renderer->getOptionsKey())
+			md5($text . $templateId . serialize($template) . ($extraImage ?? '') . $this->renderer->getOptionsKey())
 		));
 		$filename         = FileDistributor::ensureDistributed(dirname($filename), basename($filename), $this->folderLevels);
 		$realRelativePath = ltrim(substr($filename, strlen(JPATH_ROOT)), '/');
@@ -338,8 +339,8 @@ final class ImageGenerator implements DatabaseAwareInterface
 	/**
 	 * Update the last access date/time stamp for an image.
 	 *
-	 * Obviously this only works when we are asked to apply the OpenGraph image. If you have Joomla caching turned on
-	 * this will only be called once every caching period.
+	 * This only works when we are asked to apply the OpenGraph image. If you have Joomla caching turned on, this will
+	 * only be called once every caching period.
 	 *
 	 * @param   string  $hash
 	 *
@@ -393,12 +394,12 @@ final class ImageGenerator implements DatabaseAwareInterface
 	/**
 	 * Deletes generated Open Graph images older than this many days
 	 *
-	 * @param   int  $days     Minimum time since the last access time to warrant image deletion
+	 * @param   int  $days     Minimum time since the last access time to warrant image deletion.
 	 * @param   int  $maxTime  Maximum execution time, in seconds
 	 *
 	 *
-	 * @throws Exception
-	 * @since  1.0.0
+	 * @throws  Exception
+	 * @since   1.0.0
 	 */
 	public function deleteOldImages(int $days, int $maxTime = 5): void
 	{
@@ -495,13 +496,13 @@ final class ImageGenerator implements DatabaseAwareInterface
 	 * @return  void
 	 * @since   2.0.0
 	 */
-	public function setApplication(CMSApplication $app)
+	public function setApplication(CMSApplication $app): void
 	{
 		$this->app = $app;
 	}
 
 	/**
-	 * Get image hashes older then this many days
+	 * Get image hashes older than this many days
 	 *
 	 * @param   int  $days       Number of days since last access
 	 * @param   int  $maxImages  Maximum number of images to return in a single operation
@@ -511,7 +512,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	 * @throws Exception
 	 * @since  1.0.0
 	 */
-	private function getOldImages(int $days = 180, $maxImages = 50): array
+	private function getOldImages(int $days = 180, int $maxImages = 50): array
 	{
 		$db    = $this->getDatabase();
 		$jNow  = new Date();
@@ -526,23 +527,36 @@ final class ImageGenerator implements DatabaseAwareInterface
 	}
 
 	/**
-	 * Parse the image templates from the raw options returned by Joomla
-	 *
-	 * @param   mixed  $ogTemplatesRaw  The raw options returned by Joomla
+	 * Load the image templates from the database
 	 *
 	 * @return  void
 	 *
-	 * @since   1.0.0
+	 * @since   3.0.0
 	 */
-	private function parseImageTemplates($ogTemplatesRaw): void
+	private function loadImageTemplates(): void
 	{
 		$this->templates = [];
-		$ogTemplatesRaw  = empty($ogTemplatesRaw) ? [] : (array) $ogTemplatesRaw;
 
-		foreach ($ogTemplatesRaw as $variables)
+		/** @var DatabaseDriver $db */
+		$db    = $this->getDatabase();
+		$query = $db->createQuery()
+			->select([
+				$db->quoteName('id'),
+				$db->quoteName('params'),
+			])
+			->from($db->quoteName('#__socialmagick_templates'))
+			->where($db->quoteName('enabled') . ' = 1');
+
+		try
 		{
-			$variables                                    = (array) $variables;
-			$this->templates[$variables['template-name']] = $variables;
+			$this->templates = array_map(
+				fn($template) => json_decode($template['params'], true),
+				$db->setQuery($query)->loadAssocList('id', 'params')
+			);
+		}
+		catch (Throwable)
+		{
+			// Swallow the exception; we just have no templates.
 		}
 	}
 }

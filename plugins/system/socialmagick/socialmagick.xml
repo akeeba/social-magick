@@ -57,297 +57,10 @@
                         default="Solid"
                         label="PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_TEMPLATE_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_TEMPLATE_DESC"
+                        validate="options"
                         showon="generate_images:1"
-                />
-
-
-                <field name="og-templates"
-                       type="subform"
-                       multiple="true"
-                       label="Template Options"
-                       min="1">
-                    <form>
-                        <field
-                                name="template-name"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEMPLATE_NAME_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEMPLATE_NAME_DESC"
-                                filter="alphanumeric"
-                        />
-
-                        <field
-                                name="base-image"
-                                type="media"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BASE_IMAGE_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BASE_IMAGE_DESC"
-                                directory="og-templates"
-                        />
-
-                        <field
-                                name="template-w"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEMPLATE_W_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEMPLATE_W_DESC"
-                                filter="integer"
-                                default="1200"
-                        />
-
-                        <field
-                                name="template-h"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEMPLATE_H_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEMPLATE_H_DESC"
-                                filter="integer"
-                                default="630"
-                        />
-
-                        <field
-                                name="base-color"
-                                type="color"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BASE_COLOR_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BASE_COLOR_DESC"
-                                default="#000000"
-                                format="hex"
-                                showon="base-image:"
-                        />
-
-                        <field
-                                name="base-color-alpha"
-                                type="range"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BASE_COLOR_ALPHA_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_BASE_COLOR_ALPHA_DESC"
-                                min="10"
-                                max="100"
-                                default="100"
-                                step="10"
-                                showon="base-image:"
-                        />
-
-                        <field
-                                name="overlay_text"
-                                type="radio"
-                                layout="joomla.form.field.radio.switcher"
-                                label="PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_OVERLAY_TEXT_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_OVERLAY_TEXT_DESC"
-                                class="btn-group btn-group-yesno"
-                                default="1"
-                        >
-                            <option value="0">JNO</option>
-                            <option value="1">JYES</option>
-                        </field>
-
-                        <field
-                                name="text-font"
-                                type="filelist"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_FONT_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_FONT_DESC"
-                                directory="plugins/system/socialmagick/fonts/"
-                                hide_none="true"
-                                hide_default="true"
-                                showon="overlay_text:1"
-                        />
-
-                        <field
-                                name="font-size"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_FONT_SIZE_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_FONT_SIZE_DESC"
-                                filter="integer"
-                                default="24"
-                                showon="overlay_text:1"
-                        />
-
-                        <field
-                                name="text-color"
-                                type="color"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_COLOR_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_COLOR_DESC"
-                                default="#ffffff"
-                                format="hex"
-                                showon="overlay_text:1"
-                        />
-
-                        <field
-                                name="text-height"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_HEIGHT_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_HEIGHT_DESC"
-                                default="630"
-                                filter="integer"
-                                showon="overlay_text:1"
-                        />
-
-                        <field
-                                name="text-width"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_WIDTH_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_WIDTH_DESC"
-                                default="1200"
-                                filter="integer"
-                                showon="overlay_text:1"
-                        />
-
-                        <field
-                                name="text-align"
-                                type="list"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_ALIGN_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_ALIGN_DESC"
-                                default="left"
-                                showon="overlay_text:1"
-                        >
-                            <option value="left">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_ALIGN_OPT_LEFT</option>
-                            <option value="center">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_ALIGN_OPT_CENTER</option>
-                            <option value="right">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_ALIGN_OPT_RIGHT</option>
-                        </field>
-
-                        <field
-                                name="text-y-center"
-                                type="radio"
-                                layout="joomla.form.field.radio.switcher"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_Y_CENTER_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_Y_CENTER_DESC"
-                                class="btn-group btn-group-yesno"
-                                default="1"
-                                showon="overlay_text:1"
-                        >
-                            <option value="0">JNO</option>
-                            <option value="1">JYES</option>
-                        </field>
-
-                        <field
-                                name="text-y-adjust"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_Y_ADJUST_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_Y_ADJUST_DESC"
-                                filter="integer"
-                                default="0"
-                                showon="text-y-center:1[AND]overlay_text:1"
-                        />
-
-                        <field
-                                name="text-y-absolute"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_Y_ABSOLUTE_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_Y_ABSOLUTE_DESC"
-                                filter="integer"
-                                showon="text-y-center:0[AND]overlay_text:1"
-                        />
-
-                        <field
-                                name="text-x-center"
-                                type="radio"
-                                layout="joomla.form.field.radio.switcher"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_X_CENTER_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_X_CENTER_DESC"
-                                class="btn-group btn-group-yesno"
-                                default="1"
-                                showon="overlay_text:1"
-                        >
-                            <option value="0">JNO</option>
-                            <option value="1">JYES</option>
-                        </field>
-
-                        <field
-                                name="text-x-adjust"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_X_ADJUST_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_X_ADJUST_DESC"
-                                filter="integer"
-                                default="0"
-                                showon="text-x-center:1[AND]overlay_text:1"
-                        />
-
-                        <field
-                                name="text-x-absolute"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_X_ABSOLUTE_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TEXT_X_ABSOLUTE_DESC"
-                                filter="integer"
-                                showon="text-x-center:0[AND]overlay_text:1"
-                        />
-
-                        <field
-                                name="use-article-image"
-                                type="radio"
-                                layout="joomla.form.field.radio.switcher"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_USE_ARTICLE_IMAGE_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_USE_ARTICLE_IMAGE_DESC"
-                                class="btn-group btn-group-yesno"
-                                default="0"
-
-                        >
-                            <option value="0">JNO</option>
-                            <option value="1">JYES</option>
-                        </field>
-
-                        <field
-                                name="image-z"
-                                type="radio"
-                                layout="joomla.form.field.radio.switcher"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_Z_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_Z_DESC"
-                                class="btn-group btn-group-yesno"
-                                default="under"
-                                showon="use-article-image:1"
-                        >
-                            <option value="over">PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_Z_OPT_OVER</option>
-                            <option value="under">PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_Z_OPT_UNDER</option>
-                        </field>
-
-                        <field
-                                name="image-cover"
-                                type="radio"
-                                layout="joomla.form.field.radio.switcher"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_COVER_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_COVER_DESC"
-                                class="btn-group btn-group-yesno"
-                                showon="use-article-image:1"
-                                default="1"
-                        >
-                            <option value="0">JNO</option>
-                            <option value="1">JYES</option>
-                        </field>
-
-                        <field
-                                name="image-width"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_WIDTH_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_WIDTH_DESC"
-                                default="1200"
-                                showon="use-article-image:1[AND]image-cover:0"
-                                filter="integer"
-                        />
-
-                        <field
-                                name="image-height"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_HEIGHT_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_HEIGHT_DESC"
-                                default="630"
-                                showon="use-article-image:1[AND]image-cover:0"
-                                filter="integer"
-                        />
-
-                        <field
-                                name="image-x"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_X_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_X_DESC"
-                                default="0"
-                                filter="integer"
-                                showon="use-article-image:1[AND]image-cover:0"
-                        />
-
-                        <field
-                                name="image-y"
-                                type="text"
-                                label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_Y_LABEL"
-                                description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_IMAGE_Y_DESC"
-                                filter="integer"
-                                default="0"
-                                showon="use-article-image:1[AND]image-cover:0"
-                        />
-                    </form>
+                >
+                    <option value="">PLG_SYSTEM_SOCIALMAGICK_FORM_PLUGIN_TEMPLATE_SELECT</option>
                 </field>
             </fieldset>
 
@@ -360,6 +73,7 @@
                         type="list"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_DESC"
+                        validate="options"
                         default="1"
                 >
                     <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_NO</option>
@@ -382,6 +96,7 @@
                         type="list"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_DESC"
+                        validate="options"
                         default="1"
                 >
                     <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_NO</option>
@@ -430,6 +145,7 @@
                         type="list"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_DESC"
+                        validate="options"
                         default="2"
                 >
                     <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_NONE</option>
@@ -607,6 +323,7 @@
                         type="list"
                         label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_LIBRARY_LABEL"
                         description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_LIBRARY_DESC"
+                        validate="options"
                         default="auto"
                 >
                     <option value="auto">PLG_SYSTEM_SOCIALMAGICK_CONFIG_LIBRARY_AUTO</option>

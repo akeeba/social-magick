@@ -30,8 +30,8 @@
     </files>
 
     <languages folder="language">
-        <language tag="en-GB">en-GB/en-GB.plg_system_socialmagick.ini</language>
-        <language tag="en-GB">en-GB/en-GB.plg_system_socialmagick.sys.ini</language>
+        <language tag="en-GB">en-GB/plg_system_socialmagick.ini</language>
+        <language tag="en-GB">en-GB/plg_system_socialmagick.sys.ini</language>
     </languages>
 
     <config>

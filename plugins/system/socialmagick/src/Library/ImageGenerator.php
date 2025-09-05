@@ -27,7 +27,7 @@ use Joomla\Registry\Registry;
 use Throwable;
 
 /**
- * Automatic Open Graph image generator.
+ * Automatic OpenGraph image generator.
  *
  * @since       1.0.0
  */
@@ -51,7 +51,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	private bool $devMode = false;
 
 	/**
-	 * Open Graph image templates, loaded from the database
+	 * OpenGraph image templates, loaded from the database
 	 *
 	 * @var   array
 	 * @since 1.0.0
@@ -143,7 +143,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	}
 
 	/**
-	 * Generates an Open Graph image given set parameters, and sets appropriate meta tags.
+	 * Generates an OpenGraph image given set parameters, and sets appropriate meta tags.
 	 *
 	 * @param   string       $text        Test to overlay on image.
 	 * @param   int          $templateId  Preset template ID.
@@ -178,7 +178,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 			return;
 		}
 
-		// Only run if there's not already an open graph image set or if we're told to forcibly apply one
+		// Only run if there's not already an OpenGraph image set or if we're told to forcibly apply one
 		$ogImage = $document->getMetaData('og:image');
 
 		if (!empty($ogImage) && !$force)
@@ -219,7 +219,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	}
 
 	/**
-	 * Are all the requirements met to automatically generate Open Graph images?
+	 * Are all the requirements met to automatically generate OpenGraph images?
 	 *
 	 * @return  bool
 	 *
@@ -231,7 +231,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	}
 
 	/**
-	 * Returns the generated Open Graph image and its information.
+	 * Returns the generated OpenGraph image and its information.
 	 *
 	 * @param   string       $text        The text to render
 	 * @param   int          $templateId  The template ID
@@ -392,7 +392,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	}
 
 	/**
-	 * Deletes generated Open Graph images older than this many days
+	 * Deletes generated OpenGraph images older than this many days
 	 *
 	 * @param   int  $days     Minimum time since the last access time to warrant image deletion.
 	 * @param   int  $maxTime  Maximum execution time, in seconds

@@ -147,9 +147,8 @@ final class ParametersRetriever
 	public function inheritanceAwareMerge(array $source, array $overrides): array
 	{
 		$overrideImageParams = isset($overrides['override']) && $overrides['override'] == 1;
-		$overrideOGParams    = isset($overrides['og_override']) && $overrides['og_override'] == 1;
 
-		if (!$overrideImageParams && !$overrideOGParams)
+		if (empty($overrides))
 		{
 			return $source;
 		}
@@ -157,7 +156,6 @@ final class ParametersRetriever
 		$temp = [];
 
 		$temp['override'] = $overrideImageParams || ($source['override'] ?? null) == 1 ? 1 : 0;;
-		$temp['og_override'] = $overrideOGParams || ($source['og_override'] ?? null) == 1 ? 1 : 0;;
 
 		foreach ($source as $key => $value)
 		{
@@ -171,18 +169,15 @@ final class ParametersRetriever
 			}
 
 			// Ignore override and og_override; I have already handled that.
-			if (in_array($key, ['override', 'og_override'], true))
+			if (in_array($key, ['override'], true))
 			{
 				continue;
 			}
 
 			// Is it a valid override?
-			$isOGKey = str_starts_with($key, 'og_');
+			$isOGKey = str_starts_with($key, 'og_') || str_starts_with($key, 'twitter_') || str_starts_with($key, 'fb_');
 
-			if (
-				($isOGKey && !$overrideOGParams)
-				|| (!$isOGKey && !$overrideImageParams)
-			)
+			if (!$isOGKey && !$overrideImageParams)
 			{
 				continue;
 			}

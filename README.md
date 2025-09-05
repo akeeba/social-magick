@@ -7,7 +7,7 @@ Automatically generate OpenGraph images for Joomla! content.
 
 ## What is this
 
-This plugin allows you to automatically generate Open Graph images for your site's pages, superimposing text and graphics over an image or a solid colour background. Open Graph images are used by social media sites when sharing a URL to any of your site's pages on them.
+This plugin allows you to automatically generate OpenGraph images for your site's pages, superimposing text and graphics over an image or a solid colour background. Open Graph images are used by social media sites when sharing a URL to any of your site's pages on them.
 
 > [!TIP]
 > If you want to preview your site's OpenGraph images you can use third-party sites such as [metatags.io](https://metatags.io/) and [opengraph.dev](https://opengraph.dev/).
@@ -24,8 +24,8 @@ This plugin has the following minimum requirements:
 
 * Download and install the plugin ZIP file.
 * Publish the System – Social Magick plugin.
-* Edit the menu item you want to have Open Graph images automatically generated. In its “Open Graph images” tab:
-* Set “Generate Open Graph images” to Yes.
+* Edit the menu item you want to have OpenGraph images automatically generated. In its “Open Graph images” tab:
+* Set “Generate OpenGraph images” to Yes.
 * Select the Solid template.
 * Save your menu item.
 * Go to [metatags.io](https://metatags.io/) and paste the URL to the page of your site that corresponds to the menu item you selected. You can now see that it has a preview image.
@@ -51,10 +51,6 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 * [ ] Extra image crop focus: face [gh-10]
 
 #### Notes
-
-Remove now-obsolete translations strings from en-GB.plg_system_socialmagick.ini
-
-Remove the en-GB prefix from the plugin language file.
 
 Make sure that the color is applied even when we do have a template image as long as its opacity is greater than 0.
 

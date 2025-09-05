@@ -20,13 +20,13 @@ use Throwable;
 trait OpenGraphImageTrait
 {
 	/**
-	 * Get the appropriate text for rendering on the auto-generated Open Graph image
+	 * Get the appropriate text for rendering on the auto-generated OpenGraph image
 	 *
 	 * @param   string    $customText   Any custom text the admin has entered for this menu item/
 	 * @param   bool      $useArticle   Should I do a fallback to the core content article's title, if one exists?
 	 * @param   bool      $useTitle     Should I do a fallback to the Joomla page title?
 	 *
-	 * @return  string  The text to render oin the auto-generated Open Graph image.
+	 * @return  string  The text to render oin the auto-generated OpenGraph image.
 	 *
 	 * @since   1.0.0
 	 */
@@ -320,7 +320,7 @@ trait OpenGraphImageTrait
 	}
 
 	/**
-	 * Generate (if necessary) and apply the Open Graph image
+	 * Generate (if necessary) and apply the OpenGraph image
 	 *
 	 * @param   array  $params  Applicable menu parameters, with any overrides already taken into account
 	 *
@@ -370,12 +370,12 @@ trait OpenGraphImageTrait
 		/** @noinspection PhpUndefinedFieldInspection */
 		$template = trim(@$this->getApplication()->socialMagickTemplate ?? '') ?: $template;
 
-		// Generate (if necessary) and apply the Open Graph image
+		// Generate (if necessary) and apply the OpenGraph image
 		$this->getHelper()->applyOGImage($text, (int) $template, $extraImage, $overrideOG);
 	}
 
 	/**
-	 * Apply the additional Open Graph tags
+	 * Apply the additional OpenGraph tags
 	 *
 	 * @param   array  $params  Applicable menu item parameters
 	 *
@@ -384,7 +384,7 @@ trait OpenGraphImageTrait
 	 */
 	private function applyOpenGraphTags(array $params): void
 	{
-		// Apply Open Graph Title
+		// Apply OpenGraph Title
 		switch ($params['og_title'])
 		{
 			case 0:
@@ -399,7 +399,7 @@ trait OpenGraphImageTrait
 				break;
 		}
 
-		// Apply Open Graph Description
+		// Apply OpenGraph Description
 		switch ($params['og_description'])
 		{
 			case 0:
@@ -414,13 +414,13 @@ trait OpenGraphImageTrait
 				break;
 		}
 
-		// Apply Open Graph URL
+		// Apply OpenGraph URL
 		if (($params['og_url'] ?? 1) == 1)
 		{
 			$this->conditionallyApplyMeta('og:url', $this->getApplication()->getDocument()->getBase());
 		}
 
-		// Apply Open Graph Site Name
+		// Apply OpenGraph Site Name
 		if (($params['og_site_name'] ?? 1) == 1)
 		{
 			$this->conditionallyApplyMeta('og:site_name', $this->getApplication()->get('sitename', ''));
@@ -466,7 +466,7 @@ trait OpenGraphImageTrait
 			$this->conditionallyApplyMeta('twitter:creator', $twitterCreator, 'name');
 		}
 
-		// Transcribe Open Graph properties to Twitter meta
+		// Transcribe OpenGraph properties to Twitter meta
 		/** @var HtmlDocument $doc */
 		$doc = $this->getApplication()->getDocument();
 

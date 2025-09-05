@@ -10,7 +10,7 @@ namespace Akeeba\Plugin\System\SocialMagick\Library;
 defined('_JEXEC') || die();
 
 /**
- * Interface for the Open Graph image renderer implementations.
+ * Interface for the OpenGraph image renderer implementations.
  *
  * @since  1.0.0
  */
@@ -25,7 +25,7 @@ interface ImageRendererInterface
 	public function __construct(int $quality = 80, bool $debugText = false);
 
 	/**
-	 * Generate an Open Graph image based on a template and some simple parameters
+	 * Generate an OpenGraph image based on a template and some simple parameters
 	 *
 	 * @param   string       $text        The text to render.
 	 * @param   array        $template    The template to apply.

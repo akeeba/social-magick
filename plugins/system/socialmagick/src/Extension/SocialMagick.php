@@ -24,7 +24,7 @@ use Joomla\Registry\Registry;
 use Throwable;
 
 /**
- * System plugin to automatically generate Open Graph images
+ * System plugin to automatically generate OpenGraph images
  *
  * @since        1.0.0
  *
@@ -81,7 +81,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	/**
 	 * Runs before Joomla renders the HTML document.
 	 *
-	 * This is the main event where Social Magick evaluates whether to apply an Open Graph image to the document.
+	 * This is the main event where Social Magick evaluates whether to apply an OpenGraph image to the document.
 	 *
 	 * @return  void
 	 *
@@ -139,13 +139,13 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 
 		$params['template'] = $templateId;
 
-		// Generate an Open Graph image if supported and if we are requested to do so.
+		// Generate an OpenGraph image if supported and if we are requested to do so.
 		if ($this->getHelper()->isAvailable() && $params['generate_images'] == 1)
 		{
 			$this->applyOGImage($params);
 		}
 
-		// Apply additional Open Graph tags
+		// Apply additional OpenGraph tags
 		$this->applyOpenGraphTags($params);
 	}
 

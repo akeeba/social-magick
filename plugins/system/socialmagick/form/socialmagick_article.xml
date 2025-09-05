@@ -10,20 +10,20 @@
                   label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_FIELDSET_SOCIALMAGICK_HEAD"
 
         >
-            <field
-                    type="note"
-                    class="alert alert-info"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_NOTES"
+            <field name="socialmagick_zzz_001"
+                   type="note"
+                   heading="h4"
+                   label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OPENGRAPH_IMAGE"
+                   class="w-100"
             />
 
-            <field
-                name="override"
-                type="radio"
-                layout="joomla.form.field.radio.switcher"
-                label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
-                description="PLG_SYSTEM_SOCIALMAGICK_FORM_ARTICLE_OVERRIDE_DESC"
-                class="btn-group btn-group-yesno"
-                default="0"
+            <field name="override"
+                   type="radio"
+                   layout="joomla.form.field.radio.switcher"
+                   label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
+                   description="PLG_SYSTEM_SOCIALMAGICK_FORM_ARTICLE_OVERRIDE_DESC"
+                   class="btn-group btn-group-yesno"
+                   default="0"
             >
                 <option value="0">JNO</option>
                 <option value="1">JYES</option>
@@ -32,14 +32,28 @@
             <field
                     name="generate_images"
                     type="radio"
-                    layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_DESC"
                     class="btn-group btn-group-yesno"
-                    default="0"
-                    showon="override:1"
+                    default="-1"
+                    showon="override!:0"
             >
                 <option value="0">JNO</option>
+                <option value="-1">JGLOBAL_INHERIT</option>
+                <option value="1">JYES</option>
+            </field>
+
+            <field
+                    name="override_og"
+                    type="radio"
+                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
+                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
+                    class="btn-group btn-group-yesno"
+                    default="-1"
+                    showon="override!:0[AND]generate_images!:0"
+            >
+                <option value="0">JNO</option>
+                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="1">JYES</option>
             </field>
 
@@ -49,7 +63,7 @@
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DESC"
                     validate="options"
-                    showon="override:1[AND]generate_images:1"
+                    showon="override!:0[AND]generate_images!:0"
             >
                 <option value="">JGLOBAL_INHERIT</option>
             </field>
@@ -60,34 +74,34 @@
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
                     filter="no_html"
-                    showon="override:1[AND]generate_images:1"
-                />
+                    showon="override!:0[AND]generate_images!:0"
+            />
 
             <field
                     name="use_article"
                     type="radio"
-                    layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_DESC"
                     class="btn-group btn-group-yesno"
-                    default="1"
-                    showon="override:1[AND]generate_images:1"
+                    default="-1"
+                    showon="override!:0[AND]generate_images!:0"
             >
                 <option value="0">JNO</option>
+                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="1">JYES</option>
             </field>
 
             <field
                     name="use_title"
                     type="radio"
-                    layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
                     class="btn-group btn-group-yesno"
-                    default="1"
-                    showon="override:1[AND]generate_images:1"
+                    default="-1"
+                    showon="override!:0[AND]generate_images!:0"
             >
                 <option value="0">JNO</option>
+                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="1">JYES</option>
             </field>
 
@@ -97,18 +111,21 @@
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
                     class="btn-group btn-group-yesno"
-                    default="customfullintro"
+                    default=""
                     validate="options"
-                    showon="override:1[AND]generate_images:1"
+                    showon="override!:0[AND]generate_images!:0"
             >
+                <option value="">JGLOBAL_INHERIT</option>
                 <option value="none">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
                 <option value="intro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTRO</option>
                 <option value="fulltext">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLTEXT</option>
                 <option value="custom">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
                 <option value="fullintro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLINTRO</option>
                 <option value="introfull">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTROFULL</option>
-                <option value="customfullintro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO</option>
-                <option value="customintrofull">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMINTROFULL</option>
+                <option value="customfullintro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO
+                </option>
+                <option value="customintrofull">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMINTROFULL
+                </option>
                 <option value="static">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_STATIC</option>
             </field>
 
@@ -117,9 +134,9 @@
                     type="text"
                     label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
-                    default="ogimage"
+                    default=""
                     filter="no_html"
-                    showon="override:1[AND]image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]generate_images:1"
+                    showon="override!:0[AND]image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]generate_images!:0"
             />
 
             <field
@@ -132,25 +149,13 @@
                     showon="image_source:static[AND]generate_images!:0"
             />
 
-            <field
-                    name="override_og"
-                    type="radio"
-                    layout="joomla.form.field.radio.switcher"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="0"
-                    showon="override:1[AND]generate_images:1"
-            >
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
+            <!-- ================================================================================ -->
 
-            <field
-                    type="note"
-                    class="alert alert-info"
-                    label="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_DESC"
+            <field name="socialmagick_zzz_002"
+                   type="note"
+                   heading="h4"
+                   label="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_LABEL"
+                   class="w-100"
             />
 
             <field
@@ -204,28 +209,26 @@
             <field
                     name="og_url"
                     type="radio"
-                    layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
             >
-                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">JNO</option>
+                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="1">JYES</option>
             </field>
 
             <field
                     name="og_site_name"
                     type="radio"
-                    layout="joomla.form.field.radio.switcher"
                     label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_LABEL"
                     description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
             >
-                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="0">JNO</option>
+                <option value="-1">JGLOBAL_INHERIT</option>
                 <option value="1">JYES</option>
             </field>
 

@@ -251,9 +251,10 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		 * - Accessing a regular menu item: you get the `option` from the menu item's `query` array.
 		 * - Accessing an ad-hoc component menu item: you get the `option` from the application's global input object.
 		 */
-		$app           = $this->getApplication();
-		$menuOption    = $activeMenuItem->query['option'] ?? '';
-		$currentOption = $app->getInput()->getCmd('option', $menuOption);
+		$app            = $this->getApplication();
+		$activeMenuItem = $app->getMenu()->getActive();
+		$menuOption     = $activeMenuItem->query['option'] ?? '';
+		$currentOption  = $app->getInput()->getCmd('option', $menuOption);
 
 		if (!empty($menuOption) && ($menuOption !== $currentOption))
 		{

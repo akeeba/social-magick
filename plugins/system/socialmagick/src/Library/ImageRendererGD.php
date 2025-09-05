@@ -55,6 +55,28 @@ class ImageRendererGD extends ImageRendererAbstract implements ImageRendererInte
 		// Get the template's dimensions
 		$templateWidth  = $template['template-w'] ?? 1200;
 		$templateHeight = $template['template-h'] ?? 630;
+		$opacity        = $template['base-color-alpha'];
+
+		// Start with a coloured background.
+		if ($opacity <= 0.001)
+		{
+			// No colour has been specified; use a fully transparent color
+			$alpha           = 127;
+			$colorProperties = [0, 0, 0];
+		}
+		else
+		{
+			// A colour has been specified; break it into R, G, B, and A components/
+			$alpha           = intval(127 - round($opacity / 100 * 127));
+			$colorProperties = $this->hexToRGBA($template['base-color']);
+		}
+
+		$image = imagecreatetruecolor($templateWidth, $templateHeight);
+
+		imagealphablending($image, false);
+		$color = imagecolorallocatealpha($image, $colorProperties[0], $colorProperties[1], $colorProperties[2], $alpha);
+		imagefilledrectangle($image, 0, 0, $templateWidth, $templateHeight, $color);
+		imagealphablending($image, true);
 
 		// Get the base image (resized image file or solid color image)
 		if ($template['base-image'])
@@ -70,21 +92,12 @@ class ImageRendererGD extends ImageRendererAbstract implements ImageRendererInte
 				$baseImage = JPATH_ROOT . '/' . $baseImage;
 			}
 
-			[$image, $baseImageWidth, $baseImageHeight] = $this->loadImageFile($baseImage);
-			$image = $this->resizeImage($image, $baseImageWidth, $baseImageHeight, $templateWidth, $templateHeight);
-		}
-		else
-		{
-			$opacity         = $template['base-color-alpha'];
-			$alpha           = round($opacity * 127);
-			$colorProperties = $this->hexToRGBA($template['base-color']);
+			[$baseImage, $baseImageWidth, $baseImageHeight] = $this->loadImageFile($baseImage);
+			$baseImage = $this->resizeImage($baseImage, $baseImageWidth, $baseImageHeight, $templateWidth, $templateHeight);
 
-			$image = imagecreatetruecolor($templateWidth, $templateHeight);
-
-			imagealphablending($image, false);
-			$color = imagecolorallocatealpha($image, $colorProperties[0], $colorProperties[1], $colorProperties[2], $alpha);
-			imagefilledrectangle($image, 0, 0, $templateWidth, $templateHeight, $color);
 			imagealphablending($image, true);
+			imagecopy($image, $baseImage, 0, 0, 0, 0, $templateWidth, $templateHeight);
+			imagealphablending($image, false);
 		}
 
 		// Layer an extra image, if necessary

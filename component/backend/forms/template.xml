@@ -67,7 +67,6 @@
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_BASE_COLOR_LABEL"
                 default="#000000"
                 format="hex"
-                showon="base-image:"
         />
 
         <field
@@ -79,7 +78,6 @@
                 max="100"
                 default="0"
                 step="1"
-                showon="base-image:"
         />
 
         <field
@@ -117,6 +115,7 @@
                 default="customfullintro"
                 showon="use-article-image:1"
         >
+            <option value="none">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_NONE</option>
             <option value="intro">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_INTRO</option>
             <option value="fulltext">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_FULLTEXT</option>
             <option value="custom">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
@@ -155,7 +154,7 @@
                 description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_DESC"
                 class="btn-group btn-group-yesno"
                 default="under"
-                showon="use-article-image:1"
+                showon="use-article-image:1[AND]image_source!:none"
         >
             <option value="over">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_OPT_OVER</option>
             <option value="under">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_Z_OPT_UNDER</option>
@@ -168,7 +167,7 @@
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_COVER_LABEL"
                 description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_COVER_DESC"
                 class="btn-group btn-group-yesno"
-                showon="use-article-image:1"
+                showon="use-article-image:1[AND]image_source!:none"
                 default="1"
         >
             <option value="0">JNO</option>
@@ -182,7 +181,7 @@
                 description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_WIDTH_DESC"
                 addonAfter="px"
                 default="1200"
-                showon="use-article-image:1[AND]image-cover:0"
+                showon="use-article-image:1[AND]image-cover:0[AND]image_source!:none"
                 filter="integer"
         />
 
@@ -193,7 +192,7 @@
                 description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_HEIGHT_DESC"
                 addonAfter="px"
                 default="630"
-                showon="use-article-image:1[AND]image-cover:0"
+                showon="use-article-image:1[AND]image-cover:0[AND]image_source!:none"
                 filter="integer"
         />
 
@@ -205,7 +204,7 @@
                 addonAfter="px"
                 default="0"
                 filter="integer"
-                showon="use-article-image:1[AND]image-cover:0"
+                showon="use-article-image:1[AND]image-cover:0[AND]image_source!:none"
         />
 
         <field
@@ -216,7 +215,7 @@
                 addonAfter="px"
                 filter="integer"
                 default="0"
-                showon="use-article-image:1[AND]image-cover:0"
+                showon="use-article-image:1[AND]image-cover:0[AND]image_source!:none"
         />
     </fieldset>
 

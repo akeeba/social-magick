@@ -43,6 +43,7 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
 * [ ] "BUG: Preview OpenGraph Image" appears on each article of a category page, but it only links to the category OpenGraph image. DO NOT show on each article, only on the category text.
+* [ ] Image effects: opacity, grayscale, sepia. Adjust them individually.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).
 * [ ] User group restriction for OG image preview (see replaceDebugImagePlaceholder). See notes on [gh-26].
@@ -56,17 +57,6 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 
 #### Notes
 
-Make sure that the color is applied even when we do have a template image as long as its opacity is greater than 0.
-
-Move parameters from the plugin to the component. Currently, plugin parameters are used in:
-
-* \Akeeba\Plugin\System\SocialMagick\Extension\SocialMagick::onBeforeRender
-* \Akeeba\Plugin\System\SocialMagick\Extension\SocialMagick::onContentBeforeDisplay
-* \Akeeba\Plugin\System\SocialMagick\Extension\SocialMagick::onAfterRender
-* \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax::onAjaxSocialmagick
-* \Akeeba\Plugin\System\SocialMagick\Extension\Feature\FormTabs::isMenuItemForComponent
-* \Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait::getHelper
-
 Refactor cleaning old images:
 * Move code from \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax into its own model
 * Create an AJAX handler in the component's frontend
@@ -74,10 +64,5 @@ Refactor cleaning old images:
 * Create a Joomla Scheduled Tasks plugin
 
 Add a preview feature to the component. For the extra image use a 4K stock photo with a person, left aligned.
-
-Add image effects (I need this for myself, basically):
-* opacity
-* grayscale
-* sepia
 
 Add an option to control whether the OpenGraph options should be displayed to menu items that are NOT for articles / categories (we can still generate OG images and select a custom extra image).

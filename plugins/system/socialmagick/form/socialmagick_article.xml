@@ -5,7 +5,7 @@
   ~ @license   GNU General Public License version 3, or later
   -->
 <form>
-    <fields name="socialmagick" addfieldprefix="Akeeba\Plugin\System\SocialMagick\Field">
+    <fields name="socialmagick" addfieldprefix="Akeeba\Component\SocialMagick\Administrator\Field">
         <fieldset name="socialmagick"
                   label="COM_SOCIALMAGICK_FORM_COMMON_FIELDSET_SOCIALMAGICK_HEAD"
 

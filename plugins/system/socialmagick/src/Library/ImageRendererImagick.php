@@ -50,6 +50,26 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		// Setup the base image upon which we will superimpose the layered image (if any) and the text
 		$image = new Imagick();
 
+		// Create a new, transparent backdrop
+		$transparentPixel = new ImagickPixel('transparent');
+		$image->newImage($templateWidth, $templateHeight, $transparentPixel);
+		$transparentPixel->destroy();
+
+		// Replace the backdrop with a solid color backdrop if the opacity is greater than zero.
+		$opacity = $template['base-color-alpha'];
+
+		if ($opacity > 0.0001)
+		{
+			$alpha   = round($opacity * 255);
+			$hex     = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
+			$pixel   = new ImagickPixel($template['base-color'] . $hex);
+
+			$image->newImage($templateWidth, $templateHeight, $pixel);
+
+			$pixel->destroy();
+		}
+
+		// Overlay the base image
 		if ($template['base-image'])
 		{
 			// So, Joomla 4 adds some crap to the image. Let's fix that.
@@ -63,19 +83,11 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 				$baseImage = JPATH_ROOT . '/' . $baseImage;
 			}
 
-			$image = $this->resize($baseImage, $templateWidth, $templateHeight);
-		}
-		else
-		{
-			/* New image */
-			$opacity = $template['base-color-alpha'];
-			$alpha   = round($opacity * 255);
-			$hex     = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
-			$pixel   = new ImagickPixel($template['base-color'] . $hex);
+			$tmpImg = $this->resize($baseImage, $templateWidth, $templateHeight);
+			$imgX   = 0;
+			$imgY   = 0;
 
-			$image->newImage($templateWidth, $templateHeight, $pixel);
-
-			$pixel->destroy();
+			$image->compositeImage($tmpImg, Imagick::COMPOSITE_OVER, $imgX, $imgY);
 		}
 
 		// Add extra image
@@ -93,7 +105,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 				$imgY   = 0;
 				$extraCanvas->compositeImage(
 					$tmpImg,
-					Imagick::COMPOSITE_OVER,
+					Imagick::COMPOSITE_DEFAULT,
 					(int) $imgX,
 					(int) $imgY
 				);

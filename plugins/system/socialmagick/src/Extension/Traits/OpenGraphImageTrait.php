@@ -304,11 +304,11 @@ trait OpenGraphImageTrait
 
 		$imageLink = ($this->getApplication()->getDocument()->getMetaData('og:image') ?: $this->getApplication()->getDocument()->getMetaData('twitter:image')) ?: '';
 
-		$this->loadLanguage();
+		$this->loadLanguage('com_socialmagick', JPATH_ADMINISTRATOR);
 
-		$message = Text::_('PLG_SYSTEM_SOCIALMAGICK_DEBUGLINK_MESSAGE');
+		$message = Text::_('COM_SOCIALMAGICK_LBL_DEBUGLINK_MESSAGE');
 
-		if ($message == 'PLG_SYSTEM_SOCIALMAGICK_DEBUGLINK_MESSAGE')
+		if ($message == 'COM_SOCIALMAGICK_LBL_DEBUGLINK_MESSAGE')
 		{
 			/** @noinspection HtmlUnknownTarget */
 			$message = "<a href=\"%s\" target=\"_blank\">Preview OpenGraph Image</a>";

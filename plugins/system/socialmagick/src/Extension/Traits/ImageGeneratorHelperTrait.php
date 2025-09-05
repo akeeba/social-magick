@@ -10,6 +10,7 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension\Traits;
 \defined('_JEXEC') || die;
 
 use \Akeeba\Plugin\System\SocialMagick\Library\ImageGenerator;
+use Joomla\CMS\Component\ComponentHelper;
 
 trait ImageGeneratorHelperTrait
 {
@@ -24,7 +25,7 @@ trait ImageGeneratorHelperTrait
 	protected function getHelper(): ?ImageGenerator
 	{
 		$this->helper ??= call_user_func(function () {
-			$helper = new ImageGenerator($this->params, $this->getDatabase());
+			$helper = new ImageGenerator(ComponentHelper::getComponent('com_socialmagick', true)->getParams(), $this->getDatabase());
 			/** @noinspection PhpParamsInspection */
 			$helper->setApplication($this->getApplication());
 

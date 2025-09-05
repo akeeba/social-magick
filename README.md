@@ -7,7 +7,7 @@ Automatically generate OpenGraph images for Joomla! content.
 
 ## What is this
 
-This plugin allows you to automatically generate OpenGraph images for your site's pages, superimposing text and graphics over an image or a solid colour background. Open Graph images are used by social media sites when sharing a URL to any of your site's pages on them.
+This plugin allows you to automatically generate OpenGraph images for your site's pages, superimposing text and graphics over an image or a solid colour background. OpenGraph images are used by social media sites when sharing a URL to any of your site's pages on them.
 
 > [!TIP]
 > If you want to preview your site's OpenGraph images you can use third-party sites such as [metatags.io](https://metatags.io/) and [opengraph.dev](https://opengraph.dev/).
@@ -24,7 +24,7 @@ This plugin has the following minimum requirements:
 
 * Download and install the plugin ZIP file.
 * Publish the System – Social Magick plugin.
-* Edit the menu item you want to have OpenGraph images automatically generated. In its “Open Graph images” tab:
+* Edit the menu item you want to have OpenGraph images automatically generated. In its “OpenGraph images” tab:
 * Set “Generate OpenGraph images” to Yes.
 * Select the Solid template.
 * Save your menu item.
@@ -49,6 +49,7 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 * [ ] User group restriction / optional feature to display the debug image placeholder after clicking a button placed inline the article content. Unlike the debug feature, this would be possible to leave always enabled if needed. See notes on [gh-26].
 * [ ] Rewrite documentation as DocBook XML [gh-14]
 * [ ] Document that `imagick` or `gd` are required. Explain how you can use the PHP Information page in Joomla to determine if they are installed. Explain that if it's not enabled you can do that from the hosting control panel, or ask your host.
+* [ ] Document that the lang strings are in the backend, but the overrides must be set for BOTH backend AND frontend
 * [ ] Support SVGs. They can (usually) be rasterised using ImageMagick, see https://stackoverflow.com/questions/4809194/convert-svg-image-to-jpg-with-php  For GD see https://packagist.org/packages/meyfa/php-svg
 * [ ] Extra image crop focus: face [gh-10]
 * [ ] Auto-generating article intro and/or full text images [gh-6] (Check that the cache ID / sum matches the one used for the current intro image; we may have to store extra info in the article.)

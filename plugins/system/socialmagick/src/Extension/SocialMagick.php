@@ -15,6 +15,7 @@ use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\OpenGraphImageTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
@@ -104,9 +105,9 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		// Populate $this->article and $this->content, if they exist
 		$this->handleCoreContentMenuItems();
 
-		// Start with the plugin parameters
+		// Start with the component parameters
 		$parametersRetriever = $this->getParamsRetriever();
-		$params              = array_merge($parametersRetriever->getDefaultParameters(), $this->params->toArray());
+		$params              = array_merge($parametersRetriever->getDefaultParameters(), $this->getComponentParams());
 
 		if ($this->article)
 		{
@@ -133,7 +134,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		 * * Fallback to 0 which just uses some rather useless defaults.
 		 */
 		$firstTemplateKey          = array_key_first($this->getHelper()->getTemplates() ?? []);
-		$configuredDefaultTemplate = $this->params->get('default_template', $firstTemplateKey) ?: null;
+		$configuredDefaultTemplate = ($this->getComponentParams()['default_template'] ?? $firstTemplateKey) ?: null;
 		$templateFromParams        = ($params['template'] ?? null) ?: null;
 		$templateId                = $templateFromParams ?? $configuredDefaultTemplate ?? $firstTemplateKey ?? 0;
 
@@ -205,7 +206,9 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		}
 
 		// Add the debug link if necessary
-		if ($this->params->get('debuglink', 0) == 1)
+		$cParams = $this->getComponentParams();
+
+		if (($cParams['debuglink'] ?? 0) == 1)
 		{
 			$result[] = $this->getDebugLinkPlaceholder();
 
@@ -226,12 +229,16 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	public function onAfterRender(Event $event): void
 	{
-		if ($this->params->get('add_og_declaration', '1') == 1)
+		$cParams          = $this->getComponentParams();
+		$addOgDeclaration = (bool) ($cParams['add_og_declaration'] ?? 1);
+		$debugLink        = (bool) ($cParams['debuglink'] ?? 0);
+
+		if ($addOgDeclaration)
 		{
 			$this->addOgPrefixToHtmlDocument();
 		}
 
-		if ($this->params->get('debuglink', 0) == 1)
+		if ($debugLink)
 		{
 			$this->replaceDebugImagePlaceholder();
 		}
@@ -311,6 +318,14 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	private function shouldProcessOpenGraph(): bool
 	{
+		// Is com_socialmagick installed and enabled on this site?
+		$record = ComponentHelper::getComponent('com_socialmagick', true);
+
+		if (!$record || !$record->enabled)
+		{
+			return false;
+		}
+
 		// Is this the frontend HTML application?
 		try
 		{
@@ -348,5 +363,44 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the com_socialmagick parameters
+	 *
+	 * @return  array
+	 * @since   3.0.0
+	 */
+	private function getComponentParams(): array
+	{
+		$record = ComponentHelper::getComponent('com_socialmagick', true);
+
+		if (!$record || !$record->enabled)
+		{
+			return [];
+		}
+
+		$params = $record->params;
+
+		if (is_array($params))
+		{
+			return $params;
+		}
+
+		if ($params instanceof Registry)
+		{
+			return $params->toArray();
+		}
+
+		try
+		{
+			$params = new Registry($params);
+		}
+		catch (\Throwable)
+		{
+			return [];
+		}
+
+		return $params->toArray();
 	}
 }

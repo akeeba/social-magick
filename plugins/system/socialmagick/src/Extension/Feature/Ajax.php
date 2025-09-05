@@ -7,6 +7,7 @@
 
 namespace Akeeba\Plugin\System\SocialMagick\Extension\Feature;
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\Event\Event;
 
 trait Ajax
@@ -21,9 +22,10 @@ trait Ajax
 	 */
 	public function onAjaxSocialmagick(Event $event)
 	{
-		$key     = trim($this->params->get('cron_url_key', ''));
-		$maxExec = max(1, (int) $this->params->get('cron_max_exec', 20));
-		$days    = max(1, (int) $this->params->get('old_images_after', 180));
+		$cParams = ComponentHelper::getComponent('com_socialmagick', true)->getParams();
+		$key     = trim($cParams->get('cron_url_key', ''));
+		$maxExec = max(1, (int) $cParams->get('cron_max_exec', 20));
+		$days    = max(1, (int) $cParams->get('old_images_after', 180));
 
 		if (empty($key))
 		{

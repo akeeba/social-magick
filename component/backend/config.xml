@@ -5,7 +5,294 @@
   ~ @license   GNU General Public License version 3, or later
   -->
 <config>
-    <inlinehelp button="show"/>
+    <inlinehelp button="show" addfieldprefix="Akeeba\Component\SocialMagick\Administrator\Field"/>
+
+    <fieldset name="basic"
+              label="COM_SOCIALMAGICK_CONFIG_FIELDSET_BASIC_LABEL">
+        <field
+                name="generate_images"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_GENERATE_IMAGES_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_GENERATE_IMAGES_DESC"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="template"
+                type="socialmagicktemplate"
+                default="Solid"
+                label="COM_SOCIALMAGICK_CONFIG_TEMPLATE_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_TEMPLATE_DESC"
+                validate="options"
+                showon="generate_images:1"
+        >
+            <option value="">COM_SOCIALMAGICK_CONFIG_TEMPLATE_SELECT</option>
+        </field>
+    </fieldset>
+
+    <fieldset name="ogtags"
+              label="COM_SOCIALMAGICK_CONFIG_FIELDSET_OGTAGS_LABEL"
+    >
+        <field
+                name="og_title"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_OG_TITLE_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OG_TITLE_DESC"
+                validate="options"
+                default="1"
+        >
+            <option value="0">COM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_NO</option>
+            <option value="1">COM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_JOOMLA</option>
+            <option value="2">COM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_CUSTOM</option>
+        </field>
+
+        <field
+                name="og_title_custom"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_DESC"
+                default=""
+                filter="no_html"
+                showon="og_title:2"
+        />
+
+        <field
+                name="og_description"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_DESC"
+                validate="options"
+                default="1"
+        >
+            <option value="0">COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_NO</option>
+            <option value="1">COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_JOOMLA</option>
+            <option value="2">COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_CUSTOM</option>
+        </field>
+
+        <field
+                name="og_description_custom"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_DESC"
+                default=""
+                filter="no_html"
+                showon="og_description:2"
+        />
+
+        <field
+                name="og_url"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_OG_URL_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OG_URL_DESC"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="og_site_name"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_DESC"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="twitter_card"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_DESC"
+                validate="options"
+                default="2"
+        >
+            <option value="0">COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_NONE</option>
+            <option value="1">COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_SUMMARY</option>
+            <option value="2">COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_SUMMARY_LARGE</option>
+        </field>
+
+        <field
+                name="twitter_site"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_TWITTER_SITE_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_TWITTER_SITE_DESC"
+                default=""
+                filter="no_html"
+                showon="twitter_card!:0"
+        />
+
+        <field
+                name="twitter_creator"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_DESC"
+                default=""
+                filter="no_html"
+                showon="twitter_card!:0"
+        />
+
+        <field
+                name="fb_app_id"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_FB_APP_ID_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FB_APP_ID_DESC"
+                default=""
+                filter="no_html"
+        />
+
+    </fieldset>
+
+    <fieldset name="oldimages"
+              label="COM_SOCIALMAGICK_CONFIG_FIELDSET_OLDIMAGES_LABEL"
+              description="COM_SOCIALMAGICK_CONFIG_FIELDSET_OLDIMAGES_DESC"
+    >
+        <field
+                name="old_images_after"
+                type="number"
+                label="COM_SOCIALMAGICK_CONFIG_OLD_IMAGES_AFTER_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OLD_IMAGES_AFTER_DESC"
+                default="180"
+                min="1"
+                max="3650"
+                filter="integer"
+        />
+
+        <field
+                name="pseudo_cron"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_ADD_PSEUDO_CRON_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_ADD_PSEUDO_CRON_DESC"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="cron_url_key"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_CRON_URL_KEY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_CRON_URL_KEY_DESC"
+                filter="plaintext"
+        />
+
+        <field
+                name="cron_max_exec"
+                type="number"
+                label="COM_SOCIALMAGICK_CONFIG_CRON_MAX_EXEC_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_CRON_MAX_EXEC_DESC"
+                default="20"
+                min="1"
+                max="120"
+                filter="integer"
+        />
+
+    </fieldset>
+
+    <fieldset name="advanced"
+              label="COM_SOCIALMAGICK_CONFIG_FIELDSET_ADVANCED_LABEL">
+        <field
+                name="output_folder"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_OUTPUT_FOLDER_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_OUTPUT_FOLDER_DESC"
+                default="images/og-generated"
+                filter="path"
+        />
+
+        <field
+                name="folder_levels"
+                type="number"
+                label="COM_SOCIALMAGICK_CONFIG_FOLDER_LEVELS_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FOLDER_LEVELS_DESC"
+                default="0"
+                min="0"
+                max="5"
+                filter="integer"
+        />
+
+        <field
+                name="add_og_declaration"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_ADD_OG_DECLARATION_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_ADD_OG_DECLARATION_DESC"
+                default="1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="quality"
+                type="range"
+                label="COM_SOCIALMAGICK_CONFIG_QUALITY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_QUALITY_DESC"
+                min="1"
+                max="99"
+                default="95"
+                step="1"
+        />
+
+        <field
+                name="devmode"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_DEVMODE_LABEL"
+                default="0"
+                description="COM_SOCIALMAGICK_CONFIG_DEVMODE_DESC"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="textdebug"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_TEXTDEBUG_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_TEXTDEBUG_DESC"
+                default="0"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="debuglink"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_CONFIG_DEBUGLINK_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_DEBUGLINK_DESC"
+                default="0"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="library"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_LIBRARY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_LIBRARY_DESC"
+                validate="options"
+                default="auto"
+        >
+            <option value="auto">COM_SOCIALMAGICK_CONFIG_LIBRARY_AUTO</option>
+            <option value="imagick">COM_SOCIALMAGICK_CONFIG_LIBRARY_IMAGICK</option>
+            <option value="gd">COM_SOCIALMAGICK_CONFIG_LIBRARY_GD</option>
+        </field>
+    </fieldset>
 
     <fieldset
             name="permissions"

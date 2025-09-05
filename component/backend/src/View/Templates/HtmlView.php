@@ -180,6 +180,8 @@ class HtmlView extends BaseHtmlView
 			}
 		}
 
+		ToolbarHelper::preferences('com_socialmagick');
+
 		//ToolbarHelper::help(null, false, 'https://www.akeeba.com/documentation/socialmagick/templates.html');
 	}
 

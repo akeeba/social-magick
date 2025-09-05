@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Plugin\System\SocialMagick\Field;
+namespace Akeeba\Component\SocialMagick\Administrator\Field;
 
 defined('_JEXEC') || die();
 
@@ -48,7 +48,7 @@ class SocialmagicktemplateField extends ListField
 		if (empty($options))
 		{
 			return [
-				'' => Text::_('PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_NONE_EXISTS'),
+				'' => Text::_('COM_SOCIALMAGICK_CONFIG_TEMPLATE_LBL_NONE_EXISTS'),
 			];
 		}
 

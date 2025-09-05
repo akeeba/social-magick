@@ -7,21 +7,21 @@
 <form>
     <fields name="socialmagick" addfieldprefix="Akeeba\Plugin\System\SocialMagick\Field">
         <fieldset name="socialmagick"
-                  label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_FIELDSET_SOCIALMAGICK_HEAD"
+                  label="COM_SOCIALMAGICK_FORM_COMMON_FIELDSET_SOCIALMAGICK_HEAD"
 
         >
             <field name="socialmagick_zzz_001"
                    type="note"
                    heading="h4"
-                   label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OPENGRAPH_IMAGE"
+                   label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OPENGRAPH_IMAGE"
                    class="w-100"
             />
 
             <field name="override"
                    type="radio"
                    layout="joomla.form.field.radio.switcher"
-                   label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
-                   description="PLG_SYSTEM_SOCIALMAGICK_FORM_ARTICLE_OVERRIDE_DESC"
+                   label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
+                   description="COM_SOCIALMAGICK_FORM_ARTICLE_OVERRIDE_DESC"
                    class="btn-group btn-group-yesno"
                    default="0"
             >
@@ -32,8 +32,8 @@
             <field
                     name="generate_images"
                     type="radio"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
                     showon="override!:0"
@@ -46,8 +46,8 @@
             <field
                     name="override_og"
                     type="radio"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
                     showon="override!:0[AND]generate_images!:0"
@@ -60,8 +60,8 @@
             <field
                     name="template"
                     type="socialmagicktemplate"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_DESC"
                     validate="options"
                     showon="override!:0[AND]generate_images!:0"
             >
@@ -71,8 +71,8 @@
             <field
                     name="custom_text"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
                     filter="no_html"
                     showon="override!:0[AND]generate_images!:0"
             />
@@ -80,8 +80,8 @@
             <field
                     name="use_article"
                     type="radio"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
                     showon="override!:0[AND]generate_images!:0"
@@ -94,8 +94,8 @@
             <field
                     name="use_title"
                     type="radio"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
                     showon="override!:0[AND]generate_images!:0"
@@ -108,32 +108,32 @@
             <field
                     name="image_source"
                     type="list"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
                     class="btn-group btn-group-yesno"
                     default=""
                     validate="options"
                     showon="override!:0[AND]generate_images!:0"
             >
                 <option value="">JGLOBAL_INHERIT</option>
-                <option value="none">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
-                <option value="intro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTRO</option>
-                <option value="fulltext">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLTEXT</option>
-                <option value="custom">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
-                <option value="fullintro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLINTRO</option>
-                <option value="introfull">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTROFULL</option>
-                <option value="customfullintro">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO
+                <option value="none">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
+                <option value="intro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTRO</option>
+                <option value="fulltext">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLTEXT</option>
+                <option value="custom">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
+                <option value="fullintro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLINTRO</option>
+                <option value="introfull">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTROFULL</option>
+                <option value="customfullintro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO
                 </option>
-                <option value="customintrofull">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMINTROFULL
+                <option value="customintrofull">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMINTROFULL
                 </option>
-                <option value="static">PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_STATIC</option>
+                <option value="static">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_STATIC</option>
             </field>
 
             <field
                     name="image_field"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
                     default=""
                     filter="no_html"
                     showon="override!:0[AND]image_source:custom[OR]image_source:customfullintro[OR]image_source:customintrofull[AND]generate_images!:0"
@@ -142,8 +142,8 @@
             <field
                     name="static_image"
                     type="media"
-                    label="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_DESC"
+                    label="COM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_LABEL"
+                    description="COM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_DESC"
                     hide_none="1"
                     default=""
                     showon="image_source:static[AND]generate_images!:0"
@@ -154,29 +154,29 @@
             <field name="socialmagick_zzz_002"
                    type="note"
                    heading="h4"
-                   label="PLG_SYSTEM_SOCIALMAGICK_OGTAGS_FIELDSET_LABEL"
+                   label="COM_SOCIALMAGICK_CONFIG_FIELDSET_OGTAGS_LABEL"
                    class="w-100"
             />
 
             <field
                     name="og_title"
                     type="list"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_OG_TITLE_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_OG_TITLE_DESC"
                     validate="options"
                     default="-1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_NO</option>
-                <option value="1">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_JOOMLA</option>
-                <option value="2">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_CUSTOM</option>
+                <option value="0">COM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_NO</option>
+                <option value="1">COM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_JOOMLA</option>
+                <option value="2">COM_SOCIALMAGICK_CONFIG_OG_TITLE_OPT_CUSTOM</option>
             </field>
 
             <field
                     name="og_title_custom"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_OG_TITLE_CUSTOM_DESC"
                     default=""
                     filter="no_html"
                     showon="og_title:2"
@@ -185,22 +185,22 @@
             <field
                     name="og_description"
                     type="list"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_DESC"
                     validate="options"
                     default="-1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_NO</option>
-                <option value="1">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_JOOMLA</option>
-                <option value="2">PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_CUSTOM</option>
+                <option value="0">COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_NO</option>
+                <option value="1">COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_JOOMLA</option>
+                <option value="2">COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_OPT_CUSTOM</option>
             </field>
 
             <field
                     name="og_description_custom"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_OG_DESCRIPTION_CUSTOM_DESC"
                     default=""
                     filter="no_html"
                     showon="og_description:2"
@@ -209,8 +209,8 @@
             <field
                     name="og_url"
                     type="radio"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_URL_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_OG_URL_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_OG_URL_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
             >
@@ -222,8 +222,8 @@
             <field
                     name="og_site_name"
                     type="radio"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_OG_SITE_NAME_DESC"
                     class="btn-group btn-group-yesno"
                     default="-1"
             >
@@ -235,22 +235,22 @@
             <field
                     name="twitter_card"
                     type="list"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_DESC"
                     validate="options"
                     default="-1"
             >
                 <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="0">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_NONE</option>
-                <option value="1">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_SUMMARY</option>
-                <option value="2">PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_SUMMARY_LARGE</option>
+                <option value="0">COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_NONE</option>
+                <option value="1">COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_SUMMARY</option>
+                <option value="2">COM_SOCIALMAGICK_CONFIG_TWITTER_CARD_OPT_SUMMARY_LARGE</option>
             </field>
 
             <field
                     name="twitter_site"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_SITE_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_SITE_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_TWITTER_SITE_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_TWITTER_SITE_DESC"
                     default=""
                     filter="no_html"
                     showon="twitter_card!:0"
@@ -259,8 +259,8 @@
             <field
                     name="twitter_creator"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_TWITTER_CREATOR_DESC"
                     default=""
                     filter="no_html"
                     showon="twitter_card!:0"
@@ -269,8 +269,8 @@
             <field
                     name="fb_app_id"
                     type="text"
-                    label="PLG_SYSTEM_SOCIALMAGICK_CONFIG_FB_APP_ID_LABEL"
-                    description="PLG_SYSTEM_SOCIALMAGICK_CONFIG_FB_APP_ID_DESC"
+                    label="COM_SOCIALMAGICK_CONFIG_FB_APP_ID_LABEL"
+                    description="COM_SOCIALMAGICK_CONFIG_FB_APP_ID_DESC"
                     default=""
                     filter="no_html"
             />

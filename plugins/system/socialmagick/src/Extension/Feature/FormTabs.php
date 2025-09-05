@@ -48,8 +48,7 @@ trait FormTabs
 			return;
 		}
 
-		$this->loadLanguage();
-		$this->loadLanguage('plg_system_socialmagick.sys');
+		$this->loadLanguage('com_socialmagick', JPATH_ADMINISTRATOR);
 
 		Form::addFormPath(__DIR__ . '/../../../form');
 

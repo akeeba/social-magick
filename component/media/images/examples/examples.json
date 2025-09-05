@@ -1,0 +1,37 @@
+{
+	"alipazani": {
+		"source": "https://www.pexels.com/photo/woman-in-black-double-button-jacket-2887766/",
+		"credits": "Ali Pazani",
+		"width": "2500",
+		"height": "3125",
+		"comment": "Portrait photo, subject towards top-left"
+	},
+	"eren-sever": {
+		"source": "https://www.pexels.com/photo/cappadocia-hot-air-balloons-at-sunrise-33704657/",
+		"credits": "Eren Sever",
+		"width": "3841",
+		"height": "3841",
+		"comment": "Square, multiple subjects"
+	},
+	"olly": {
+		"source": "https://www.pexels.com/photo/man-leaning-against-wall-using-laptop-941572/",
+		"credits": "Andrea Piacquadio",
+		"width": "6000",
+		"height": "4000",
+		"comment": "Landscape photo, subject on the left"
+	},
+	"xtrovarts": {
+		"source": "https://www.pexels.com/photo/a-woman-in-a-yellow-dress-holding-a-fan-20291662/",
+		"credits": "Shedrack Salami",
+		"width": "3000",
+		"height": "2000",
+		"comment": "Landscape photo, subject on the right"
+	},
+	"danxavier": {
+		"source": "https://www.pexels.com/photo/woman-wearing-black-eyeglasses-1239291/",
+		"credits": "Daniel Xavier",
+		"width": "6000",
+		"height": "4000",
+		"comment": "Landscape photo, subject on the centre"
+	}
+}

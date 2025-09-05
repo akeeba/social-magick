@@ -42,13 +42,16 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
+* [ ] "BUG: Preview OpenGraph Image" appears on each article of a category page, but it only links to the category OpenGraph image. DO NOT show on each article, only on the category text.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).
 * [ ] User group restriction for OG image preview (see replaceDebugImagePlaceholder). See notes on [gh-26].
 * [ ] User group restriction / optional feature to display the debug image placeholder after clicking a button placed inline the article content. Unlike the debug feature, this would be possible to leave always enabled if needed. See notes on [gh-26].
 * [ ] Rewrite documentation as DocBook XML [gh-14]
-* [ ] Auto-generating article intro and/or full text images [gh-6]
+* [ ] Document that `imagick` or `gd` are required. Explain how you can use the PHP Information page in Joomla to determine if they are installed. Explain that if it's not enabled you can do that from the hosting control panel, or ask your host.
+* [ ] Support SVGs. They can (usually) be rasterised using ImageMagick, see https://stackoverflow.com/questions/4809194/convert-svg-image-to-jpg-with-php  For GD see https://packagist.org/packages/meyfa/php-svg
 * [ ] Extra image crop focus: face [gh-10]
+* [ ] Auto-generating article intro and/or full text images [gh-6] (Check that the cache ID / sum matches the one used for the current intro image; we may have to store extra info in the article.)
 
 #### Notes
 
@@ -69,7 +72,7 @@ Refactor cleaning old images:
 * Create a CLI plugin
 * Create a Joomla Scheduled Tasks plugin
 
-Add a preview feature to the component. For the extra image use a 4K stock photo with a person, left aligned. 
+Add a preview feature to the component. For the extra image use a 4K stock photo with a person, left aligned.
 
 Add image effects (I need this for myself, basically):
 * opacity

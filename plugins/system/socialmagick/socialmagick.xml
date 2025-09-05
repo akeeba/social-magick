@@ -20,7 +20,6 @@
     <files>
         <folder>fonts</folder>
         <folder>form</folder>
-        <folder>images</folder>
         <folder plugin="socialmagick">services</folder>
         <folder>sql</folder>
         <folder>src</folder>

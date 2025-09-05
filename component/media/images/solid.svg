@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!---
+  - Social Magick – Automatically generate OpenGraph images on your site
+  -
+  - @package   socialmagick
+  - @copyright Copyright 2021-2025 Lucid Fox
+  - @license   GNU GPL v3 or later
+  -->
+
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1200"
+   height="630"
+   viewBox="0 0 1200 630"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   sodipodi:docname="solid.svg"
+   xml:space="preserve"
+   inkscape:export-filename="solid.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"><title
+     id="title1">Social Magick &quot;Cutout&quot; template </title><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="0.79019183"
+     inkscape:cx="434.70457"
+     inkscape:cy="178.43768"
+     inkscape:window-width="2400"
+     inkscape:window-height="1279"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showguides="true"
+     labelstyle="default"><inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="10"
+       enabled="true"
+       visible="true"
+       dotted="false" /><sodipodi:guide
+       position="600,630"
+       orientation="-1,0"
+       id="guide1"
+       inkscape:locked="false"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" /><sodipodi:guide
+       position="0,315"
+       orientation="0,1"
+       id="guide2"
+       inkscape:locked="false"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" /><sodipodi:guide
+       position="900,630"
+       orientation="-1,0"
+       id="guide3"
+       inkscape:locked="false"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" /></sodipodi:namedview><defs
+     id="defs1" /><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"><rect
+       style="opacity:1;fill:#339092;fill-opacity:1;stroke:none;stroke-width:2.50998"
+       id="rect3"
+       width="1200"
+       height="630"
+       x="0"
+       y="0" /><g
+       id="g3"
+       transform="matrix(0.80215384,0,0,0.80215384,274.33121,180.8798)"
+       style="fill:#f9f9f9"><text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#f9f9f9;fill-opacity:1;stroke:#000000"
+         x="140"
+         y="540"
+         id="text3"><tspan
+           sodipodi:role="line"
+           id="tspan3"
+           x="140"
+           y="540"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;font-family:'Noto Sans';-inkscape-font-specification:'Noto Sans';stroke:none;fill:#f9f9f9">link preview powered by Social Magick</tspan></text><path
+         style="fill:#f9f9f9;stroke-width:0.226725"
+         d="m 109.81454,544.95137 c -0.84949,-0.0864 -2.05022,-0.36517 -2.8559,-0.66301 -0.56688,-0.20955 -1.6202,-0.72674 -2.13914,-1.05034 -1.91264,-1.1927 -3.41731,-2.84965 -4.40521,-4.85107 -0.60012,-1.21582 -0.90452,-2.18552 -1.1414,-3.63612 -0.0583,-0.35704 -0.0683,-0.99507 -0.0814,-5.21781 -0.0155,-4.98097 -0.005,-5.39971 0.15093,-6.28421 0.42116,-2.38226 1.48707,-4.47879 3.15141,-6.19848 1.93529,-1.99966 4.09493,-3.10887 6.9573,-3.57335 0.37776,-0.0613 0.94033,-0.0705 5.15402,-0.084 l 4.72997,-0.0152 -0.44369,-0.26142 c -0.61448,-0.36205 -1.38184,-0.73209 -2.12791,-1.02613 -0.69909,-0.27553 -0.90078,-0.40135 -1.08199,-0.67491 -0.18759,-0.28321 -0.26067,-0.5469 -0.23828,-0.85976 0.0369,-0.51503 0.33865,-0.9462 0.81051,-1.15796 0.21827,-0.098 0.27691,-0.1069 0.59068,-0.0901 0.3051,0.0164 0.42116,0.0475 0.93459,0.25054 1.12264,0.44401 2.38627,1.1011 3.33538,1.73438 1.09187,0.72853 1.91129,1.41742 4.26526,3.58582 0.54478,0.50183 1.21792,1.11749 1.49587,1.36814 0.54976,0.49578 0.82827,0.78133 1.24754,1.27909 1.70199,2.02066 2.67971,4.779 2.67259,7.53999 -0.002,0.63685 -0.0565,0.91182 -0.26301,1.31944 -0.14322,0.28262 -0.46647,0.65048 -0.72603,0.82624 -0.19301,0.13069 -0.58688,0.32502 -0.8286,0.40882 -0.88291,0.30607 -2.70592,0.35219 -5.21551,0.13196 -2.09795,-0.1841 -3.81863,-0.61476 -5.2962,-1.32554 -0.4864,-0.23398 -0.63954,-0.36259 -0.80791,-0.67848 -0.31905,-0.5986 -0.14874,-1.36746 0.38411,-1.73408 0.26146,-0.17988 0.48707,-0.25057 0.80823,-0.25322 0.25221,-0.002 0.33219,0.019 0.72771,0.1912 0.96973,0.42236 1.59463,0.62914 2.44168,0.80799 1.05153,0.22202 2.74887,0.38414 4.30961,0.41165 0.9036,0.0159 1.09939,0.008 1.39479,-0.0538 l 0.34365,-0.0723 -0.0114,-0.36386 c -0.059,-1.87268 -0.77035,-3.79627 -1.95097,-5.27596 -0.31251,-0.39168 -0.98462,-1.05806 -1.37293,-1.36122 -1.40058,-1.09347 -3.12787,-1.7528 -5.0132,-1.91361 -0.63378,-0.0541 -8.8093,-0.052 -9.44015,0.003 -1.8015,0.15525 -3.55244,0.86175 -4.97276,2.00651 -1.9372,1.56136 -3.1661,3.86863 -3.37673,6.33984 -0.0306,0.35875 -0.0401,1.96285 -0.0301,5.05361 0.0163,5.03044 0.004,4.79482 0.29802,5.92162 0.96139,3.69003 4.15935,6.41378 7.97469,6.79217 1.33094,0.13201 2.64039,-0.11788 3.86688,-0.73794 1.37005,-0.69263 2.24369,-1.82809 2.58866,-3.36449 0.10302,-0.45879 0.12516,-1.61931 0.0406,-2.12754 -0.30726,-1.84655 -1.61491,-3.22803 -3.51878,-3.71751 -0.73343,-0.18856 -1.67723,-0.10291 -2.54533,0.23099 -1.28759,0.49527 -2.15167,1.27639 -2.36415,2.13717 -0.0588,0.23823 -0.0623,0.80471 -0.007,1.09294 0.14035,0.72861 0.60331,1.3501 1.26455,1.69757 0.75347,0.39593 1.50971,0.50846 2.11314,0.31445 0.24953,-0.0802 0.65638,-0.31593 0.70417,-0.40794 0.0774,-0.14896 -0.0773,-0.33382 -0.52751,-0.63029 -0.62594,-0.41224 -0.81231,-0.70353 -0.81789,-1.27836 -0.003,-0.29833 0.0116,-0.37399 0.10965,-0.57369 0.27522,-0.56046 0.92399,-0.89144 1.49123,-0.76078 0.53484,0.1232 1.48793,0.83759 1.91395,1.4346 0.91005,1.27531 0.74969,2.75454 -0.41969,3.87177 -0.50815,0.48549 -1.15645,0.8264 -1.96468,1.03314 -0.35463,0.0907 -0.49312,0.10421 -1.09335,0.10654 -0.57743,0.003 -0.75396,-0.0122 -1.10436,-0.0907 -0.59183,-0.13254 -0.96769,-0.26349 -1.52352,-0.53081 -1.60248,-0.77065 -2.57516,-2.07349 -2.85416,-3.82296 -0.0658,-0.41254 -0.0661,-1.45706 -6e-4,-1.79908 0.13103,-0.68367 0.43345,-1.39498 0.8353,-1.96476 0.10824,-0.15347 0.39767,-0.48057 0.64318,-0.72688 1.09671,-1.1003 2.84519,-1.90601 4.60497,-2.12201 1.63317,-0.20046 3.62218,0.41794 5.19429,1.61494 0.44737,0.34062 1.15876,1.09877 1.46871,1.56522 1.10636,1.66502 1.45766,3.7221 1.02118,5.97959 -0.38895,2.01167 -1.46941,3.62986 -3.17076,4.74886 -1.13012,0.74329 -2.69779,1.30413 -4.23633,1.51557 -0.49242,0.0676 -1.4918,0.0759 -2.07059,0.017 z m 13.48304,-8.53893 c -0.28134,-0.0932 -0.39676,-0.17258 -0.69416,-0.47748 C 121.6138,534.9204 120.62528,533.4263 120,532 c -0.52045,-1.18716 -0.64513,-1.66475 -0.53998,-2.06843 0.1736,-0.6665 0.69904,-1.05057 1.39393,-1.01892 0.57912,0.0264 1.00217,0.35951 1.23029,0.96881 0.0614,0.16413 0.15645,0.41667 0.21111,0.56121 0.20539,0.54311 0.75142,1.58745 1.11375,2.1302 0.38103,0.57076 0.70937,0.99466 1.13482,1.4651 0.12958,0.14329 0.28093,0.34998 0.33633,0.45931 0.447,0.88212 -0.14957,1.90921 -1.13574,1.95537 -0.16552,0.008 -0.35308,-0.009 -0.44693,-0.0403 z m -1.8227,-13.71139 c -1.12668,-0.35577 -1.59063,-1.7049 -0.91168,-2.65113 0.33332,-0.46452 0.75337,-0.69203 1.32529,-0.71781 0.5552,-0.025 0.93638,0.12101 1.32175,0.50639 0.90116,0.90115 0.51336,2.43511 -0.72203,2.85605 -0.23356,0.0796 -0.77096,0.083 -1.01333,0.006 z"
+         id="path1" /></g><rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#373637;stroke-width:8;stroke-dasharray:none;stroke-linejoin:round;stroke-linecap:round;stroke-opacity:1"
+       id="rect4"
+       width="600"
+       height="315"
+       x="300"
+       y="157.5" /></g><metadata
+     id="metadata1"><rdf:RDF><cc:Work
+         rdf:about=""><dc:title>Social Magick &quot;Cutout&quot; template </dc:title><cc:license
+           rdf:resource="https://www.gnu.org/licenses/gpl-3.0.en.html" /></cc:Work></rdf:RDF></metadata></svg>

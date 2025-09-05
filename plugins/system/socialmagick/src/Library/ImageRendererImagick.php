@@ -13,7 +13,6 @@ namespace Akeeba\Plugin\System\SocialMagick\Library;
 use Imagick;
 use ImagickDraw;
 use ImagickPixel;
-use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\HTML\HTMLHelper;
 
 defined('_JEXEC') || die();
@@ -158,10 +157,10 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 
 		if (!file_put_contents($outFile, $image))
 		{
-			File::write($outFile, $image);
+			file_put_contents($outFile, $image);
 		}
 
-		$image->destroy();
+		$image->clear();
 	}
 
 	public function isSupported(): bool

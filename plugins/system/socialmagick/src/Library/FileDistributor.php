@@ -7,30 +7,39 @@
 
 namespace Akeeba\Plugin\System\SocialMagick\Library;
 
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Filesystem\Folder;
+use Joomla\Filesystem\File;
+use Joomla\Filesystem\Folder;
 
 /**
  * Handles placing files in distributed folder locations.
  *
- * Putting thousands of files into the same folder increases the file access time on most servers (anything that does
- * not use a filesystem tuned with b-tree directory listing trees) and definitely makes PHP's filesystem functions much
- * slower for that folder (because PHP processes 32KB of directory index content at a time).
+ * Most filesystems use a b-tree variant (e.g. HTree on ext4) to index their directory entries. This makes directory
+ * listings and file access O(log n). In practical terms, filesystems like ext4 and btrfs can handle tens of millions
+ * of entries at roughly logarithmic time cost.
  *
- * The solution is to use a distributed or multi-level directory structure.
+ * However, there's another factor in play. On Linux, the standard C library (glibc) provides the `readdir()` function
+ * to read directory entries. This works in fixed-size directory blocks, typically 32 KiB in size. PHP uses `readdir()`
+ * to list directory contents when using `DirectoryIterator` and other filesystem built-ins. When you have hundreds of
+ * thousands of files in the same folder, this behavior will make directory iteration O(n) even though the underlying
+ * filesystem performs at O(log n).
+ *
+ * Long story short, if you have dozens of thousands of files in one directory, your site's performance will go down the
+ * drain.
+ *
+ * The solution is sharding, i.e. distributing the files into a multi-level directory structure.
  *
  * For example, instead of having the file
  * /path/to/0123456789abcdef0123456789abcdef.png
  * we have
- * /path/to/ef/cd/ab/0123456789abcdef0123456789abcdef.png
+ * /path/to/ef/cd/0123456789abcdef0123456789abcdef.png
  *
- * By using a subdirectory level for every last two digits of the generated image filename (i.e. up to 256 directories
- * in each level, since we're using MD5 sums for our image filenames) we can exponentially decrease the number of
- * entries per directory, allowing for fast access.
+ * We are using a subdirectory level for every last two digits of the generated image filename. This is up to 256
+ * directories in each level, since we're using MD5 sums for our image filenames. Under this scheme, we can
+ * exponentially decrease the number of entries in each directory, allowing for fast access.
  *
- * One level of distributed folders is enough for a couple million photos. Two levels are enough for hundreds of
- * millions of photos. Anything bigger is an overkill but you MIGHT need it if you see that there's a bias towards a
- * subset of the subfolders (after all MD5 is NOT totally random or perfectly distributed).
+ * One level of distributed folders is enough for a million photos, or so. Two levels are enough for hundreds of
+ * millions of photos. Anything bigger is an overkill, but you MIGHT need it if you see that there's a bias towards a
+ * subset of the subfolders. The latter might happen because MD5 is NOT totally random or perfectly distributed.
  *
  * @since  1.0.0
  */

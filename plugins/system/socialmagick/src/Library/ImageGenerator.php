@@ -15,14 +15,13 @@ use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Document\HtmlDocument;
-use Joomla\CMS\Filesystem\File;
-use Joomla\CMS\Filesystem\Folder;
-use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Database\DatabaseInterface;
+use Joomla\Filesystem\Folder;
+use Joomla\Filesystem\Path;
 use Joomla\Registry\Registry;
 use Throwable;
 
@@ -455,7 +454,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 
 				if (!@unlink($filename))
 				{
-					$unlinked = File::delete($filename);
+					$unlinked = @unlink($filename);
 				}
 
 				// Add positively deleted images to the list of image records to delete.

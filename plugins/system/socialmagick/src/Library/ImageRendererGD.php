@@ -11,7 +11,6 @@ namespace Akeeba\Plugin\System\SocialMagick\Library;
 
 defined('_JEXEC') || die();
 
-use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\HTML\HTMLHelper;
 
 /**
@@ -162,7 +161,7 @@ class ImageRendererGD extends ImageRendererAbstract implements ImageRendererInte
 
 		if (!file_put_contents($outFile, $imageData))
 		{
-			File::write($outFile, $imageData);
+			file_put_contents($outFile, $imageData);
 		}
 	}
 

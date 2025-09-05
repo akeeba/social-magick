@@ -12,7 +12,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Component\Categories\Administrator\Model\CategoryModel;
-use Joomla\Component\Content\Site\Model\ArticleModel;
+use Joomla\Component\Content\Administrator\Model\ArticleModel;
 use Joomla\Registry\Registry;
 
 defined('_JEXEC') || die();
@@ -99,14 +99,6 @@ final class ParametersRetriever
 	 * @since 2.0.0
 	 */
 	private CMSApplication $application;
-
-	/**
-	 * Joomla's com_content MVC Factory
-	 *
-	 * @var   MVCFactoryInterface
-	 * @since 3.0.0
-	 */
-	private MVCFactoryInterface $mvcFactory;
 
 	/**
 	 * A cached copy of com_content's ArticleModel
@@ -418,9 +410,8 @@ final class ParametersRetriever
 	 */
 	private function getArticleModel(): ArticleModel
 	{
-		/** @noinspection PhpIncompatibleReturnTypeInspection */
-		return $this->articleModel ??= $this->getMVCFactory()
-			->createModel('Article', 'Administrator', ['ignore_request' => true]);
+		$factory = $this->application->bootComponent('com_content')->getMVCFactory();
+		return $this->articleModel ??= $factory->createModel('Article', 'Administrator', ['ignore_request' => true]);
 	}
 
 	/**
@@ -435,20 +426,9 @@ final class ParametersRetriever
 	 */
 	private function getCategoryModel(): CategoryModel
 	{
-		/** @noinspection PhpIncompatibleReturnTypeInspection */
-		return $this->categoryModel ??= $this->getMVCFactory()
+		$factory = $this->application->bootComponent('com_categories')->getMVCFactory();
+		return $this->categoryModel ??= $factory
 			->createModel('Category', 'Administrator', ['ignore_request' => true]);
-	}
-
-	/**
-	 * Returns a cached copy of com_content's MVC factory.
-	 *
-	 * @return  MVCFactoryInterface
-	 * @since   3.0.0
-	 */
-	private function getMVCFactory(): MVCFactoryInterface
-	{
-		return $this->mvcFactory ??= $this->application->bootComponent('com_content')->getMVCFactory();
 	}
 
 	/**

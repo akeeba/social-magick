@@ -11,10 +11,8 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension\Traits;
 
 use Exception;
 use Joomla\CMS\Application\SiteApplication;
-use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Menu\MenuItem;
 use Throwable;
 
 trait OpenGraphImageTrait
@@ -22,9 +20,9 @@ trait OpenGraphImageTrait
 	/**
 	 * Get the appropriate text for rendering on the auto-generated OpenGraph image
 	 *
-	 * @param   string    $customText   Any custom text the admin has entered for this menu item/
-	 * @param   bool      $useArticle   Should I do a fallback to the core content article's title, if one exists?
-	 * @param   bool      $useTitle     Should I do a fallback to the Joomla page title?
+	 * @param   string|null  $customText  Any custom text the admin has entered for this menu item/
+	 * @param   bool         $useArticle  Should I do a fallback to the core content article's title, if one exists?
+	 * @param   bool         $useTitle    Should I do a fallback to the Joomla page title?
 	 *
 	 * @return  string  The text to render oin the auto-generated OpenGraph image.
 	 *
@@ -211,69 +209,6 @@ trait OpenGraphImageTrait
 	}
 
 	/**
-	 * Adds the `prefix="og: http://ogp.me/ns#"` declaration to the `<html>` root tag.
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 */
-	private function addOgPrefixToHtmlDocument(): void
-	{
-		// Make sure I am in the front-end, and I'm doing HTML output
-		/** @var SiteApplication $app */
-		$app = $this->getApplication();
-
-		if (!is_object($app) || !($app instanceof SiteApplication))
-		{
-			return;
-		}
-
-		try
-		{
-			if ($app->getDocument()->getType() != 'html')
-			{
-				return;
-			}
-		}
-		catch (Throwable $e)
-		{
-			return;
-		}
-
-		$html = $app->getBody();
-
-		$hasDeclaration = function (string $html): bool {
-			$detectPattern = '/<html.*prefix\s?="(.*)\s?:(.*)".*>/iU';
-			$count         = preg_match_all($detectPattern, $html, $matches);
-
-			if ($count === 0)
-			{
-				return false;
-			}
-
-			for ($i = 0; $i < $count; $i++)
-			{
-				if (trim($matches[1][$i]) == 'og')
-				{
-					return true;
-				}
-			}
-
-			return false;
-		};
-
-		if ($hasDeclaration($html))
-		{
-			return;
-		}
-
-		$replacePattern = '/<html(.*)>/iU';
-
-		/** @noinspection HttpUrlsUsage */
-		$app->setBody(preg_replace($replacePattern, '<html$1 prefix="og: http://ogp.me/ns#">', $html, 1));
-	}
-
-	/**
 	 * Replace the debug image placeholder with a link to the OpenGraph image.
 	 *
 	 * @return  void
@@ -344,7 +279,7 @@ trait OpenGraphImageTrait
 		// Get the text to render.
 		$text = $this->getText($customText, $useArticle, $useTitle);
 
-		$templates      = $this->getHelper()->getTemplates();
+		$templates      = $this->getImageGenerator()->getTemplates();
 		$templateParams = $templates[$template] ?? [];
 
 		// If there is no text AND I am supposed to use overlay text I will not try to generate an image.
@@ -371,122 +306,7 @@ trait OpenGraphImageTrait
 		$template = trim(@$this->getApplication()->socialMagickTemplate ?? '') ?: $template;
 
 		// Generate (if necessary) and apply the OpenGraph image
-		$this->getHelper()->applyOGImage($text, (int) $template, $extraImage, $overrideOG);
+		$this->getImageGenerator()->applyOGImage($text, (int) $template, $extraImage, $overrideOG);
 	}
 
-	/**
-	 * Apply the additional OpenGraph tags
-	 *
-	 * @param   array  $params  Applicable menu item parameters
-	 *
-	 * @return  void
-	 * @since   1.0.0
-	 */
-	private function applyOpenGraphTags(array $params): void
-	{
-		// Apply OpenGraph Title
-		switch ($params['og_title'])
-		{
-			case 0:
-				break;
-
-			case 1:
-				$this->conditionallyApplyMeta('og:title', $this->getApplication()->getDocument()->getTitle());
-				break;
-
-			case 2:
-				$this->conditionallyApplyMeta('og:title', $params['og_title_custom'] ?? $this->getApplication()->getDocument()->getTitle());
-				break;
-		}
-
-		// Apply OpenGraph Description
-		switch ($params['og_description'])
-		{
-			case 0:
-				break;
-
-			case 1:
-				$this->conditionallyApplyMeta('og:description', $this->getApplication()->getDocument()->getDescription());
-				break;
-
-			case 2:
-				$this->conditionallyApplyMeta('og:description', $params['og_description_custom'] ?? $this->getApplication()->getDocument()->getDescription());
-				break;
-		}
-
-		// Apply OpenGraph URL
-		if (($params['og_url'] ?? 1) == 1)
-		{
-			$this->conditionallyApplyMeta('og:url', $this->getApplication()->getDocument()->getBase());
-		}
-
-		// Apply OpenGraph Site Name
-		if (($params['og_site_name'] ?? 1) == 1)
-		{
-			$this->conditionallyApplyMeta('og:site_name', $this->getApplication()->get('sitename', ''));
-		}
-
-		// Apply Facebook App ID
-		$fbAppId = trim($params['fb_app_id'] ?? '');
-
-		if (!empty($fbAppId))
-		{
-			$this->conditionallyApplyMeta('fb:app_id', $fbAppId);
-		}
-
-		// Apply Twitter options, of there is a Twitter card type
-		$twitterCard    = trim($params['twitter_card'] ?? '');
-		$twitterSite    = trim($params['twitter_site'] ?? '');
-		$twitterCreator = trim($params['twitter_creator'] ?? '');
-
-		switch ($twitterCard)
-		{
-			case 0:
-				// Nothing further to do with Twitter.
-				return;
-
-			case 1:
-				$this->conditionallyApplyMeta('twitter:card', 'summary', 'name');
-				break;
-
-			case 2:
-				$this->conditionallyApplyMeta('twitter:card', 'summary_large_image', 'name');
-				break;
-		}
-
-		if (!empty($twitterSite))
-		{
-			$twitterSite = (substr($twitterSite, 0, 1) == '@') ? $twitterSite : ('@' . $twitterSite);
-			$this->conditionallyApplyMeta('twitter:site', $twitterSite, 'name');
-		}
-
-		if (!empty($twitterCreator))
-		{
-			$twitterCreator = (substr($twitterCreator, 0, 1) == '@') ? $twitterCreator : ('@' . $twitterCreator);
-			$this->conditionallyApplyMeta('twitter:creator', $twitterCreator, 'name');
-		}
-
-		// Transcribe OpenGraph properties to Twitter meta
-		/** @var HtmlDocument $doc */
-		$doc = $this->getApplication()->getDocument();
-
-		$transcribes = [
-			'title'       => $doc->getMetaData('og:title', 'property'),
-			'description' => $doc->getMetaData('og:description', 'property'),
-			'image'       => $doc->getMetaData('og:image', 'property'),
-			'image:alt'   => $doc->getMetaData('og:image:alt', 'property'),
-		];
-
-		foreach ($transcribes as $key => $value)
-		{
-			$value = trim($value ?? '');
-
-			if (empty($value))
-			{
-				continue;
-			}
-
-			$this->conditionallyApplyMeta('twitter:' . $key, $value, 'name');
-		}
-	}
 }

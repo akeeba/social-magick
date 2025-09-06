@@ -42,12 +42,6 @@ trait FormTabs
 			return;
 		}
 
-		// We can only handle menu items for com_content or com_categories
-		if ($formName == 'com_menus.item' && !$this->isMenuItemForComponent($data, ['com_content', 'com_categories']))
-		{
-			return;
-		}
-
 		$this->loadLanguage('com_socialmagick', JPATH_ADMINISTRATOR);
 
 		Form::addFormPath(__DIR__ . '/../../../form');
@@ -56,8 +50,12 @@ trait FormTabs
 		{
 			// A menu item is being added/edited
 			case 'com_menus.item':
-				// TODO Only show something if it's a com_content or com_categories menu item
-				$form->loadFile('socialmagick_menu', false);
+				$formName = $this->isMenuItemForComponent($data, ['com_content', 'com_categories'])
+					? 'socialmagick_menu_content'
+					: 'socialmagick_menu';
+
+				$form->loadFile($formName, false);
+
 				break;
 
 			// A core content category is being added/edited

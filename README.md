@@ -42,6 +42,7 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
+* [ ] Add a preview feature to the component. Allow using one of several sample images.
 * [ ] "BUG: Preview OpenGraph Image" appears on each article of a category page, but it only links to the category OpenGraph image. DO NOT show on each article, only on the category text.
 * [ ] Image effects: opacity, grayscale, sepia. Adjust them individually.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
@@ -57,12 +58,10 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 
 #### Notes
 
+Move OpenGraph handling into the component. We will have to pass an article and category ID.
+
 Refactor cleaning old images:
 * Move code from \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax into its own model
 * Create an AJAX handler in the component's frontend
 * Create a CLI plugin
 * Create a Joomla Scheduled Tasks plugin
-
-Add a preview feature to the component. For the extra image use a 4K stock photo with a person, left aligned.
-
-Add an option to control whether the OpenGraph options should be displayed to menu items that are NOT for articles / categories (we can still generate OG images and select a custom extra image).

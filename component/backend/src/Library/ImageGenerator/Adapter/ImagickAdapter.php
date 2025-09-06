@@ -8,16 +8,15 @@
 
 /** @noinspection PhpComposerExtensionStubsInspection */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
-use Imagick;
 use ImagickDraw;
 use ImagickPixel;
 use Joomla\CMS\HTML\HTMLHelper;
 
 defined('_JEXEC') || die();
 
-class ImageRendererImagick extends ImageRendererAbstract implements ImageRendererInterface
+class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 {
 	public function makeImage(string $text, array $template, string $outFile, ?string $extraImage): void
 	{
@@ -48,7 +47,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		$templateHeight = $template['template-h'] ?? 630;
 
 		// Setup the base image upon which we will superimpose the layered image (if any) and the text
-		$image = new Imagick();
+		$image = new ImagickAdapter();
 
 		// Create a new, transparent backdrop
 		$transparentPixel = new ImagickPixel('transparent');
@@ -87,13 +86,13 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 			$imgX   = 0;
 			$imgY   = 0;
 
-			$image->compositeImage($tmpImg, Imagick::COMPOSITE_OVER, $imgX, $imgY);
+			$image->compositeImage($tmpImg, ImagickAdapter::COMPOSITE_OVER, $imgX, $imgY);
 		}
 
 		// Add extra image
 		if ($template['use-article-image'] != '0' && $extraImage)
 		{
-			$extraCanvas      = new Imagick();
+			$extraCanvas      = new ImagickAdapter();
 			$transparentPixel = new ImagickPixel('transparent');
 			$extraCanvas->newImage($templateWidth, $templateHeight, $transparentPixel);
 			$transparentPixel->destroy();
@@ -105,7 +104,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 				$imgY   = 0;
 				$extraCanvas->compositeImage(
 					$tmpImg,
-					Imagick::COMPOSITE_DEFAULT,
+					ImagickAdapter::COMPOSITE_DEFAULT,
 					(int) $imgX,
 					(int) $imgY
 				);
@@ -117,7 +116,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 				$imgY   = $template['image-y'];
 				$extraCanvas->compositeImage(
 					$tmpImg,
-					Imagick::COMPOSITE_DEFAULT,
+					ImagickAdapter::COMPOSITE_DEFAULT,
 					0,
 					0);
 			}
@@ -126,12 +125,12 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 			{
 				$extraCanvas->compositeImage(
 					$image,
-					Imagick::COMPOSITE_OVER,
+					ImagickAdapter::COMPOSITE_OVER,
 					-((int) $imgX),
 					-((int) $imgY));
 				$image->compositeImage(
 					$extraCanvas,
-					Imagick::COMPOSITE_COPY,
+					ImagickAdapter::COMPOSITE_COPY,
 					(int) $imgX,
 					(int) $imgY);
 
@@ -140,7 +139,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 			{
 				$image->compositeImage(
 					$extraCanvas,
-					Imagick::COMPOSITE_DEFAULT,
+					ImagickAdapter::COMPOSITE_DEFAULT,
 					(int) $imgX,
 					(int) $imgY);
 			}
@@ -159,7 +158,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		{
 			case 'jpg':
 				$image->setCompressionQuality($this->quality);
-				$image->setImageCompression(Imagick::COMPRESSION_JPEG);
+				$image->setImageCompression(ImagickAdapter::COMPRESSION_JPEG);
 				break;
 
 			case 'png':
@@ -195,15 +194,15 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 	 * @param   numeric  $new_h  New height, in pixels.
 	 * @param   string   $focus  Focus of the image; default is center.
 	 *
-	 * @return  Imagick
+	 * @return  ImagickAdapter
 	 *
 	 * @throws \ImagickException
 	 *
 	 * @since   1.0.0
 	 */
-	private function resize(string $src, $new_w, $new_h, string $focus = 'center'): Imagick
+	private function resize(string $src, $new_w, $new_h, string $focus = 'center'): ImagickAdapter
 	{
-		$image = new Imagick($src);
+		$image = new ImagickAdapter($src);
 
 		$w = $image->getImageWidth();
 		$h = $image->getImageHeight();
@@ -223,7 +222,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 			}
 		}
 
-		$image->resizeImage((int) $resize_w, (int) $resize_h, Imagick::FILTER_LANCZOS, 0.9);
+		$image->resizeImage((int) $resize_w, (int) $resize_h, ImagickAdapter::FILTER_LANCZOS, 0.9);
 
 		switch ($focus)
 		{
@@ -255,15 +254,15 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 	/**
 	 * Overlay the text on the image.
 	 *
-	 * @param   string   $text      The text to render.
-	 * @param   array    $template  The OpenGraph image template definition.
-	 * @param   Imagick  $image     The image to overlay the text.
+	 * @param   string          $text      The text to render.
+	 * @param   array           $template  The OpenGraph image template definition.
+	 * @param   ImagickAdapter  $image     The image to overlay the text.
 	 *
 	 * @return  void
 	 *
 	 * @since   1.0.0
 	 */
-	private function renderOverlayText(string $text, array $template, Imagick &$image): void
+	private function renderOverlayText(string $text, array $template, ImagickAdapter &$image): void
 	{
 		// Make sure we are told to overlay text
 		if (($template['overlay_text'] ?? 1) != 1)
@@ -275,7 +274,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		$text = $this->preProcessText($text, false);
 
 		// Set up the text
-		$theText = new Imagick();
+		$theText = new ImagickAdapter();
 		$theText->setBackgroundColor('transparent');
 
 		/* Font properties */
@@ -291,15 +290,15 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		{
 			default:
 			case 'center':
-				$theText->setGravity(Imagick::GRAVITY_CENTER);
+				$theText->setGravity(ImagickAdapter::GRAVITY_CENTER);
 				break;
 
 			case 'left':
-				$theText->setGravity(Imagick::GRAVITY_WEST);
+				$theText->setGravity(ImagickAdapter::GRAVITY_WEST);
 				break;
 
 			case 'right':
-				$theText->setGravity(Imagick::GRAVITY_EAST);
+				$theText->setGravity(ImagickAdapter::GRAVITY_EAST);
 				break;
 		}
 
@@ -313,7 +312,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		$theText->trimImage(0.0);
 
 		// Set text color
-		$clut           = new Imagick();
+		$clut           = new ImagickAdapter();
 		$textColorPixel = new ImagickPixel($template['text-color']);
 		$clut->newImage(1, 1, $textColorPixel);
 		$textColorPixel->destroy();
@@ -350,7 +349,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 			$draw->setStrokeWidth(2);
 			$draw->rectangle(1, 1, $debugW - 1, $debugH - 1);
 
-			$debugImage       = new Imagick();
+			$debugImage       = new ImagickAdapter();
 			$transparentPixel = new ImagickPixel('transparent');
 			$debugImage->newImage($debugW, $debugH, $transparentPixel);
 
@@ -363,7 +362,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 
 			$image->compositeImage(
 				$debugImage,
-				Imagick::COMPOSITE_OVER,
+				ImagickAdapter::COMPOSITE_OVER,
 				(int) $xPos,
 				(int) $yPos
 			);
@@ -373,7 +372,7 @@ class ImageRendererImagick extends ImageRendererAbstract implements ImageRendere
 		// Composite bestfit caption over base image.
 		$image->compositeImage(
 			$theText,
-			Imagick::COMPOSITE_DEFAULT,
+			ImagickAdapter::COMPOSITE_DEFAULT,
 			(int) $xPos,
 			(int) $yPos);
 

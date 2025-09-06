@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\FileDistributor;
 
 use Joomla\Filesystem\File;
 use Joomla\Filesystem\Folder;
@@ -43,7 +43,7 @@ use Joomla\Filesystem\Folder;
  *
  * @since  1.0.0
  */
-class FileDistributor
+final class FileDistributor
 {
 	/**
 	 * Get the absolute path to a file using a distributed folder layout, making sure old files are moved accordingly.

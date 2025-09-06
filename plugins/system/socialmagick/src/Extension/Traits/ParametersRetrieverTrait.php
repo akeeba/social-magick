@@ -9,17 +9,25 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension\Traits;
 
 \defined('_JEXEC') || die;
 
-use Akeeba\Plugin\System\SocialMagick\Library\ParametersRetriever;
+use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\ParametersRetriever;
 
 trait ParametersRetrieverTrait
 {
-	private ?ParametersRetriever $paramsRetriever = null;
+	/**
+	 * The ParametersRetriever object instance.
+	 *
+	 * @since 2.0.0
+	 */
+	private ParametersRetriever $paramsRetriever;
 
+	/**
+	 * Returns the singleton parameters retriever object instance.
+	 *
+	 * @return  ParametersRetriever
+	 * @since   2.0.0
+	 */
 	protected function getParamsRetriever(): ParametersRetriever
 	{
-		/** @noinspection PhpParamsInspection */
-		$this->paramsRetriever ??= new ParametersRetriever($this->getApplication());
-
-		return $this->paramsRetriever;
+		return $this->paramsRetriever ??= new ParametersRetriever($this->getApplication());
 	}
 }

@@ -117,7 +117,13 @@
             >
                 <option value="">JGLOBAL_INHERIT</option>
                 <option value="none">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
+                <option value="intro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTRO</option>
+                <option value="fulltext">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLTEXT</option>
                 <option value="custom">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
+                <option value="fullintro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLINTRO</option>
+                <option value="introfull">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTROFULL</option>
+                <option value="customfullintro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO</option>
+                <option value="customintrofull">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMINTROFULL</option>
                 <option value="static">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_STATIC</option>
             </field>
 

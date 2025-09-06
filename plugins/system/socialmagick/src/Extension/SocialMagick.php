@@ -9,7 +9,7 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension;
 
 defined('_JEXEC') || die();
 
-use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ConditionalMetaTrait;
+use Akeeba\Component\SocialMagick\Administrator\Library\OpenGraphTags\OGTagsHelper;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\DebugPlaceholderTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\OpenGraphImageTrait;
@@ -34,7 +34,6 @@ use Throwable;
 class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwareInterface
 {
 	use DatabaseAwareTrait;
-	use ConditionalMetaTrait;
 	use DebugPlaceholderTrait;
 	use OpenGraphImageTrait;
 	use ImageGeneratorHelperTrait;
@@ -57,13 +56,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 * @since 1.0.0
 	 */
 	protected ?int $category = null;
-
-	/**
-	 * The placeholder variable to be replaced by the image link when Debug Link is enabled.
-	 *
-	 * @var  string
-	 */
-	protected string $debugLinkPlaceholder = '';
 
 	/** @inheritDoc */
 	public static function getSubscribedEvents(): array
@@ -133,7 +125,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		 * * The first published template's ID
 		 * * Fallback to 0 which just uses some rather useless defaults.
 		 */
-		$firstTemplateKey          = array_key_first($this->getHelper()->getTemplates() ?? []);
+		$firstTemplateKey          = array_key_first($this->getImageGenerator()->getTemplates() ?? []);
 		$configuredDefaultTemplate = ($this->getComponentParams()['default_template'] ?? $firstTemplateKey) ?: null;
 		$templateFromParams        = ($params['template'] ?? null) ?: null;
 		$templateId                = $templateFromParams ?? $configuredDefaultTemplate ?? $firstTemplateKey ?? 0;
@@ -141,17 +133,19 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		$params['template'] = $templateId;
 
 		// Generate an OpenGraph image if supported and if we are requested to do so.
-		if ($this->getHelper()->isAvailable() && $params['generate_images'] == 1)
+		if ($this->getImageGenerator()->isAvailable() && $params['generate_images'] == 1)
 		{
 			$this->applyOGImage($params);
 		}
 
 		// Apply additional OpenGraph tags
-		$this->applyOpenGraphTags($params);
+		(new OGTagsHelper($this->getApplication()))->applyOpenGraphTags($params);
 	}
 
 	/**
-	 * Runs when Joomla is about to display an article. Used to save some useful article parameters.
+	 * Runs when Joomla is about to display an article or category.
+	 *
+	 * TODO Remove me, and come up with a different way to preview the OpenGraph image. Maybe a floating button?
 	 *
 	 * @param   Event  $event
 	 *
@@ -179,11 +173,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			return;
 		}
 
-		if (!in_array($context, ['com_content.article', 'com_content.category', 'com_content.categories']))
-		{
-			return;
-		}
-
 		switch ($context)
 		{
 			case 'com_content.article':
@@ -193,6 +182,9 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 
 			case 'com_content.categories':
 				$this->category = $row->id;
+
+			default:
+				return;
 		}
 
 		// Save the article/category, images and fields for later use
@@ -208,12 +200,14 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		// Add the debug link if necessary
 		$cParams = $this->getComponentParams();
 
-		if (($cParams['debuglink'] ?? 0) == 1)
+		if (($cParams['debuglink'] ?? 0) != 1)
 		{
-			$result[] = $this->getDebugLinkPlaceholder();
-
-			$event->setArgument('result', $result);
+			return;
 		}
+
+		$result[] = $this->getDebugLinkPlaceholder();
+
+		$event->setArgument('result', $result);
 	}
 
 	/**
@@ -229,15 +223,17 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	public function onAfterRender(Event $event): void
 	{
+		$ogTagsHelper     = new OGTagsHelper($this->getApplication());
 		$cParams          = $this->getComponentParams();
 		$addOgDeclaration = (bool) ($cParams['add_og_declaration'] ?? 1);
 		$debugLink        = (bool) ($cParams['debuglink'] ?? 0);
 
 		if ($addOgDeclaration)
 		{
-			$this->addOgPrefixToHtmlDocument();
+			$ogTagsHelper->addOgPrefixToHtmlDocument();
 		}
 
+		// TODO Remove me or replace me.
 		if ($debugLink)
 		{
 			$this->replaceDebugImagePlaceholder();

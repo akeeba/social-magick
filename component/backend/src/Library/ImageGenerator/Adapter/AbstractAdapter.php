@@ -5,11 +5,11 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
 defined('_JEXEC') || die();
 
-abstract class ImageRendererAbstract implements ImageRendererInterface
+abstract class AbstractAdapter implements AdapterInterface
 {
 	/**
 	 * Should I create bounding boxes around the rendered text?

@@ -5,10 +5,14 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator;
 
 defined('_JEXEC') || die();
 
+use Akeeba\Component\SocialMagick\Administrator\Library\FileDistributor\FileDistributor;
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter\AdapterInterface;
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter\GDAdapter;
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter\ImagickAdapter;
 use DateInterval;
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
@@ -68,10 +72,10 @@ final class ImageGenerator implements DatabaseAwareInterface
 	/**
 	 * The image renderer we'll be using
 	 *
-	 * @var   ImageRendererInterface
+	 * @var   AdapterInterface
 	 * @since 1.0.0
 	 */
-	private ImageRendererInterface $renderer;
+	private AdapterInterface $renderer;
 
 	/**
 	 * Number of subfolder levels for generated images
@@ -121,20 +125,20 @@ final class ImageGenerator implements DatabaseAwareInterface
 		switch ($rendererType)
 		{
 			case 'imagick':
-				$this->renderer = new ImageRendererImagick($quality, $textDebug);
+				$this->renderer = new ImagickAdapter($quality, $textDebug);
 				break;
 
 			case 'gd':
-				$this->renderer = new ImageRendererGD($quality, $textDebug);
+				$this->renderer = new GDAdapter($quality, $textDebug);
 				break;
 
 			case 'auto':
 			default:
-				$this->renderer = new ImageRendererImagick($quality, $textDebug);
+				$this->renderer = new ImagickAdapter($quality, $textDebug);
 
 				if (!$this->renderer->isSupported())
 				{
-					$this->renderer = new ImageRendererGD($quality, $textDebug);
+					$this->renderer = new GDAdapter($quality, $textDebug);
 				}
 
 				break;

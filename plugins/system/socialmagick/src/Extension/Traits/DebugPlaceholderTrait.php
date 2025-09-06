@@ -14,6 +14,13 @@ use Joomla\CMS\User\UserHelper;
 trait DebugPlaceholderTrait
 {
 	/**
+	 * The placeholder variable to be replaced by the image link when Debug Link is enabled.
+	 *
+	 * @var  string
+	 */
+	protected string $debugLinkPlaceholder;
+
+	/**
 	 * Get a random, unique placeholder for the debug OpenGraph image link
 	 *
 	 * @return  string
@@ -21,14 +28,7 @@ trait DebugPlaceholderTrait
 	 */
 	private function getDebugLinkPlaceholder(): string
 	{
-		if (!empty($this->debugLinkPlaceholder))
-		{
-			return $this->debugLinkPlaceholder;
-		}
-
-		$this->debugLinkPlaceholder = '{' . UserHelper::genRandomPassword(32) . '}';
-
-		return $this->debugLinkPlaceholder;
+		return $this->debugLinkPlaceholder ??= '{' . UserHelper::genRandomPassword(32) . '}';
 	}
 
 }

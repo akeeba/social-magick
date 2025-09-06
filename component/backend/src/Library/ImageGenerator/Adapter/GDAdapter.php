@@ -7,7 +7,7 @@
 
 /** @noinspection PhpComposerExtensionStubsInspection */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
 defined('_JEXEC') || die();
 
@@ -18,7 +18,7 @@ use Joomla\CMS\HTML\HTMLHelper;
  *
  * @since       1.0.0
  */
-class ImageRendererGD extends ImageRendererAbstract implements ImageRendererInterface
+class GDAdapter extends AbstractAdapter implements AdapterInterface
 {
 	/** @inheritDoc */
 	public function isSupported(): bool

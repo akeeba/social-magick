@@ -36,7 +36,7 @@ trait Ajax
 
 		try
 		{
-			$this->getHelper()->deleteOldImages($days, $maxExec);
+			$this->getImageGenerator()->deleteOldImages($days, $maxExec);
 		}
 		catch (\Exception $e)
 		{

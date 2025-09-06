@@ -5,18 +5,22 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever;
+
+defined('_JEXEC') || die();
 
 use Exception;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Menu\MenuItem;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\Component\Categories\Administrator\Model\CategoryModel;
 use Joomla\Component\Content\Administrator\Model\ArticleModel;
 use Joomla\Registry\Registry;
 
-defined('_JEXEC') || die();
-
+/**
+ * Utility class to retrieve configuration parameters from the categories, articles, and menu items.
+ *
+ * @since  1.0.0
+ */
 final class ParametersRetriever
 {
 	/**
@@ -79,18 +83,18 @@ final class ParametersRetriever
 	/**
 	 * Article objects per article ID
 	 *
-	 * @var   array
+	 * @var   array<object>
 	 * @since 1.0.0
 	 */
-	private $articlesById = [];
+	private array $articlesById = [];
 
 	/**
 	 * Category objects per category ID
 	 *
-	 * @var   array
+	 * @var   array<object>
 	 * @since 1.0.0
 	 */
-	private $categoriesById = [];
+	private array $categoriesById = [];
 
 	/**
 	 * The CMS application we're running under
@@ -131,10 +135,11 @@ final class ParametersRetriever
 	/**
 	 * Merges the `$overrides` parameters into the `$source` parameters, aware of the inheritance rules.
 	 *
-	 * @param   array  $source
-	 * @param   array  $overrides
+	 * @param   array  $source     Source parameters.
+	 * @param   array  $overrides  Array of possible overrides.
 	 *
-	 * @return array
+	 * @return  array
+	 * @since   3.0.0
 	 */
 	public function inheritanceAwareMerge(array $source, array $overrides): array
 	{
@@ -298,7 +303,7 @@ final class ParametersRetriever
 	/**
 	 * Get the Social Magick parameters for the category itself.
 	 *
-	 * If the category does not define an override we walk through all of its parent categories until we find an
+	 * If the category does not define an override, we walk through all of its parent categories until we find an
 	 * override or reach a top level category.
 	 *
 	 * @param   int   $id        The category ID.
@@ -343,9 +348,9 @@ final class ParametersRetriever
 	}
 
 	/**
-	 * Returns an article record given an article ID ID.
+	 * Returns an article record given an article ID.
 	 *
-	 * @param   int  $id  The article ID
+	 * @param   int  $id  The article ID.
 	 *
 	 * @return  object|null
 	 *
@@ -373,7 +378,7 @@ final class ParametersRetriever
 	/**
 	 * Get the category object given a category ID.
 	 *
-	 * @param   int  $id  The category ID
+	 * @param   int  $id  The category ID.
 	 *
 	 * @return  object|null
 	 *
@@ -411,6 +416,7 @@ final class ParametersRetriever
 	private function getArticleModel(): ArticleModel
 	{
 		$factory = $this->application->bootComponent('com_content')->getMVCFactory();
+
 		return $this->articleModel ??= $factory->createModel('Article', 'Administrator', ['ignore_request' => true]);
 	}
 
@@ -427,6 +433,7 @@ final class ParametersRetriever
 	private function getCategoryModel(): CategoryModel
 	{
 		$factory = $this->application->bootComponent('com_categories')->getMVCFactory();
+
 		return $this->categoryModel ??= $factory
 			->createModel('Category', 'Administrator', ['ignore_request' => true]);
 	}
@@ -437,9 +444,9 @@ final class ParametersRetriever
 	 * @param   Registry  $params     The Joomla Registry object which contains our parameters namespaced.
 	 * @param   string    $namespace  The Joomla Registry namespace for our parameters
 	 *
-	 * @return array
+	 * @return  array
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
 	 */
 	private function getParamsFromRegistry(Registry $params, string $namespace = 'socialmagick.'): array
 	{

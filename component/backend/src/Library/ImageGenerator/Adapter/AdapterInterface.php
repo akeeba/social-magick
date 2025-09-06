@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Plugin\System\SocialMagick\Library;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
 defined('_JEXEC') || die();
 
@@ -14,7 +14,7 @@ defined('_JEXEC') || die();
  *
  * @since  1.0.0
  */
-interface ImageRendererInterface
+interface AdapterInterface
 {
 	/**
 	 * Image renderer constructor.

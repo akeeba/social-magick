@@ -9,20 +9,29 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetrieve
 
 defined('_JEXEC') || die();
 
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\ImageGenerator;
 use Exception;
+use Joomla\Application\ApplicationInterface;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\Component\Categories\Administrator\Model\CategoryModel;
 use Joomla\Component\Content\Administrator\Model\ArticleModel;
+use Joomla\Database\DatabaseAwareInterface;
+use Joomla\Database\DatabaseAwareTrait;
+use Joomla\Database\DatabaseInterface;
 use Joomla\Registry\Registry;
 
 /**
- * Utility class to retrieve configuration parameters from the categories, articles, and menu items.
+ * Utility class to retrieve configuration parameters taking into account merge rules.
  *
  * @since  1.0.0
  */
-final class ParametersRetriever
+final class ParametersRetriever implements DatabaseAwareInterface
 {
+	use DatabaseAwareTrait;
+
 	/**
 	 * Default Social Magick parameters for menu items, categories and articles
 	 *
@@ -99,10 +108,10 @@ final class ParametersRetriever
 	/**
 	 * The CMS application we're running under
 	 *
-	 * @var   CMSApplication
+	 * @var   ApplicationInterface|CMSApplication
 	 * @since 2.0.0
 	 */
-	private CMSApplication $application;
+	private ApplicationInterface|CMSApplication $application;
 
 	/**
 	 * A cached copy of com_content's ArticleModel
@@ -123,13 +132,245 @@ final class ParametersRetriever
 	/**
 	 * Public constructor
 	 *
-	 * @param   CMSApplication  $application  The application we're running under
+	 * @param   ApplicationInterface|CMSApplication  $application  The application we're running under
+	 * @param   DatabaseInterface                    $database
 	 *
 	 * @since   2.0.0
 	 */
-	public function __construct(CMSApplication $application)
+	public function __construct(ApplicationInterface|CMSApplication $application, DatabaseInterface $database)
 	{
 		$this->application = $application;
+
+		$this->setDatabase($database);
+	}
+
+	/**
+	 * Get the applicable OpenGraph parameters.
+	 *
+	 * There are two modes of operation.
+	 *
+	 * A. Request. Pass a menu item to `$activeMenuItem`. Both `$article` and `$category` are ignored.
+	 * B. Specific Item. Pass null to `$activeMenuItem`, populate either or both `$article` and `$category`.
+	 *
+	 * The system plugin uses the first mode to generate OpenGraph images.
+	 *
+	 * @return  array
+	 * @throws  \Exception
+	 * @since   3.0.0
+	 */
+	public function getApplicableOGParameters(?MenuItem $activeMenuItem = null, ?int $article = null, ?int $category = null): array
+	{
+		// Populate the article and content from the request.
+		if ($activeMenuItem !== null && $article === null && $category === null)
+		{
+			[$article, $category] = $this->getArticleAndCategoryFromMenuItemOrRequest($activeMenuItem);
+		}
+
+
+		// Start with the hard-coded defaults and their component Options overrides.
+		$cParams = ComponentHelper::getParams('com_socialmagick');
+		$params  = array_merge($this->defaultParameters, $cParams->toArray());
+
+		// Apply article and/or category overrides
+		if ($article)
+		{
+			$extraParams = $this->getArticleParameters($article);
+			$params      = $this->inheritanceAwareMerge($params, $extraParams);
+		}
+		elseif ($category)
+		{
+			$extraParams = $this->getCategoryParameters($category);
+			$params      = $this->inheritanceAwareMerge($params, $extraParams);
+		}
+
+		// Apply menu item overrides
+		$paramsFromMenu = $this->getMenuParameters($activeMenuItem->id, $activeMenuItem);
+		$params         = $this->inheritanceAwareMerge($params, $paramsFromMenu);
+
+		/**
+		 * Get the effective template ID.
+		 *
+		 * We are doing the following (first non-empty template ID found wins):
+		 * * The `template` key from `$params`. Only set if there are (cascaded) overrides.
+		 * * The default template ID set up in the extension.
+		 * * The first published template's ID
+		 * * Fallback to 0 which just uses some rather useless defaults.
+		 */
+		$imageGenerator            = new ImageGenerator($cParams, $this->getDatabase());
+		$firstTemplateKey          = array_key_first($imageGenerator->getTemplates() ?? []);
+		$configuredDefaultTemplate = $cParams->get('default_template', $firstTemplateKey) ?: null;
+		$templateFromParams        = ($params['template'] ?? null) ?: null;
+		$templateId                = $templateFromParams ?? $configuredDefaultTemplate ?? $firstTemplateKey ?? 0;
+
+		$params['template'] = $templateId;
+
+		// Finally, add the article and category IDs to the parameters array
+		$params['socialmagick_article_id']  = $article;
+		$params['socialmagick_category_id'] = $category;
+
+		return $params;
+	}
+
+	public function getOpenGraphImageGeneratorArguments(array $params): array
+	{
+		// Get the applicable options
+		$template    = $params['template'];
+		$customText  = $params['custom_text'];
+		$useArticle  = $params['use_article'] == 1;
+		$useTitle    = $params['use_title'] == 1;
+		$imageSource = $params['image_source'];
+		$imageField  = $params['image_field'];
+		$staticImage = $params['static_image'] ?: '';
+		$overrideOG  = $params['override_og'] == 1;
+		$article     = $this->getArticleById($params['socialmagick_article_id'] ?? null);
+		$category    = $this->getCategoryById($params['socialmagick_category_id'] ?? null);
+
+		// Get the text to render.
+		$text = $this->getText($customText, $useArticle, $useTitle, $article, $category);
+
+		// Get the extra image location
+		$extraImage = $this->getExtraImage($imageSource, $imageField, $staticImage, $article, $category);
+
+		// So, Joomla 4 adds some meta information to the image. Let's fix that.
+		if (!empty($extraImage))
+		{
+			$extraImage = urldecode(HTMLHelper::cleanImageURL($extraImage)->url ?? '');
+		}
+
+		if (!is_null($extraImage) && (!@file_exists($extraImage) || !@is_readable($extraImage)))
+		{
+			$extraImage = null;
+		}
+
+		global $socialMagickTemplate;
+
+		return [
+			'text'       => $text,
+			'templateId' => $socialMagickTemplate ?? $template,
+			'extraImage' => $extraImage,
+			'force'      => $overrideOG == 1,
+		];
+	}
+
+	/**
+	 * Returns an article record given an article ID.
+	 *
+	 * @param   int|null  $id  The article ID.
+	 *
+	 * @return  object|null
+	 *
+	 * @since   1.0.0
+	 */
+	public function getArticleById(?int $id): ?object
+	{
+		if (isset($this->articlesById[$id]))
+		{
+			return $this->articlesById[$id];
+		}
+
+		try
+		{
+			$this->articlesById[$id] = $id === null
+				? null
+				: ($this->getArticleModel()->getItem($id) ?: null);
+		}
+		catch (Exception)
+		{
+			$this->articlesById[$id] = null;
+		}
+
+		return $this->articlesById[$id];
+	}
+
+	/**
+	 * Get the category object given a category ID.
+	 *
+	 * @param   int|null  $id  The category ID.
+	 *
+	 * @return  object|null
+	 *
+	 * @since   1.0.0
+	 */
+	public function getCategoryById(?int $id): ?object
+	{
+		if (isset($this->categoriesById[$id]))
+		{
+			return $this->categoriesById[$id];
+		}
+
+		try
+		{
+			$this->categoriesById[$id] = $id === null
+				? null
+				: ($this->getCategoryModel()->getItem($id) ?: null);
+		}
+		catch (Exception $e)
+		{
+			$this->categoriesById[$id] = null;
+		}
+
+		return $this->categoriesById[$id];
+	}
+
+	private function getArticleAndCategoryFromMenuItemOrRequest(?MenuItem $activeMenuItem = null): array
+	{
+		/**
+		 * Make sure we have the correct menu item.
+		 *
+		 * In Joomla 4 and later versions, when you access a `/component/something` URL you get the ItemID for the home
+		 * page item as your active menu item. However, the `option` parameter in the application's global input object
+		 * points to a different component. We detect this discrepancy and place the correct `option` to the $menuOption
+		 * variable. Namely:
+		 *
+		 * - Accessing a regular menu item: you get the `option` from the menu item's `query` array.
+		 * - Accessing an ad-hoc component menu item: you get the `option` from the application's global input object.
+		 */
+		$app           = $this->application;
+		$menuOption    = $activeMenuItem->query['option'] ?? '';
+		$currentOption = $app->getInput()->getCmd('option', $menuOption);
+
+		if (!empty($menuOption) && ($menuOption !== $currentOption))
+		{
+			$menuOption = $currentOption;
+		}
+
+		// Reset the found article and category objects.
+		$article  = null;
+		$category = null;
+
+		// We can only handle com_content menu items here.
+		if ($menuOption != 'com_content')
+		{
+			return [null, null];
+		}
+
+		$task        = $app->getInput()->getCmd('task', $activeMenuItem->query['task'] ?? '');
+		$defaultView = '';
+
+		if (strpos($task, '.') !== false)
+		{
+			[$defaultView,] = explode('.', $task);
+		}
+
+		$view = $app->getInput()->getCmd('view', ($activeMenuItem->query['view'] ?? '') ?: $defaultView);
+
+		switch ($view)
+		{
+			case 'categories':
+			case 'category':
+				$category = ($category ?: $app->getInput()->getInt('id', $activeMenuItem->query['id'] ?? null));
+				break;
+
+			case 'archive':
+			case 'article':
+			case 'featured':
+				// Apply article overrides if applicable
+				$article = ($article ?: $app->getInput()->getInt('id', $activeMenuItem->query['id'] ?? null));
+
+				break;
+		}
+
+		return [$article, $category];
 	}
 
 	/**
@@ -141,7 +382,7 @@ final class ParametersRetriever
 	 * @return  array
 	 * @since   3.0.0
 	 */
-	public function inheritanceAwareMerge(array $source, array $overrides): array
+	private function inheritanceAwareMerge(array $source, array $overrides): array
 	{
 		$overrideImageParams = isset($overrides['override']) && $overrides['override'] == 1;
 
@@ -205,7 +446,7 @@ final class ParametersRetriever
 	 * @throws  Exception
 	 * @since   1.0.0
 	 */
-	public function getMenuParameters(int $id, ?MenuItem $menuItem = null): array
+	private function getMenuParameters(int $id, ?MenuItem $menuItem = null): array
 	{
 		// Return cached results quickly
 		if (isset($this->menuParameters[$id]))
@@ -243,7 +484,7 @@ final class ParametersRetriever
 	 *
 	 * @since   1.0.0
 	 */
-	public function getArticleParameters(int $id, $article = null): array
+	private function getArticleParameters(int $id, $article = null): array
 	{
 		// Return cached results quickly.
 		if (isset($this->articleParameters[$id]))
@@ -278,7 +519,7 @@ final class ParametersRetriever
 	 *
 	 * @since   1.0.0
 	 */
-	public function getCategoryArticleParameters(int $id, $category = null): array
+	private function getCategoryArticleParameters(int $id, $category = null): array
 	{
 		// Return cached results quickly
 		if (isset($this->categoryArticleParameters[$id]))
@@ -313,7 +554,7 @@ final class ParametersRetriever
 	 *
 	 * @since   1.0.0
 	 */
-	public function getCategoryParameters(int $id, $category = null): array
+	private function getCategoryParameters(int $id, $category = null): array
 	{
 		// Return cached results quickly
 		if (isset($this->categoryParameters[$id]))
@@ -332,75 +573,6 @@ final class ParametersRetriever
 		$catParams      = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.category_');
 
 		return $this->categoryParameters[$id] = $this->inheritanceAwareMerge($parentParams, $catParams);
-	}
-
-	/**
-	 * Retrieve the default parameters for the application or component.
-	 *
-	 * This method returns an array containing the default configuration parameters.
-	 *
-	 * @return  array The default parameters.
-	 * @since   3.0.0
-	 */
-	public function getDefaultParameters(): array
-	{
-		return $this->defaultParameters;
-	}
-
-	/**
-	 * Returns an article record given an article ID.
-	 *
-	 * @param   int  $id  The article ID.
-	 *
-	 * @return  object|null
-	 *
-	 * @since   1.0.0
-	 */
-	public function getArticleById(int $id): ?object
-	{
-		if (isset($this->articlesById[$id]))
-		{
-			return $this->articlesById[$id];
-		}
-
-		try
-		{
-			$this->articlesById[$id] = $this->getArticleModel()->getItem($id) ?: null;
-		}
-		catch (Exception)
-		{
-			$this->articlesById[$id] = null;
-		}
-
-		return $this->articlesById[$id];
-	}
-
-	/**
-	 * Get the category object given a category ID.
-	 *
-	 * @param   int  $id  The category ID.
-	 *
-	 * @return  object|null
-	 *
-	 * @since   1.0.0
-	 */
-	public function getCategoryById(int $id): ?object
-	{
-		if (isset($this->categoriesById[$id]))
-		{
-			return $this->categoriesById[$id];
-		}
-
-		try
-		{
-			$this->categoriesById[$id] = $this->getCategoryModel()->getItem($id) ?: null;
-		}
-		catch (Exception $e)
-		{
-			$this->categoriesById[$id] = null;
-		}
-
-		return $this->categoriesById[$id];
 	}
 
 	/**
@@ -487,5 +659,175 @@ final class ParametersRetriever
 		}
 
 		return $this->getCategoryById($parentId);
+	}
+
+	/**
+	 * Get the appropriate text for rendering on the auto-generated OpenGraph image
+	 *
+	 * @param   string|null  $customText  Any custom text the admin has entered for this menu item/
+	 * @param   bool         $useArticle  Should I do a fallback to the core content article's title, if one exists?
+	 * @param   bool         $useTitle    Should I do a fallback to the Joomla page title?
+	 * @param   object|null  $article     The article object displayed on the page.
+	 * @param   object|null  $category    The category object displayed on the page.
+	 *
+	 * @return  string  The text to render in the auto-generated OpenGraph image.
+	 *
+	 * @since   1.0.0
+	 */
+	private function getText(?string $customText = null, bool $useArticle = false, bool $useTitle = false, ?object $article = null, ?object $category = null): string
+	{
+		// 01. Try using a global variable used by template overrides
+		global $socialMagickText;
+
+		if (is_string($socialMagickText ?? null) && !empty(trim($socialMagickText)))
+		{
+			return trim($socialMagickText);
+		}
+
+		// 02. Explicitly entered custom text
+		$customText = trim($customText ?? '');
+
+		if (!empty($customText))
+		{
+			return $customText;
+		}
+
+		// 03. Core content article title, if one exists and this feature is enabled.
+		if ($useArticle)
+		{
+			$title = trim($category?->title ?? $article?->title ?? '');
+
+			if (!empty($title))
+			{
+				return $title;
+			}
+		}
+
+		// 04. Joomla! page title, if this feature is enabled
+		if ($useTitle)
+		{
+			$menu        = $this->application->getMenu();
+			$currentItem = $menu->getActive();
+
+			return $currentItem->getParams()->get('page_title', $this->application->getDocument()->getTitle());
+		}
+
+		// I have found nothing. Return blank.
+		return '';
+	}
+
+	/**
+	 * Gets the additional image to apply to the article
+	 *
+	 * @param   string|null  $imageSource  The image source type: `none`, `intro`, `fulltext`, `custom`.
+	 * @param   string|null  $imageField   The name of the Joomla! Custom Field when `$imageSource` is `custom`.
+	 * @param   string|null  $staticImage  A static image definition
+	 * @param   object|null  $article      The article object displayed on the page.
+	 * @param   object|null  $category     The category object displayed on the page.
+	 *
+	 * @return  string|null  The (hopefully relative) image path. NULL if no image is found or applicable.
+	 *
+	 * @since   1.0.0
+	 */
+	private function getExtraImage(?string $imageSource, ?string $imageField, ?string $staticImage, ?object $article = null, ?object $category = null): ?string
+	{
+		global $socialMagickImage;
+
+		$customImage = trim($socialMagickImage ?? '');
+
+		if (!empty($customImage))
+		{
+			return $customImage;
+		}
+
+		if (empty($imageSource))
+		{
+			return null;
+		}
+
+		// Get the applicable content object
+		$contentObject = $category ?? $article ?? null;
+
+		// Decode custom fields
+		$jcFields = $contentObject?->jcfields ?? [];
+
+		if (is_string($jcFields))
+		{
+			$jcFields = @json_decode($jcFields, true);
+		}
+
+		$jcFields = is_array($jcFields) ? $jcFields : [];
+
+		// Decode images
+		$articleImages = $contentObject?->images ?? ($contentObject?->params ?? []);
+		$articleImages = is_string($articleImages) ? @json_decode($articleImages, true) : $articleImages;
+		$articleImages = is_array($articleImages) ? $articleImages : [];
+
+		switch ($imageSource)
+		{
+			default:
+			case 'none':
+				return null;
+
+			case 'static':
+				return $staticImage;
+
+			case 'fullintro':
+				return $this->getExtraImage('fulltext', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage);
+
+			case 'introfull':
+				return $this->getExtraImage('intro', $imageField, $staticImage)
+					?? $this->getExtraImage('fulltext', $imageField, $staticImage);
+
+			case 'customfullintro':
+				return $this->getExtraImage('custom', $imageField, $staticImage)
+					?? $this->getExtraImage('fulltext', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage);
+
+			case 'customintrofull':
+				return $this->getExtraImage('custom', $imageField, $staticImage)
+					?? $this->getExtraImage('intro', $imageField, $staticImage)
+					?? $this->getExtraImage('fulltext', $imageField, $staticImage);
+
+			case 'intro':
+			case 'fulltext':
+			case 'category':
+				return empty($articleImages)
+					? null :
+					(($articleImages['image_' . $imageSource] ?? $articleImages['image'] ?? null) ?: null);
+
+			case 'custom':
+				if (empty($jcFields) || empty($imageField))
+				{
+					return null;
+				}
+
+				foreach ($jcFields as $fieldInfo)
+				{
+					if ($fieldInfo->name != $imageField)
+					{
+						continue;
+					}
+
+					$rawvalue = $fieldInfo->rawvalue ?? '';
+					$value    = @json_decode($rawvalue, true);
+
+
+					if (empty($value) && is_string($rawvalue))
+					{
+						return $rawvalue;
+					}
+
+					if (empty($value) || !is_array($value))
+					{
+						return null;
+					}
+
+					return trim($value['imagefile'] ?? '') ?: null;
+				}
+
+				return null;
+		}
 	}
 }

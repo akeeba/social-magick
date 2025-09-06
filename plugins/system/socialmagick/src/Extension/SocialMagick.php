@@ -12,9 +12,8 @@ defined('_JEXEC') || die();
 use Akeeba\Component\SocialMagick\Administrator\Library\OpenGraphTags\OGTagsHelper;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\DebugPlaceholderTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
-use Akeeba\Plugin\System\SocialMagick\Extension\Traits\OpenGraphImageTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
-use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Database\DatabaseAwareInterface;
@@ -35,27 +34,23 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 {
 	use DatabaseAwareTrait;
 	use DebugPlaceholderTrait;
-	use OpenGraphImageTrait;
 	use ImageGeneratorHelperTrait;
 	use ParametersRetrieverTrait;
 	use Feature\FormTabs;
 	use Feature\Ajax;
 
 	/**
-	 * The com_content article ID being rendered, if applicable.
+	 * Does the system meet the requirements for using this plugin?
 	 *
-	 * @var   int|null
-	 * @since 1.0.0
+	 * @var   bool
+	 * @since 3.0.0
 	 */
-	protected ?int $article = null;
+	private bool $enabled;
 
-	/**
-	 * The com_content category ID being rendered, if applicable.
-	 *
-	 * @var   int|null
-	 * @since 1.0.0
-	 */
-	protected ?int $category = null;
+	public function __construct($config = [])
+	{
+		parent::__construct($config);
+	}
 
 	/** @inheritDoc */
 	public static function getSubscribedEvents(): array
@@ -76,70 +71,37 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 *
 	 * This is the main event where Social Magick evaluates whether to apply an OpenGraph image to the document.
 	 *
-	 * @return  void
+	 * @param   Event  $event
 	 *
-	 * @since        1.0.0
-	 * @noinspection PhpUnusedParameterInspection
-	 * @noinspection PhpUnused
+	 * @return  void
+	 * @throws  \Exception
+	 * @since   1.0.0
 	 */
 	public function onBeforeRender(Event $event): void
 	{
 		// Should I proceed?
-		if (!$this->shouldProcessOpenGraph())
+		if (!$this->isEnabled())
 		{
 			return;
 		}
 
-		// Get the active menu item.
-		$app            = $this->getApplication();
-		$activeMenuItem = $app->getMenu()->getActive();
-
-		// Populate $this->article and $this->content, if they exist
-		$this->handleCoreContentMenuItems();
-
-		// Start with the component parameters
 		$parametersRetriever = $this->getParamsRetriever();
-		$params              = array_merge($parametersRetriever->getDefaultParameters(), $this->getComponentParams());
+		$imageGenerator      = $this->getImageGenerator();
+		$ogTagsHelper        = new OGTagsHelper($this->getApplication());
 
-		if ($this->article)
-		{
-			$extraParams = $parametersRetriever->getArticleParameters($this->article);
-			$params      = $parametersRetriever->inheritanceAwareMerge($params, $extraParams);
-		}
-		elseif ($this->category)
-		{
-			$extraParams = $parametersRetriever->getCategoryParameters($this->category);
-			$params      = $parametersRetriever->inheritanceAwareMerge($params, $extraParams);
-		}
-
-		// Get the menu item parameters and cascade them.
-		$paramsFromMenu = $parametersRetriever->getMenuParameters($activeMenuItem->id, $activeMenuItem);
-		$params         = $parametersRetriever->inheritanceAwareMerge($params, $paramsFromMenu);
-
-		/**
-		 * Get the effective template ID.
-		 *
-		 * We are doing the following (first non-empty template ID found wins):
-		 * * The `template` key from `$params`. Only set if there are (cascaded) overrides.
-		 * * The default template ID set up in the extension.
-		 * * The first published template's ID
-		 * * Fallback to 0 which just uses some rather useless defaults.
-		 */
-		$firstTemplateKey          = array_key_first($this->getImageGenerator()->getTemplates() ?? []);
-		$configuredDefaultTemplate = ($this->getComponentParams()['default_template'] ?? $firstTemplateKey) ?: null;
-		$templateFromParams        = ($params['template'] ?? null) ?: null;
-		$templateId                = $templateFromParams ?? $configuredDefaultTemplate ?? $firstTemplateKey ?? 0;
-
-		$params['template'] = $templateId;
+		$activeMenuItem = $this->getApplication()->getMenu()->getActive();
+		$params         = $parametersRetriever->getApplicableOGParameters($activeMenuItem);
 
 		// Generate an OpenGraph image if supported and if we are requested to do so.
-		if ($this->getImageGenerator()->isAvailable() && $params['generate_images'] == 1)
+		if ($params['generate_images'] == 1 && $imageGenerator->isAvailable())
 		{
-			$this->applyOGImage($params);
+			$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params);
+
+			$imageGenerator->applyOGImage(...$arguments);
 		}
 
 		// Apply additional OpenGraph tags
-		(new OGTagsHelper($this->getApplication()))->applyOpenGraphTags($params);
+		$ogTagsHelper->applyOpenGraphTags($params);
 	}
 
 	/**
@@ -155,6 +117,11 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	public function onContentBeforeDisplay(Event $event): void
 	{
+		if (!$this->isEnabled())
+		{
+			return;
+		}
+
 		[$context, $row, $params] = array_values($event->getArguments());
 		$result = $event->getArgument('result') ?: [];
 		$result = is_array($result) ? $result : [$result];
@@ -173,34 +140,15 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			return;
 		}
 
-		switch ($context)
+		if (!in_array($context, ['com_content.article', 'com_content.category', 'com_content.categories'], true))
 		{
-			case 'com_content.article':
-			case 'com_content.category':
-				$this->article = $row->id;
-				break;
-
-			case 'com_content.categories':
-				$this->category = $row->id;
-
-			default:
-				return;
-		}
-
-		// Save the article/category, images and fields for later use
-		if ($context == 'com_content.categories')
-		{
-			$this->category = $row->id;
-		}
-		else
-		{
-			$this->article = $row->id;
+			return;
 		}
 
 		// Add the debug link if necessary
-		$cParams = $this->getComponentParams();
+		$cParams = ComponentHelper::getParams('com_socialmagick');
 
-		if (($cParams['debuglink'] ?? 0) != 1)
+		if ($cParams->get('debuglink', 0) != 1)
 		{
 			return;
 		}
@@ -223,116 +171,60 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	public function onAfterRender(Event $event): void
 	{
-		$ogTagsHelper     = new OGTagsHelper($this->getApplication());
-		$cParams          = $this->getComponentParams();
-		$addOgDeclaration = (bool) ($cParams['add_og_declaration'] ?? 1);
-		$debugLink        = (bool) ($cParams['debuglink'] ?? 0);
+		if (!$this->isEnabled())
+		{
+			return;
+		}
 
-		if ($addOgDeclaration)
+		$ogTagsHelper = new OGTagsHelper($this->getApplication());
+		$cParams      = ComponentHelper::getParams('com_socialmagick');
+		if ($cParams->get('add_og_declaration', 1))
 		{
 			$ogTagsHelper->addOgPrefixToHtmlDocument();
 		}
 
 		// TODO Remove me or replace me.
-		if ($debugLink)
+		if ($cParams->get('debuglink', 0))
 		{
 			$this->replaceDebugImagePlaceholder();
-		}
-
-	}
-
-	private function handleCoreContentMenuItems(): void
-	{
-		/**
-		 * Make sure we have the correct menu item.
-		 *
-		 * In Joomla 4 and later versions, when you access a `/component/something` URL you get the ItemID for the home
-		 * page item as your active menu item. However, the `option` parameter in the application's global input object
-		 * points to a different component. We detect this discrepancy and place the correct `option` to the $menuOption
-		 * variable. Namely:
-		 *
-		 * - Accessing a regular menu item: you get the `option` from the menu item's `query` array.
-		 * - Accessing an ad-hoc component menu item: you get the `option` from the application's global input object.
-		 */
-		$app            = $this->getApplication();
-		$activeMenuItem = $app->getMenu()->getActive();
-		$menuOption     = $activeMenuItem->query['option'] ?? '';
-		$currentOption  = $app->getInput()->getCmd('option', $menuOption);
-
-		if (!empty($menuOption) && ($menuOption !== $currentOption))
-		{
-			$menuOption = $currentOption;
-		}
-
-		// Reset the found article and category objects.
-		$this->article  = null;
-		$this->category = null;
-
-		// We can only handle com_content menu items here.
-		if ($menuOption != 'com_content')
-		{
-			return;
-		}
-
-		$task        = $app->getInput()->getCmd('task', $activeMenuItem->query['task'] ?? '');
-		$defaultView = '';
-
-		if (strpos($task, '.') !== false)
-		{
-			[$defaultView,] = explode('.', $task);
-		}
-
-		$view = $app->getInput()->getCmd('view', ($activeMenuItem->query['view'] ?? '') ?: $defaultView);
-
-		switch ($view)
-		{
-			case 'categories':
-			case 'category':
-				$this->category = ($this->category ?: $app->getInput()->getInt('id', $activeMenuItem->query['id'] ?? null));
-				break;
-
-			case 'archive':
-			case 'article':
-			case 'featured':
-				// Apply article overrides if applicable
-				$this->article = ($this->article ?: $app->getInput()->getInt('id', $activeMenuItem->query['id'] ?? null));
-
-				break;
 		}
 	}
 
 	/**
-	 * Determine whether to proceed with processing the OpenGraph data for this page.
-	 *
-	 * It asserts the following conditions:
-	 *
-	 * * We are in the frontend (site) application.
-	 * * There is an active menu item.
+	 * Does the environment meet the requirements to generate OpenGraph tags and images?
 	 *
 	 * @return  bool
 	 * @since   3.0.0
 	 */
-	private function shouldProcessOpenGraph(): bool
+	private function isEnabled(): bool
 	{
-		// Is com_socialmagick installed and enabled on this site?
-		$record = ComponentHelper::getComponent('com_socialmagick', true);
-
-		if (!$record || !$record->enabled)
+		if (isset($this->enabled))
 		{
-			return false;
+			return $this->enabled;
 		}
 
-		// Is this the frontend HTML application?
+		$this->enabled = false;
+
 		try
 		{
+			// Is com_socialmagick installed and enabled on this site?
+			if (!ComponentHelper::getComponent('com_socialmagick', true)?->enabled)
+			{
+				return false;
+			}
+
+			// Is this the frontend HTML application?
 			$app = $this->getApplication();
 
-			if (
-				!is_object($app)
-				|| !($app instanceof CMSApplication)
-				|| !$app->isClient('site')
-				|| $app->getDocument()->getType() != 'html'
-			)
+			if (!($app instanceof SiteApplication) || $app->getDocument()->getType() != 'html')
+			{
+				return false;
+			}
+
+			// Make sure there *IS* an active menu item.
+			$activeMenuItem = $app->getMenu()->getActive();
+
+			if (empty($activeMenuItem))
 			{
 				return false;
 			}
@@ -342,61 +234,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 			return false;
 		}
 
-		// Try to get the active menu item
-		try
-		{
-			$activeMenuItem = $app->getMenu()->getActive();
-		}
-		catch (Throwable)
-		{
-			return false;
-		}
-
-		// Make sure there *IS* an active menu item.
-		if (empty($activeMenuItem))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Get the com_socialmagick parameters
-	 *
-	 * @return  array
-	 * @since   3.0.0
-	 */
-	private function getComponentParams(): array
-	{
-		$record = ComponentHelper::getComponent('com_socialmagick', true);
-
-		if (!$record || !$record->enabled)
-		{
-			return [];
-		}
-
-		$params = $record->params;
-
-		if (is_array($params))
-		{
-			return $params;
-		}
-
-		if ($params instanceof Registry)
-		{
-			return $params->toArray();
-		}
-
-		try
-		{
-			$params = new Registry($params);
-		}
-		catch (\Throwable)
-		{
-			return [];
-		}
-
-		return $params->toArray();
+		return $this->enabled = true;
 	}
 }

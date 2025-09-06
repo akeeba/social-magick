@@ -103,22 +103,22 @@ final class ImageGenerator implements DatabaseAwareInterface
 	/**
 	 * ImageGenerator constructor.
 	 *
-	 * @param   Registry  $pluginParams  The plugin parameters. Used to set up internal properties.
+	 * @param   Registry  $cParams  The component parameters. Used to set up internal properties.
 	 *
 	 * @since   1.0.0
 	 */
-	public function __construct(Registry $pluginParams, DatabaseInterface $db)
+	public function __construct(Registry $cParams, DatabaseInterface $db)
 	{
 		$this->setDatabase($db);
-		$this->devMode             = $pluginParams->get('devmode', 0) == 1;
-		$this->outputFolder        = $pluginParams->get('output_folder', 'images/og-generated') ?: 'images/og-generated';
-		$this->folderLevels        = $pluginParams->get('folder_levels', 0);
-		$this->oldImageThreshold   = $pluginParams->get('old_images_after', 180);
-		$this->autoDeleteOldImages = $pluginParams->get('pseudo_cron', '1') == 1;
+		$this->devMode             = $cParams->get('devmode', 0) == 1;
+		$this->outputFolder        = $cParams->get('output_folder', 'images/og-generated') ?: 'images/og-generated';
+		$this->folderLevels        = $cParams->get('folder_levels', 0);
+		$this->oldImageThreshold   = $cParams->get('old_images_after', 180);
+		$this->autoDeleteOldImages = $cParams->get('pseudo_cron', '1') == 1;
 
-		$rendererType = $pluginParams->get('library', 'auto');
-		$textDebug    = $pluginParams->get('textdebug', '0') == 1;
-		$quality      = 100 - $pluginParams->get('quality', '95');
+		$rendererType = $cParams->get('library', 'auto');
+		$textDebug    = $cParams->get('textdebug', '0') == 1;
+		$quality      = 100 - $cParams->get('quality', '95');
 
 		$this->loadImageTemplates();
 

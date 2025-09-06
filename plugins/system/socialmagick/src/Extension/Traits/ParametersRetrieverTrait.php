@@ -28,6 +28,8 @@ trait ParametersRetrieverTrait
 	 */
 	protected function getParamsRetriever(): ParametersRetriever
 	{
-		return $this->paramsRetriever ??= new ParametersRetriever($this->getApplication());
+		return $this->paramsRetriever ??= new ParametersRetriever(
+			$this->getApplication(), $this->getDatabase()
+		);
 	}
 }

@@ -44,9 +44,7 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 
 * [ ] Image effects: opacity, grayscale, sepia. Adjust them individually.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
-* [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).
-* [ ] User group restriction for OG image preview (see replaceDebugImagePlaceholder). See notes on [gh-26].
-* [ ] User group restriction / optional feature to display the debug image placeholder after clicking a button placed inline the article content. Unlike the debug feature, this would be possible to leave always enabled if needed. See notes on [gh-26].
+* [ ] User group restriction for OG image preview. See notes on [gh-26].
 * [ ] Rewrite documentation as DocBook XML [gh-14]
 * [ ] Document that `imagick` or `gd` are required. Explain how you can use the PHP Information page in Joomla to determine if they are installed. Explain that if it's not enabled you can do that from the hosting control panel, or ask your host.
 * [ ] Document that the lang strings are in the backend, but the overrides must be set for BOTH backend AND frontend

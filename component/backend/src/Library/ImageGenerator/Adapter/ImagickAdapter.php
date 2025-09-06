@@ -10,6 +10,7 @@
 
 namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
+use Imagick;
 use ImagickDraw;
 use ImagickPixel;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -47,7 +48,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		$templateHeight = $template['template-h'] ?? 630;
 
 		// Setup the base image upon which we will superimpose the layered image (if any) and the text
-		$image = new ImagickAdapter();
+		$image = new Imagick();
 
 		// Create a new, transparent backdrop
 		$transparentPixel = new ImagickPixel('transparent');
@@ -86,13 +87,13 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			$imgX   = 0;
 			$imgY   = 0;
 
-			$image->compositeImage($tmpImg, ImagickAdapter::COMPOSITE_OVER, $imgX, $imgY);
+			$image->compositeImage($tmpImg, Imagick::COMPOSITE_OVER, $imgX, $imgY);
 		}
 
 		// Add extra image
 		if ($template['use-article-image'] != '0' && $extraImage)
 		{
-			$extraCanvas      = new ImagickAdapter();
+			$extraCanvas      = new Imagick();
 			$transparentPixel = new ImagickPixel('transparent');
 			$extraCanvas->newImage($templateWidth, $templateHeight, $transparentPixel);
 			$transparentPixel->destroy();
@@ -104,7 +105,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 				$imgY   = 0;
 				$extraCanvas->compositeImage(
 					$tmpImg,
-					ImagickAdapter::COMPOSITE_DEFAULT,
+					Imagick::COMPOSITE_DEFAULT,
 					(int) $imgX,
 					(int) $imgY
 				);
@@ -116,7 +117,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 				$imgY   = $template['image-y'];
 				$extraCanvas->compositeImage(
 					$tmpImg,
-					ImagickAdapter::COMPOSITE_DEFAULT,
+					Imagick::COMPOSITE_DEFAULT,
 					0,
 					0);
 			}
@@ -125,12 +126,12 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			{
 				$extraCanvas->compositeImage(
 					$image,
-					ImagickAdapter::COMPOSITE_OVER,
+					Imagick::COMPOSITE_OVER,
 					-((int) $imgX),
 					-((int) $imgY));
 				$image->compositeImage(
 					$extraCanvas,
-					ImagickAdapter::COMPOSITE_COPY,
+					Imagick::COMPOSITE_COPY,
 					(int) $imgX,
 					(int) $imgY);
 
@@ -139,7 +140,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			{
 				$image->compositeImage(
 					$extraCanvas,
-					ImagickAdapter::COMPOSITE_DEFAULT,
+					Imagick::COMPOSITE_DEFAULT,
 					(int) $imgX,
 					(int) $imgY);
 			}
@@ -158,7 +159,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			case 'jpg':
 				$image->setCompressionQuality($this->quality);
-				$image->setImageCompression(ImagickAdapter::COMPRESSION_JPEG);
+				$image->setImageCompression(Imagick::COMPRESSION_JPEG);
 				break;
 
 			case 'png':
@@ -194,15 +195,15 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 * @param   numeric  $new_h  New height, in pixels.
 	 * @param   string   $focus  Focus of the image; default is center.
 	 *
-	 * @return  ImagickAdapter
+	 * @return  Imagick
 	 *
 	 * @throws \ImagickException
 	 *
 	 * @since   1.0.0
 	 */
-	private function resize(string $src, $new_w, $new_h, string $focus = 'center'): ImagickAdapter
+	private function resize(string $src, $new_w, $new_h, string $focus = 'center'): Imagick
 	{
-		$image = new ImagickAdapter($src);
+		$image = new Imagick($src);
 
 		$w = $image->getImageWidth();
 		$h = $image->getImageHeight();
@@ -222,7 +223,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			}
 		}
 
-		$image->resizeImage((int) $resize_w, (int) $resize_h, ImagickAdapter::FILTER_LANCZOS, 0.9);
+		$image->resizeImage((int) $resize_w, (int) $resize_h, Imagick::FILTER_LANCZOS, 0.9);
 
 		switch ($focus)
 		{
@@ -256,13 +257,13 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @param   string          $text      The text to render.
 	 * @param   array           $template  The OpenGraph image template definition.
-	 * @param   ImagickAdapter  $image     The image to overlay the text.
+	 * @param   Imagick  $image     The image to overlay the text.
 	 *
 	 * @return  void
 	 *
 	 * @since   1.0.0
 	 */
-	private function renderOverlayText(string $text, array $template, ImagickAdapter &$image): void
+	private function renderOverlayText(string $text, array $template, Imagick &$image): void
 	{
 		// Make sure we are told to overlay text
 		if (($template['overlay_text'] ?? 1) != 1)
@@ -274,7 +275,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		$text = $this->preProcessText($text, false);
 
 		// Set up the text
-		$theText = new ImagickAdapter();
+		$theText = new Imagick();
 		$theText->setBackgroundColor('transparent');
 
 		/* Font properties */
@@ -290,15 +291,15 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			default:
 			case 'center':
-				$theText->setGravity(ImagickAdapter::GRAVITY_CENTER);
+				$theText->setGravity(Imagick::GRAVITY_CENTER);
 				break;
 
 			case 'left':
-				$theText->setGravity(ImagickAdapter::GRAVITY_WEST);
+				$theText->setGravity(Imagick::GRAVITY_WEST);
 				break;
 
 			case 'right':
-				$theText->setGravity(ImagickAdapter::GRAVITY_EAST);
+				$theText->setGravity(Imagick::GRAVITY_EAST);
 				break;
 		}
 
@@ -312,7 +313,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		$theText->trimImage(0.0);
 
 		// Set text color
-		$clut           = new ImagickAdapter();
+		$clut           = new Imagick();
 		$textColorPixel = new ImagickPixel($template['text-color']);
 		$clut->newImage(1, 1, $textColorPixel);
 		$textColorPixel->destroy();
@@ -349,7 +350,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			$draw->setStrokeWidth(2);
 			$draw->rectangle(1, 1, $debugW - 1, $debugH - 1);
 
-			$debugImage       = new ImagickAdapter();
+			$debugImage       = new Imagick();
 			$transparentPixel = new ImagickPixel('transparent');
 			$debugImage->newImage($debugW, $debugH, $transparentPixel);
 
@@ -362,7 +363,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 			$image->compositeImage(
 				$debugImage,
-				ImagickAdapter::COMPOSITE_OVER,
+				Imagick::COMPOSITE_OVER,
 				(int) $xPos,
 				(int) $yPos
 			);
@@ -372,7 +373,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		// Composite bestfit caption over base image.
 		$image->compositeImage(
 			$theText,
-			ImagickAdapter::COMPOSITE_DEFAULT,
+			Imagick::COMPOSITE_DEFAULT,
 			(int) $xPos,
 			(int) $yPos);
 

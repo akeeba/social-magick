@@ -1,0 +1,41 @@
+{
+	"$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+	"name": "plg_system_socialmagick",
+	"version": "0.0.0",
+	"description": "System - Social Magick",
+	"license": "GPL-3.0-or-later",
+	"assets": [
+		{
+			"name": "plg_system_socialmagick.preview",
+			"type": "preset",
+			"dependencies": [
+				"plg_system_socialmagick.preview#style",
+				"plg_system_socialmagick.preview#script"
+			]
+		},
+		{
+			"name": "plg_system_socialmagick.preview",
+			"description": "CSS for previewing OpenGraph images",
+			"type": "style",
+			"uri": "plg_system_socialmagick/preview.css",
+			"options" : {
+				"preload": "preload"
+			},
+			"dependencies": [
+				"fontawesome"
+			]
+		},
+		{
+			"name": "plg_system_socialmagick.preview",
+			"description": "JS for previewing OpenGraph images",
+			"type": "script",
+			"uri": "plg_system_socialmagick/preview.min.js",
+			"dependencies": [
+				"core"
+			],
+			"attributes": {
+				"defer": true
+			}
+		}
+	]
+}

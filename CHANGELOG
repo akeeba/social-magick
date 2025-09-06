@@ -1,5 +1,7 @@
 <?php die(); ?>
 Social Magick 3.0.0
 --------------------------------------------------------------------------------
-+ Hide the OpenGraph tab for menu items which are not related to core content
-+ Image source can now cascade between custom field, intro text, and full text
++ A component to manage your templates
++ New OpenGraph Preview in the frontend
++ Correct cascading of the options
++ Image sources with fallbacks

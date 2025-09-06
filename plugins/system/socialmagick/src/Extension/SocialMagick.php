@@ -10,17 +10,18 @@ namespace Akeeba\Plugin\System\SocialMagick\Extension;
 defined('_JEXEC') || die();
 
 use Akeeba\Component\SocialMagick\Administrator\Library\OpenGraphTags\OGTagsHelper;
-use Akeeba\Plugin\System\SocialMagick\Extension\Traits\DebugPlaceholderTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Document\HtmlDocument;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\WebAsset\WebAssetManager;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Event\Event;
 use Joomla\Event\SubscriberInterface;
-use Joomla\Registry\Registry;
 use Throwable;
 
 /**
@@ -33,7 +34,6 @@ use Throwable;
 class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwareInterface
 {
 	use DatabaseAwareTrait;
-	use DebugPlaceholderTrait;
 	use ImageGeneratorHelperTrait;
 	use ParametersRetrieverTrait;
 	use Feature\FormTabs;
@@ -47,6 +47,8 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	 */
 	private bool $enabled;
 
+	private string $previewHtml;
+
 	public function __construct($config = [])
 	{
 		parent::__construct($config);
@@ -56,13 +58,12 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			'onAfterRender'          => 'onAfterRender',
-			'onAjaxSocialmagick'     => 'onAjaxSocialmagick',
-			'onBeforeRender'         => 'onBeforeRender',
-			'onContentBeforeDisplay' => 'onContentBeforeDisplay',
-			'onContentBeforeSave'    => 'onContentBeforeSave',
-			'onContentPrepareData'   => 'onContentPrepareData',
-			'onContentPrepareForm'   => 'onContentPrepareForm',
+			'onAfterRender'        => 'onAfterRender',
+			'onAjaxSocialmagick'   => 'onAjaxSocialmagick',
+			'onBeforeRender'       => 'onBeforeRender',
+			'onContentBeforeSave'  => 'onContentBeforeSave',
+			'onContentPrepareData' => 'onContentPrepareData',
+			'onContentPrepareForm' => 'onContentPrepareForm',
 		];
 	}
 
@@ -95,67 +96,19 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		// Generate an OpenGraph image if supported and if we are requested to do so.
 		if ($params['generate_images'] == 1 && $imageGenerator->isAvailable())
 		{
+			$cParams   = ComponentHelper::getParams('com_socialmagick');
 			$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params);
 
 			$imageGenerator->applyOGImage(...$arguments);
+
+			if ($cParams->get('debuglink', 0))
+			{
+				$this->preparePreviewButton();
+			}
 		}
 
 		// Apply additional OpenGraph tags
 		$ogTagsHelper->applyOpenGraphTags($params);
-	}
-
-	/**
-	 * Runs when Joomla is about to display an article or category.
-	 *
-	 * TODO Remove me, and come up with a different way to preview the OpenGraph image. Maybe a floating button?
-	 *
-	 * @param   Event  $event
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 */
-	public function onContentBeforeDisplay(Event $event): void
-	{
-		if (!$this->isEnabled())
-		{
-			return;
-		}
-
-		[$context, $row, $params] = array_values($event->getArguments());
-		$result = $event->getArgument('result') ?: [];
-		$result = is_array($result) ? $result : [$result];
-
-		/**
-		 * When Joomla is rendering an article in a Newsflash module it uses the same context as rendering an article
-		 * through com_content (com_content.article). However, we do NOT want the newsflash articles to override the
-		 * Social Magick settings!
-		 *
-		 * This is an ugly hack around this problem. It's based on the observation that the newsflash module is passing
-		 * its own module options in the $params parameter to this event. As a result it has the `moduleclass_sfx` key
-		 * defined, whereas this key does not exist when rendering an article through com_content.
-		 */
-		if (($params instanceof Registry) && $params->exists('moduleclass_sfx'))
-		{
-			return;
-		}
-
-		if (!in_array($context, ['com_content.article', 'com_content.category', 'com_content.categories'], true))
-		{
-			return;
-		}
-
-		// Add the debug link if necessary
-		$cParams = ComponentHelper::getParams('com_socialmagick');
-
-		if ($cParams->get('debuglink', 0) != 1)
-		{
-			return;
-		}
-
-		$result[] = $this->getDebugLinkPlaceholder();
-
-		$event->setArgument('result', $result);
 	}
 
 	/**
@@ -178,16 +131,61 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 
 		$ogTagsHelper = new OGTagsHelper($this->getApplication());
 		$cParams      = ComponentHelper::getParams('com_socialmagick');
+
 		if ($cParams->get('add_og_declaration', 1))
 		{
 			$ogTagsHelper->addOgPrefixToHtmlDocument();
 		}
 
-		// TODO Remove me or replace me.
-		if ($cParams->get('debuglink', 0))
+		if (!empty($this->previewHtml ?? ''))
 		{
-			$this->replaceDebugImagePlaceholder();
+			$body = $this->getApplication()->getBody();
+			$body = str_replace('</body', $this->previewHtml . '</body', $body);
+			$this->getApplication()->setBody($body);
 		}
+	}
+
+	/**
+	 * Prepares the OpenGraph preview button.
+	 *
+	 * This loads all the necessary CSS and JavaScript, and stashes the OpenGraph preview HTML in the `previewHtml`
+	 * property. The HTML needs to be pushed to the bottom of the document in the onAfterRender event handler.
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function preparePreviewButton(): void
+	{
+		/**
+		 * @var HtmlDocument    $document Joomla's HTML document
+		 * @var WebAssetManager $wam      The WebAssetManager
+		 */
+		$document = $this->getApplication()->getDocument();
+		$wam      = $document->getWebAssetManager();
+
+		// Load JavaScript and CSS
+		$wam->getRegistry()->addExtensionRegistryFile('plg_system_socialmagick');
+		$wam->usePreset('plg_system_socialmagick.preview');
+
+		// Load the language
+		$this->loadLanguage('plg_system_socialmagick', JPATH_ADMINISTRATOR);
+
+		// Get the OpenGraph preview information
+		$imageLink   = $document->getMetaData('og:image', 'property')
+			?: $document->getMetaData('twitter:image', 'property')
+				?: null;
+		$title       = $document->getMetaData('og:title', 'property')
+			?: $document->getTitle()
+				?: $this->getApplication()->get('sitename');
+		$description = $document->getMetaData('og:description', 'property')
+			?: $document->getDescription()
+				?: $this->getApplication()->get('MetaDesc')
+					?: '';
+
+		// Load the HTML template
+		@ob_start();
+		@include_once PluginHelper::getLayoutPath('system', 'socialmagick', 'preview');
+		$this->previewHtml = @ob_get_clean() ?: '';
 	}
 
 	/**

@@ -42,8 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
-* [ ] Add a preview feature to the component. Allow using one of several sample images.
-* [ ] "BUG: Preview OpenGraph Image" appears on each article of a category page, but it only links to the category OpenGraph image. DO NOT show on each article, only on the category text.
 * [ ] Image effects: opacity, grayscale, sepia. Adjust them individually.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] Add support for OG images defined in Fields (thus overriding the full and intro text image).
@@ -57,8 +55,6 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 * [ ] Auto-generating article intro and/or full text images [gh-6] (Check that the cache ID / sum matches the one used for the current intro image; we may have to store extra info in the article.)
 
 #### Notes
-
-Move OpenGraph handling into the component. We will have to pass an article and category ID.
 
 Refactor cleaning old images:
 * Move code from \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax into its own model

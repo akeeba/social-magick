@@ -1,0 +1,253 @@
+/*!*
+ * @package   socialmagick
+ * @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
+#plg_system_socialmagic_btn {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background-color: var(--primary, hsl(240, 98%, 17%)) !important;
+  color: var(--white, #ffffff) !important;
+  border: 1px solid var(--primary-border-subtle, rgb(153.3468, 153.3468, 187.3332));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em; /* icon size */
+  box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2),
+  0 6px 10px 0 rgba(0, 0, 0, 0.14),
+  0 1px 18px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    opacity: 0.95;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.plg_system_socialmagic_visually_hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important; /* legacy clip */
+  clip-path: inset(50%) !important; /* modern */
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+#plg_system_socialmagic_preview {
+  .plg_system_socialmagic_modal_backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    // Animation
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    &.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+
+      .plg_system_socialmagic_modal_dialog {
+        transform: scale(1) translateY(0);
+      }
+    }
+  }
+
+  .plg_system_socialmagic_modal_dialog {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    max-width: 80vw;
+    min-width: 50vw;
+    width: fit-content;
+    min-height: 500px;
+    max-height: min(80vh, 500px);
+    max-height: 80vh; /* This will override the previous line if 80vh > 500px */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: auto;
+    // Animation
+    transform: scale(0.9) translateY(-30px);
+    transition: transform 0.3s ease;
+  }
+
+  /* Ensure minimum height only when 80vh > 500px */
+  @media screen and (min-height: 625px) {
+    /* 500px / 0.8 = 625px */
+    .modal-dialog {
+      max-height: 80vh;
+    }
+  }
+
+  /* Modal Header */
+  .plg_system_socialmagic_modal_header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .plg_system_socialmagic_modal_title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .plg_system_socialmagic_modal_close_btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px;
+    color: #666;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+    min-width: 32px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+  }
+
+  .plg_system_socialmagic_modal_body {
+    padding: 20px 24px;
+    flex: 1;
+    overflow-y: auto;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .plg_system_socialmagic_modal_dialog {
+      min-width: 90vw;
+      max-width: 95vw;
+      margin: 20px auto;
+    }
+
+    .plg_system_socialmagic_modal_backdrop {
+      padding: 10px;
+    }
+  }
+
+  /* Container */
+  .link-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    padding: 12px;
+    border: 1px solid var(--bs-secondary-border-subtle, #c4c8cb);
+    background: var(--bs-light, #f8f9fa);
+    border-radius: 8px;
+    max-width: 720px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    margin: 0.5em auto 2em;
+
+    &:hover {
+      box-shadow: 0 6px 18px rgba(15, 15, 15, 0.06);
+      //transform: translateY(-1px);
+    }
+  }
+
+  /* Thumbnail area: fixed aspect ratio similar to Facebook link preview (landscape) */
+  .thumb {
+    width: 100%;
+    background: var(--bs-secondary-bg-subtle, #e2e3e5);
+    border-radius: 6px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    display: block;
+    position: relative;
+  }
+
+  /* Modern browsers: aspect-ratio keeps image area landscape; 1.91:1 is Facebook-like */
+  .thumb::before {
+    content: "";
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.91 / 1;
+  }
+
+  .thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0; /* allow truncation */
+    flex: 1 1 auto;
+  }
+
+  .domain {
+    font-size: 12px;
+    color: var(--bs-secondary, #6c757d);
+    text-transform: uppercase;
+    letter-spacing: .2px;
+  }
+
+  .title {
+    font-size: 16px;
+    line-height: 1.25;
+    color: var(--bs-dark, #212529);
+    font-weight: 600;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* clamp to 2 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .excerpt {
+    font-size: 14px;
+    color: var(--bs-secondary-text-emphasis, #2b2f32);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* show a short excerpt (2 lines) */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

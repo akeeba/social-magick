@@ -8,7 +8,7 @@
 
 <extension type="component" method="upgrade">
     <name>com_socialmagick</name>
-    <creationDate>2025-09-03</creationDate>
+    <creationDate>2025-09-07</creationDate>
     <author>Nicholas K. Dionysopoulos</author>
     <authorEmail>nicholas@akeeba.com</authorEmail>
     <authorUrl>https://www.akeeba.com</authorUrl>

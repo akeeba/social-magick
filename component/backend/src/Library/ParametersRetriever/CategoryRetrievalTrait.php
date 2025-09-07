@@ -10,7 +10,6 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetrieve
 \defined('_JEXEC') || die;
 
 use Exception;
-use Joomla\CMS\Application\CMSApplication;
 use Joomla\Component\Categories\Administrator\Model\CategoryModel;
 use Joomla\Registry\Registry;
 
@@ -23,6 +22,14 @@ trait CategoryRetrievalTrait
 	 * @since 3.0.0
 	 */
 	private array $categoriesById = [];
+
+	/**
+	 * Cached category parameters, by prefix and category ID.
+	 *
+	 * @var   array
+	 * @since 3.0.0
+	 */
+	private array $categoryParameters = [];
 
 	/**
 	 * A cached copy of com_content's CategoryModel

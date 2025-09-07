@@ -11,7 +11,7 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event;
 
 use Joomla\CMS\Event\AbstractImmutableEvent;
 use Joomla\CMS\Event\Result\ResultAware;
-use Joomla\CMS\Event\Result\ResultTypeStringAware;
+use Joomla\CMS\Event\Result\ResultAwareInterface;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\Input\Input;
 use Joomla\Registry\Registry;
@@ -21,7 +21,7 @@ use Joomla\Registry\Registry;
  *
  * @since  3.0.0
  */
-abstract class AbstractItemDataEvent extends AbstractImmutableEvent
+abstract class AbstractItemDataEvent extends AbstractImmutableEvent implements ResultAwareInterface
 {
 	use ResultAware;
 	use CheckParamsTrait;
@@ -53,7 +53,7 @@ abstract class AbstractItemDataEvent extends AbstractImmutableEvent
 	 */
 	public function getParams(): Registry
 	{
-		return $this->arguments['menuitem'];
+		return $this->arguments['params'];
 	}
 
 	/**

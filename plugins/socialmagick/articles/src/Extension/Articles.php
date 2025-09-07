@@ -14,15 +14,12 @@ use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\Extr
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\InheritanceAwareMergeTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\ParamsFromRegistryTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\AbstractPlugin;
-use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\FormInjectedEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemDescriptionEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemImageEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemParametersEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemTitleEvent;
 use Exception;
-use Joomla\CMS\Form\Form;
 use Joomla\CMS\Menu\MenuItem;
-use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Component\Content\Administrator\Model\ArticleModel;
 use Joomla\Input\Input;
 use Joomla\Registry\Registry;

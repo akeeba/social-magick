@@ -19,6 +19,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Menu\MenuItem;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Component\Content\Administrator\Model\ArticleModel;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
@@ -126,6 +127,8 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		$params  = array_merge($this->defaultParameters, $cParams->toArray());
 
 		// Apply item overrides
+		PluginHelper::importPlugin('socialmagick');
+
 		$event   = new ItemParametersEvent(arguments: [
 			'params'   => $params,
 			'menuitem' => $activeMenuItem,
@@ -270,12 +273,14 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		// 03. Item title (uses plugins)
 		if ($useArticle)
 		{
+			PluginHelper::importPlugin('socialmagick');
+
 			$event   = new ItemTitleEvent(arguments: [
 				'params'   => $params,
 				'menuitem' => $activeMenuItem,
 				'input'    => $input,
 			]);
-			$results = $this->application->getDispatcher()->dispatch($event->getName(), $event) ?: [];
+			$results = $this->application->getDispatcher()->dispatch($event->getName(), $event)['result'] ?: [];
 			$title   = array_reduce($results, fn($carry, $result) => $carry ?? $result, null);
 
 			if (!empty($title))
@@ -329,12 +334,15 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		}
 
 		// Get the content item image
+		PluginHelper::importPlugin('socialmagick');
+
 		$event   = new ItemImageEvent(arguments: [
 			'params'   => $params,
 			'menuitem' => $activeMenuItem,
 			'input'    => $input,
 		]);
-		$results = $this->application->getDispatcher()->dispatch($event->getName(), $event) ?: [];
+
+		$results = $this->application->getDispatcher()->dispatch($event->getName(), $event)['result'] ?: [];
 		$image   = array_reduce($results, fn($carry, $result) => $carry ?? $result, null);
 
 		return $image;

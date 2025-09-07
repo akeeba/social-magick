@@ -116,13 +116,13 @@ abstract class AbstractAdapter implements AdapterInterface
 		// Convert a relative path to absolute
 		if (!@file_exists($font))
 		{
-			$font = JPATH_PLUGINS . '/system/socialmagick/fonts/' . $font;
+			$font = JPATH_PUBLIC . '/media/com_socialmagick/fonts/' . $font;
 		}
 
-		// If the font doesn't exist or is unreadable fall back to OpenSans Bold shipped with the plugin
+		// If the font doesn't exist or is unreadable fall back to OpenSans Bold shipped with the component
 		if (!@file_exists($font) || !@is_file($font) || !@is_readable($font))
 		{
-			$font = JPATH_PLUGINS . '/system/socialmagick/fonts/OpenSans-Bold.ttf';
+			$font = JPATH_PUBLIC . '/media/com_socialmagick/fonts/OpenSans-Bold.ttf';
 		}
 
 		return $font;

@@ -238,7 +238,7 @@
                 type="filelist"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_FONT_LABEL"
                 description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_FONT_DESC"
-                directory="plugins/system/socialmagick/fonts/"
+                directory="media/com_socialmagick/fonts/"
                 hide_none="true"
                 hide_default="true"
                 showon="overlay_text:1"

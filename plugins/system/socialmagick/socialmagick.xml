@@ -18,8 +18,6 @@
     <namespace path="src">Akeeba\Plugin\System\SocialMagick</namespace>
 
     <files>
-        <folder>fonts</folder>
-        <folder>form</folder>
         <folder plugin="socialmagick">services</folder>
         <folder>src</folder>
         <folder>tmpl</folder>

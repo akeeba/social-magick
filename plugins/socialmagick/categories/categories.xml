@@ -52,8 +52,8 @@
                 <field
                         name="image_field"
                         type="text"
-                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_FIELD_IMAGE_FIELD_LABEL"
-                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_FIELD_IMAGE_FIELD_DESC"
+                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_FIELD_LABEL"
+                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_FIELD_DESC"
                         default="ogimage"
                         filter="no_html"
                 />
@@ -82,19 +82,7 @@
                     <option value="1">JYES</option>
                 </field>
             </fieldset>
-            <fieldset>
-                <field
-                        name="edititem_frontend"
-                        type="radio"
-                        layout="joomla.form.field.radio.switcher"
-                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_EDITITEM_FRONTEND_LABEL"
-                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_EDITITEM_FRONTEND_DESC"
-                        default="1"
-                >
-                    <option value="0">JNO</option>
-                    <option value="1">JYES</option>
-                </field>
-
+            <fieldset name="advanced">
                 <field
                         name="edititem_groups"
                         type="usergrouplist"

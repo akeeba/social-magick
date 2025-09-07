@@ -56,8 +56,8 @@
                 <field
                         name="image_field"
                         type="text"
-                        label="PLG_SOCIALMAGICK_ARTICLES_CONFIG_FIELD_IMAGE_FIELD_LABEL"
-                        description="PLG_SOCIALMAGICK_ARTICLES_CONFIG_FIELD_IMAGE_FIELD_DESC"
+                        label="PLG_SOCIALMAGICK_ARTICLES_CONFIG_IMAGE_FIELD_LABEL"
+                        description="PLG_SOCIALMAGICK_ARTICLES_CONFIG_IMAGE_FIELD_DESC"
                         default="ogimage"
                         filter="no_html"
                 />
@@ -86,7 +86,7 @@
                     <option value="1">JYES</option>
                 </field>
             </fieldset>
-            <fieldset>
+            <fieldset name="advanced">
                 <field
                         name="edititem_frontend"
                         type="radio"

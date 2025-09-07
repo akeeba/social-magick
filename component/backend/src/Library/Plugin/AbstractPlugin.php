@@ -195,7 +195,7 @@ abstract class AbstractPlugin extends CMSPlugin implements SubscriberInterface, 
 		}
 
 		// Try to match a form context
-		foreach ($this->itemInjectedForms as $searchContext => $formToLoad)
+		foreach ($this->itemInjectedForms ?? [] as $searchContext => $formToLoad)
 		{
 			if (
 				$currentFormContext === $searchContext

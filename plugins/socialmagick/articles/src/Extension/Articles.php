@@ -65,7 +65,6 @@ final class Articles extends AbstractPlugin
 	 */
 	private ArticleModel $articleModel;
 
-
 	public function __construct($config = [])
 	{
 		$this->supportedComponent    = 'com_content';

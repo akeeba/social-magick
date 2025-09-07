@@ -30,16 +30,7 @@ return new class implements ServiceProviderInterface {
 			PluginInterface::class,
 			function (Container $container) {
 				$config  = (array) PluginHelper::getPlugin('socialmagick', 'articles');
-
-				if (version_compare(JVERSION, '5.999.999', 'gt'))
-				{
-					$plugin  = new Articles($config);
-				}
-				else
-				{
-					$subject = $container->get(DispatcherInterface::class);
-					$plugin  = new Articles($subject, $config);
-				}
+				$plugin  = new Articles($config);
 
 				$plugin->setApplication(Factory::getApplication());
 				$plugin->setDatabase($container->get(DatabaseInterface::class));

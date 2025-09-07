@@ -31,4 +31,23 @@
         <language tag="en-GB">en-GB/plg_socialmagick_menus.sys.ini</language>
         <language tag="en-GB">en-GB/plg_socialmagick_menus.ini</language>
     </languages>
+
+    <config>
+        <fields name="params">
+            <fieldset name="advanced">
+                <field
+                        name="edititem_groups"
+                        type="usergrouplist"
+                        label="PLG_SOCIALMAGICK_MENUS_CONFIG_GROUPS_EDITITEM_LABEL"
+                        description="PLG_SOCIALMAGICK_MENUS_CONFIG_GROUPS_EDITITEM_DESC"
+                        multiple="true"
+                        default=""
+                        checksuperusergroup="0"
+                        layout="joomla.form.field.list-fancy-select"
+                        filter="intarray"
+                />
+            </fieldset>
+        </fields>
+    </config>
+
 </extension>

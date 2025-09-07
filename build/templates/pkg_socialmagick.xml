@@ -31,6 +31,6 @@
     <scriptfile>script.socialmagick.php</scriptfile>
 
     <updateservers>
-        <server type="extension" priority="1" name="Social Magick Updates">https://cdn.akeeba.com/updates/pkgsocialmagick.xml</server>
+        <server type="extension" priority="1" name="SocialMagick Updates">https://cdn.akeeba.com/updates/pkgsocialmagick.xml</server>
     </updateservers>
 </extension>

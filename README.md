@@ -1,4 +1,4 @@
-# ![Social Magick](https://github.com/akeeba/social-magick/blob/main/assets/banner/banner.png?raw=true)
+# ![SocialMagick](https://github.com/akeeba/social-magick/blob/main/assets/banner/banner.png?raw=true)
 
 Automatically generate OpenGraph images for Joomla! content.
 
@@ -23,7 +23,7 @@ This plugin has the following minimum requirements:
 ## Quick start
 
 * Download and install the plugin ZIP file.
-* Publish the System – Social Magick plugin.
+* Publish the System – SocialMagick plugin.
 * Edit the menu item you want to have OpenGraph images automatically generated. In its “OpenGraph images” tab:
 * Set “Generate OpenGraph images” to Yes.
 * Select the Solid template.
@@ -32,7 +32,7 @@ This plugin has the following minimum requirements:
 
 If you have menu items with core content (Joomla articles) categories and articles which make use of images, you can select the Overlay template. You will need to set the “Extra image source” option to “Intro image” or “Full Article image”, depending on which image you want to use.
 
-The templates provided are meant as examples; while you are welcome to use them on your live site, you can also replace the template images with ones that do not have the Social Magick watermark.
+The templates provided are meant as examples; while you are welcome to use them on your live site, you can also replace the template images with ones that do not have the SocialMagick watermark.
 
 ## History
 
@@ -42,6 +42,7 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented, and may end up becoming issues to handle later...
 
+* [ ] Preview template
 * [ ] Image effects: opacity, grayscale, sepia. Adjust them individually.
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
 * [ ] User group restriction for OG image preview. See notes on [gh-26].
@@ -51,6 +52,17 @@ This is meant as a quick brain-dump. Things here may or may not be implemented, 
 * [ ] Support SVGs. They can (usually) be rasterised using ImageMagick, see https://stackoverflow.com/questions/4809194/convert-svg-image-to-jpg-with-php  For GD see https://packagist.org/packages/meyfa/php-svg
 * [ ] Extra image crop focus: face [gh-10]
 * [ ] Auto-generating article intro and/or full text images [gh-6] (Check that the cache ID / sum matches the one used for the current intro image; we may have to store extra info in the article.)
+
+We need plugins for titles, description, images.
+    Images
+        Item image source should come from plugin. For content default would be full text, intro text. For categories just category image.
+        Templates would choose image source as none, item then custom, custom then item, custom.
+    Title
+        Plugins provide a default source
+        Templates allow choosing title source as item then page, page then item
+    Description
+        Plugins provide a default source
+        Templates allow choosing description source as item then page, page then item
 
 #### Notes
 

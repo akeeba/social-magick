@@ -1,6 +1,6 @@
 {
 	"name": "akeeba/socialmagick",
-	"description": "Akeeba Social Magick – Automatically generate OpenGraph images for Joomla! content.",
+	"description": "Akeeba SocialMagick – Automatically generate OpenGraph images for Joomla! content.",
 	"minimum-stability": "stable",
 	"license": "GPL-3.0-or-later",
 	"authors": [

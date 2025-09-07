@@ -183,7 +183,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @param   resource     $image           GD image resource. The extra image is blended over or under it.
 	 * @param   string|null  $extraImagePath  Full filesystem path of the image to blend over/under $image.
-	 * @param   array        $template        The Social Magick template which defines the blending options.
+	 * @param   array        $template        The SocialMagick template which defines the blending options.
 	 *
 	 * @return  resource  The resulting image resource
 	 *

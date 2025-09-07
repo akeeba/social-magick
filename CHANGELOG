@@ -1,5 +1,5 @@
 <?php die(); ?>
-Social Magick 3.0.0
+SocialMagick 3.0.0
 --------------------------------------------------------------------------------
 + A component to manage your templates
 + New OpenGraph Preview in the frontend

@@ -7,10 +7,11 @@
 
 namespace Akeeba\Plugin\System\SocialMagick\Extension\Feature;
 
+use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\FormDataKeyEvent;
+use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\FormInjectedEvent;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Table\Table;
 use Joomla\Event\Event;
-use Joomla\Uri\Uri;
 
 trait FormTabs
 {
@@ -30,46 +31,17 @@ trait FormTabs
 		 * @var mixed $data The associated data for the form.
 		 */
 		[$form, $data] = array_values($event->getArguments());
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = true;
 
-		$formName = $form->getName();
+		$formName = $this->getFirstNonEmptyEventResult(
+			new FormInjectedEvent(arguments: ['form' => $form])
+		);
 
-		// Quick exit for use cases we cannot handle.
-		if (!in_array($formName, ['com_menus.item', 'com_categories.categorycom_content', 'com_content.article']))
+		if (!$formName)
 		{
 			return;
 		}
 
-		$this->loadLanguage('com_socialmagick', JPATH_ADMINISTRATOR);
-
-		Form::addFormPath(__DIR__ . '/../../../form');
-
-		switch ($formName)
-		{
-			// A menu item is being added/edited
-			case 'com_menus.item':
-				$formName = $this->isMenuItemForComponent($data, ['com_content', 'com_categories'])
-					? 'socialmagick_menu_content'
-					: 'socialmagick_menu';
-
-				$form->loadFile($formName, false);
-
-				break;
-
-			// A core content category is being added/edited
-			case 'com_categories.categorycom_content':
-				$form->loadFile('socialmagick_category', false);
-				break;
-
-			// An article is being added/edited
-			case 'com_content.article':
-				$form->loadFile('socialmagick_article', false);
-				break;
-		}
-
-		$event->setArgument('result', $result);
+		$form->loadFile($formName, false);
 	}
 
 	/**
@@ -89,10 +61,6 @@ trait FormTabs
 		 * @var   object|array|null $data    Data being saved (Joomla 4)
 		 */
 		[$context, $table, $isNew, $data] = array_values($event->getArguments());
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = true;
-		$event->setArgument('result', $result);
 
 		$data = (array) $data;
 
@@ -102,21 +70,11 @@ trait FormTabs
 			return;
 		}
 
-		$key = null;
+		$key     = $this->getFirstNonEmptyEventResult(
+			new FormDataKeyEvent(arguments: ['context' => $context])
+		);
 
-		switch ($context)
-		{
-			case 'com_menus.item':
-			case 'com_categories.category':
-				$key = 'params';
-				break;
-
-			case 'com_content.article':
-				$key = 'attribs';
-				break;
-		}
-
-		if (is_null($key))
+		if (!is_string($key) || empty($key))
 		{
 			return;
 		}
@@ -126,7 +84,7 @@ trait FormTabs
 	}
 
 	/**
-	 * Triggered when Joomla is loading content. Used to load the Social Magick configuration.
+	 * Triggered when Joomla is loading content. Used to load the SocialMagick configuration.
 	 *
 	 * This is used for both articles and article categories.
 	 *
@@ -142,85 +100,17 @@ trait FormTabs
 		 * @var   object|array $data    Data being saved
 		 */
 		[$context, $data] = array_values($event->getArguments());
-		$result   = $event->getArgument('result') ?: [];
-		$result   = is_array($result) ? $result : [$result];
-		$result[] = true;
-		$event->setArgument('result', $result);
 
-		$key = null;
+		$key     = $this->getFirstNonEmptyEventResult(
+			new FormDataKeyEvent(arguments: ['context' => $context])
+		);
 
-		switch ($context)
-		{
-			case 'com_menus.item':
-			case 'com_categories.category':
-				$key = 'params';
-				break;
-
-			case 'com_content.article':
-				$key = 'attribs';
-				break;
-		}
-
-		if (is_null($key))
-		{
-			return;
-		}
-
-		if (!isset($data->{$key}) || !isset($data->{$key}['socialmagick']))
+		if (!is_string($key) || empty($key) || !isset($data->{$key}) || !isset($data->{$key}['socialmagick']))
 		{
 			return;
 		}
 
 		$data->socialmagick = $data->{$key}['socialmagick'];
 		unset ($data->{$key}['socialmagick']);
-	}
-
-	/**
-	 * Checks if the com_menus form data says we're editing a menu item for an allowed component.
-	 *
-	 * @param   array|object  $formData         The com_menus form data.
-	 * @param   array         $validComponents  Allowed components to show an OpenGraph tab for.
-	 *
-	 * @return  bool
-	 * @since   3.0.0
-	 */
-	public function isMenuItemForComponent(array|object $formData, array $validComponents): bool
-	{
-		// Normalise the form data
-		if (is_array($formData))
-		{
-			$formData = (object) $formData;
-		}
-
-		// This must be a link to a component, obviously.
-		if (($formData->type ?? '') != 'component')
-		{
-			return false;
-		}
-
-		if (isset($formData->params) && is_array($formData->params) && in_array($formData->params['option'] ?? '', $validComponents, true))
-		{
-			return true;
-		}
-
-		if (isset($formData->request) && is_array($formData->request) && in_array($formData->request['option'] ?? '', $validComponents, true))
-		{
-			return true;
-		}
-
-		// 'index.php?option=com_ats&view=latest'
-		$link = $formData->link ?? '';
-
-		if (!empty($link))
-		{
-			$uri = new Uri($link);
-
-			if (in_array($uri->getVar('option', ''), $validComponents, true))
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 }

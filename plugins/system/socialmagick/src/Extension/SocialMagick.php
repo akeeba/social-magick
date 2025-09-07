@@ -49,11 +49,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 
 	private string $previewHtml;
 
-	public function __construct($config = [])
-	{
-		parent::__construct($config);
-	}
-
 	/** @inheritDoc */
 	public static function getSubscribedEvents(): array
 	{
@@ -70,7 +65,7 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	/**
 	 * Runs before Joomla renders the HTML document.
 	 *
-	 * This is the main event where Social Magick evaluates whether to apply an OpenGraph image to the document.
+	 * This is the main event where SocialMagick evaluates whether to apply an OpenGraph image to the document.
 	 *
 	 * @param   Event  $event
 	 *
@@ -88,16 +83,18 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 
 		$parametersRetriever = $this->getParamsRetriever();
 		$imageGenerator      = $this->getImageGenerator();
+		$activeMenuItem      = $this->getApplication()->getMenu()->getActive();
+		$input               = $this->getApplication()->input;
 		$ogTagsHelper        = new OGTagsHelper($this->getApplication());
 
-		$activeMenuItem = $this->getApplication()->getMenu()->getActive();
-		$params         = $parametersRetriever->getApplicableOGParameters($activeMenuItem);
+		// Get the applicable parameters
+		$params = $parametersRetriever->getApplicableOGParameters($activeMenuItem, $input);
 
 		// Generate an OpenGraph image if supported and if we are requested to do so.
 		if ($params['generate_images'] == 1 && $imageGenerator->isAvailable())
 		{
 			$cParams   = ComponentHelper::getParams('com_socialmagick');
-			$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params);
+			$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params, $activeMenuItem, $input);
 
 			$imageGenerator->applyOGImage(...$arguments);
 
@@ -233,5 +230,22 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 		}
 
 		return $this->enabled = true;
+	}
+
+	/**
+	 * Returns the first non-empty event result, if any, after calling the event.
+	 *
+	 * @param   Event  $event  The event to call.
+	 *
+	 * @return  mixed
+	 * @since   3.0.0
+	 */
+	private function getFirstNonEmptyEventResult(Event $event): mixed
+	{
+		PluginHelper::importPlugin('socialmagick');
+
+		$results = $this->getApplication()->getDispatcher()->dispatch($event->getName(), $event)['result'];
+
+		return array_reduce($results ?: [], fn($carry, $result) => $carry ?? $result, null);
 	}
 }

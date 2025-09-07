@@ -16,7 +16,7 @@ use Joomla\CMS\HTML\HTMLRegistryAwareTrait;
 use Psr\Container\ContainerInterface;
 
 /**
- * Extension class for Social Magick.
+ * Extension class for SocialMagick.
  *
  * Sets up basic services, and registers our HTML helper.
  *

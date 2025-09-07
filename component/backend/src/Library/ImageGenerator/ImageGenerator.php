@@ -192,10 +192,21 @@ final class ImageGenerator implements DatabaseAwareInterface
 		// Try to generate (or get an already generated) image
 		try
 		{
-			[$imageURL, $templateHeight, $templateWidth] = $this->getOGImage($text, $templateId, $extraImage);
+			$templateOptions = $this->getTemplateOptions($templateId);
+
+			$imageData      = $this->getOGImage($text, $templateOptions, $extraImage);
+			$imageURL       = $imageData['imageURL'];
+			$templateHeight = $imageData['height'];
+			$templateWidth  = $imageData['width'];
 		}
 		catch (Exception $e)
 		{
+			return;
+		}
+
+		if (empty($imageURL))
+		{
+			// There was an error generating the image. We can't set up the OpenGraph properties.
 			return;
 		}
 
@@ -234,20 +245,16 @@ final class ImageGenerator implements DatabaseAwareInterface
 	}
 
 	/**
-	 * Returns the generated OpenGraph image and its information.
+	 * Returns the normalised template options for a given template ID.
 	 *
-	 * @param   string       $text        The text to render
-	 * @param   int          $templateId  The template ID
-	 * @param   string|null  $extraImage  The location of the extra image to render
+	 * @param   int  $templateId  The template ID.
 	 *
-	 * @return  array [$imageURL, $height, $width]
-	 *
-	 * @since  1.0.0
+	 * @return  array
+	 * @since   3.0.0
 	 */
-	public function getOGImage(string $text, int $templateId, ?string $extraImage): array
+	public function getTemplateOptions(int $templateId): array
 	{
-		// Get the image template
-		$template = array_merge([
+		return array_merge([
 			'base-image'        => '',
 			'template-w'        => 1200,
 			'template-h'        => 630,
@@ -274,9 +281,27 @@ final class ImageGenerator implements DatabaseAwareInterface
 			'image-x'           => 0,
 			'image-y'           => 0,
 		], $this->templates[$templateId] ?? []);
+	}
 
-		$templateWidth  = $template['template-w'] ?? 1200;
-		$templateHeight = $template['template-h'] ?? 630;
+	/**
+	 * Returns the generated OpenGraph image and its information.
+	 *
+	 * Note: We accept template options instead of a template ID to make previewing an as-yet-unsaved template possible.
+	 * The preview only needs to pass some sample text, the current form data cast as an array, and a sample image to
+	 * generate an image which can be used to preview the OpenGraph results. Simple, eh?
+	 *
+	 * @param   string       $text             The text to render
+	 * @param   array        $templateOptions  The options of the OpenGraph image template
+	 * @param   string|null  $extraImage       The location of the extra image to render
+	 *
+	 * @return  array{imageURL: string, width: int, height: int}
+	 *
+	 * @since  1.0.0
+	 */
+	public function getOGImage(string $text, array $templateOptions, ?string $extraImage): array
+	{
+		$templateWidth  = $templateOptions['template-w'] ?? 1200;
+		$templateHeight = $templateOptions['template-h'] ?? 630;
 
 		// Get the generated image filename and URL
 		$outputFolder     = trim($this->outputFolder, '/\\');
@@ -284,7 +309,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		$filename         = Path::clean(sprintf("%s/%s/%s.png",
 			JPATH_ROOT,
 			$outputFolder,
-			md5($text . $templateId . serialize($template) . ($extraImage ?? '') . $this->renderer->getOptionsKey())
+			md5($text . serialize($templateOptions) . ($extraImage ?? '') . $this->renderer->getOptionsKey())
 		));
 		$filename         = FileDistributor::ensureDistributed(dirname($filename), basename($filename), $this->folderLevels);
 		$realRelativePath = ltrim(substr($filename, strlen(JPATH_ROOT)), '/');
@@ -296,25 +321,13 @@ final class ImageGenerator implements DatabaseAwareInterface
 		// If the file exists return early
 		if (@file_exists($filename) && !$this->devMode)
 		{
-			/**
-			 * Run the old image deletion pseudo-CRON. Only runs on existing images to prevent excessive slow-down of
-			 * the site. It uses very conservative settigns for the same reason.
-			 */
-			if ($this->autoDeleteOldImages)
-			{
-				try
-				{
-					$this->deleteOldImages($this->oldImageThreshold, 1);
-				}
-				catch (Exception $e)
-				{
-					// Oops...
-				}
-			}
-
 			$mediaVersion = ApplicationHelper::getHash(@filemtime($filename));
 
-			return [$imageUrl . '?' . $mediaVersion, $templateWidth, $templateHeight];
+			return [
+				'imageURL' => $imageUrl . '?' . $mediaVersion,
+				'width'    => $templateWidth,
+				'height'   => $templateHeight,
+			];
 		}
 
 		// Create the folder if it doesn't already exist
@@ -327,16 +340,24 @@ final class ImageGenerator implements DatabaseAwareInterface
 
 		try
 		{
-			$this->renderer->makeImage($text, $template, $filename, $extraImage);
+			$this->renderer->makeImage($text, $templateOptions, $filename, $extraImage);
 		}
 		catch (Exception $e)
 		{
-			// Whoops. Things will be broken :(
+			return [
+				'imageURL' => null,
+				'width'    => 0,
+				'height'   => 0,
+			];
 		}
 
 		$mediaVersion = ApplicationHelper::getHash(@filemtime($filename));
 
-		return [$imageUrl . '?' . $mediaVersion, $templateWidth, $templateHeight];
+		return [
+			'imageURL' => $imageUrl . '?' . $mediaVersion,
+			'width'    => $templateWidth,
+			'height'   => $templateHeight,
+		];
 	}
 
 	/**

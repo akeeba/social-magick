@@ -84,22 +84,25 @@ class UpgradeModel extends BaseModel implements DatabaseAwareInterface
 	 */
 	private const REMOVE_FROM_CORE = [
 		'files'   => [
-			// UNUSED IN THIS PACKAGE
+			// e.g. JPATH_ADMINISTRATOR . '/components/com_example/tmpl/foo/bar.php',
 		],
 		'folders' => [
-			// UNUSED IN THIS PACKAGE
+			// e.g. JPATH_ADMINISTRATOR . '/components/com_example/src/Foobar',
 		],
 	];
 
 	/** @var string[] Included extensions to automatically publish on a NEW INSTALLATION */
 	private const ENABLE_EXTENSIONS = [
 		'plg_system_socialmagick',
+		'plg_socialmagick_menus',
+		'plg_socialmagick_articles',
+		'plg_socialmagick_categories',
 	];
 
 	/** @var string[] Extensions to always uninstall if they are still installed (runs on install and upgrade) */
 	private const REMOVE_EXTENSIONS = [];
 
-	/** @var string Relative directory to the custom handlers */
+	/** @var string The relative directory to the custom handlers */
 	private const CUSTOM_HANDLERS_DIRECTORY = 'UpgradeHandler';
 
 	private const PRO_ONLY_EXTENSIONS = [];

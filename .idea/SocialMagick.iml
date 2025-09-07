@@ -2,13 +2,15 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/component/backend/src" isTestSource="false" packagePrefix="Akeeba\Component\SocialMagick\Administrator" />
-      <sourceFolder url="file://$MODULE_DIR$/plugins/system/socialmagick/src" isTestSource="false" packagePrefix="Akeeba\Plugin\System\SocialMagick\" />
-      <excludeFolder url="file://$MODULE_DIR$/release" />
-      <excludeFolder url="file://$MODULE_DIR$/update" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/release"/>
+      <excludeFolder url="file://$MODULE_DIR$/update"/>
+      <excludeFolder url="file://$MODULE_DIR$/vendor/composer"/>
+      <sourceFolder url="file://$MODULE_DIR$/component/backend/src" packagePrefix="Akeeba\Component\SocialMagick\Administrator\" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/articles/src" packagePrefix="Akeeba\Plugin\SocialMagick\Articles\" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/menus/src" packagePrefix="Akeeba\Plugin\SocialMagick\Menus\" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/plugins/system/socialmagick/src" packagePrefix="Akeeba\Plugin\System\SocialMagick\" isTestSource="false"/>
     </content>
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="inheritedJdk"/>
+    <orderEntry type="sourceFolder" forTests="false"/>
   </component>
 </module>

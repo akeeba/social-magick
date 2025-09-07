@@ -32,7 +32,7 @@ class Dispatcher extends ComponentDispatcher
 		{
 			// Check the minimum supported PHP version
 			$minPHPVersion = '8.1.0';
-			$softwareName  = 'Social Magick';
+			$softwareName  = 'SocialMagick';
 
 			if (version_compare(PHP_VERSION, $minPHPVersion, 'lt'))
 			{
@@ -54,7 +54,7 @@ class Dispatcher extends ComponentDispatcher
 		}
 		catch (Throwable $e)
 		{
-			$title = 'Social Magick';
+			$title = 'SocialMagick';
 			$isPro = false;
 
 			if (!(include_once JPATH_ADMINISTRATOR . '/components/com_socialmagick/tmpl/common/errorhandler.php'))

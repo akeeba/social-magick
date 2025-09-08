@@ -547,10 +547,11 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 					$lastLine['text'] = implode(' ', $words) . '…';
 				}
 
-				$lastLine['text'] = trim($lastLine['text']);
-				$testDimensions   = $this->lineSize($lastLine['text'], $fontSize, $font);
+				$testText       = trim($lastLine['text']);
+				$testDimensions = $this->lineSize($testText, $fontSize, $font);
 			}
 
+			$lastLine['text']   = $testText;
 			$lastLine['width']  = $testDimensions[0];
 			$lastLine['height'] = $testDimensions[1];
 

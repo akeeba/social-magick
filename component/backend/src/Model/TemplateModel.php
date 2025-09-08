@@ -17,6 +17,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormFactoryInterface;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\AdminModel;
@@ -176,6 +177,16 @@ class TemplateModel extends AdminModel
 
 		$text           ??= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
 		$extraImage     = JPATH_PUBLIC . '/media/com_socialmagick/images/examples/' . $sampleImage . '.jpg';
+
+		if ($templateParams['image_source'] === 'none')
+		{
+			$extraImage = '';
+		}
+		elseif ($templateParams['image_source'] === 'static')
+		{
+			$extraImage = JPATH_ROOT . '/' .
+				urldecode(HTMLHelper::cleanImageURL($templateParams['static_image'])?->url ?? '') ?: '';
+		}
 
 		$session = Factory::getApplication()->getSession();
 		$session->set('socialmagick_preview_text', $text);

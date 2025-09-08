@@ -6,5 +6,6 @@ SocialMagick 3.0.0
 + Correct cascading of the options
 + Image sources with fallbacks
 + Preview template
++ ImageMagick: Show ellipses when text is being truncated
 # [LOW] ImageMagick: The text was vertically anchored in the centre instead of the top
 # [LOW] GD: The ellipses when clipping a long sentence were unreliable

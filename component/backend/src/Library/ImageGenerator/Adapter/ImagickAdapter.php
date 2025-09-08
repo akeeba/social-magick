@@ -274,6 +274,9 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		// Normalize text
 		$text = $this->preProcessText($text, false);
 
+		// Break text into lines that fit within the box, adding ellipsis if needed
+		$fittedText = $this->fitTextIntoLines($text, $template);
+
 		// Set up the text
 		$theText = new Imagick();
 		$theText->setBackgroundColor('transparent');
@@ -299,7 +302,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		// Create a `caption:` pseudo image that only manages text.
 		$theText->newPseudoImage($template['text-width'],
 			$template['text-height'],
-			'caption:' . $text);
+			'caption:' . $fittedText);
 		$theText->setBackgroundColor('transparent');
 
 		// Remove extra height.
@@ -371,5 +374,249 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			(int) $yPos);
 
 		$theText->destroy();
+	}
+
+	/**
+	 * Fit text into lines that can be contained within the template box, adding ellipsis if needed.
+	 *
+	 * @param   string  $text      The original text
+	 * @param   array   $template  The template configuration
+	 *
+	 * @return  string  The text formatted with line breaks and ellipsis if needed
+	 *
+	 * @since   1.0.0
+	 */
+	private function fitTextIntoLines(string $text, array $template): string
+	{
+		$words = explode(' ', $text);
+		$lines = [];
+		$currentLine = '';
+		$maxWidth = $template['text-width'];
+		$maxHeight = $template['text-height'];
+		$lineSpacing = 1.35; // Similar to what GD adapter uses
+
+		foreach ($words as $word)
+		{
+			$testLine = empty($currentLine) ? $word : $currentLine . ' ' . $word;
+			
+			// Measure the test line
+			$testMetrics = $this->measureText($testLine, $template);
+			
+			if ($testMetrics['width'] <= $maxWidth)
+			{
+				// This word fits on the current line
+				$currentLine = $testLine;
+			}
+			else
+			{
+				// This word doesn't fit, start a new line
+				if (!empty($currentLine))
+				{
+					$lines[] = $currentLine;
+				}
+				$currentLine = $word;
+			}
+		}
+
+		// Add the last line if it has content
+		if (!empty($currentLine))
+		{
+			$lines[] = $currentLine;
+		}
+
+		// Now check if all lines fit vertically
+		$totalHeight = $this->calculateTotalTextHeight($lines, $template, $lineSpacing);
+		
+		if ($totalHeight > $maxHeight)
+		{
+			// We need to remove lines and add ellipsis
+			$lines = $this->truncateLinesToFitHeight($lines, $template, $maxHeight, $lineSpacing);
+		}
+
+		return implode("\n", $lines);
+	}
+
+	/**
+	 * Measure the dimensions of text as it would be rendered.
+	 *
+	 * @param   string  $text      The text to measure
+	 * @param   array   $template  The template configuration
+	 *
+	 * @return  array   Array with 'width' and 'height' keys
+	 *
+	 * @since   1.0.0
+	 */
+	private function measureText(string $text, array $template): array
+	{
+		$draw = new ImagickDraw();
+		$draw->setFont($this->normalizeFont($template['text-font']));
+
+		if ($template['font-size'] > 0)
+		{
+			$draw->setFontSize($template['font-size']);
+		}
+
+		// Set gravity for alignment
+		$gravity = match($template['text-align'])
+		{
+			'left' => Imagick::GRAVITY_NORTHWEST,
+			'right' => Imagick::GRAVITY_NORTHEAST,
+			default => Imagick::GRAVITY_NORTH,
+		};
+		$draw->setGravity($gravity);
+
+		// Create a temporary image to get text metrics
+		$tempImage = new Imagick();
+		$tempImage->newImage(1, 1, new ImagickPixel('transparent'));
+
+		$metrics = $tempImage->queryFontMetrics($draw, $text);
+
+		$draw->destroy();
+		$tempImage->destroy();
+
+		return [
+			'width' => (int) ceil($metrics['textWidth']),
+			'height' => (int) ceil($metrics['textHeight'])
+		];
+	}
+
+	/**
+	 * Calculate the total height needed for all lines with line spacing.
+	 *
+	 * @param   array   $lines       Array of text lines
+	 * @param   array   $template    Template configuration
+	 * @param   float   $lineSpacing Line spacing factor
+	 *
+	 * @return  int     Total height in pixels
+	 *
+	 * @since   1.0.0
+	 */
+	private function calculateTotalTextHeight(array $lines, array $template, float $lineSpacing): int
+	{
+		if (empty($lines))
+		{
+			return 0;
+		}
+
+		$firstLineHeight = $this->measureText($lines[0], $template)['height'];
+		$totalHeight = $firstLineHeight;
+
+		// Add height for additional lines with spacing
+		for ($i = 1; $i < count($lines); $i++)
+		{
+			$lineHeight = $this->measureText($lines[$i], $template)['height'];
+			$totalHeight += $lineHeight * $lineSpacing;
+		}
+
+		return (int) ceil($totalHeight);
+	}
+
+	/**
+	 * Truncate lines to fit within the maximum height and add ellipsis to the last line.
+	 *
+	 * @param   array   $lines      Array of text lines
+	 * @param   array   $template   Template configuration
+	 * @param   int     $maxHeight  Maximum height in pixels
+	 * @param   float   $lineSpacing Line spacing factor
+	 *
+	 * @return  array   Truncated array of lines with ellipsis on the last line
+	 *
+	 * @since   1.0.0
+	 */
+	private function truncateLinesToFitHeight(array $lines, array $template, int $maxHeight, float $lineSpacing): array
+	{
+		$fittedLines = [];
+		$currentHeight = 0;
+		$maxWidth = $template['text-width'];
+
+		foreach ($lines as $line)
+		{
+			$lineMetrics = $this->measureText($line, $template);
+			$lineHeight = $lineMetrics['height'];
+			
+			if (count($fittedLines) > 0)
+			{
+				$lineHeight *= $lineSpacing;
+			}
+
+			if ($currentHeight + $lineHeight <= $maxHeight)
+			{
+				$fittedLines[] = $line;
+				$currentHeight += $lineHeight;
+			}
+			else
+			{
+				// This line won't fit, so we need to add ellipsis to the previous line
+				if (!empty($fittedLines))
+				{
+					$lastLine = array_pop($fittedLines);
+					$ellipsisLine = $this->addEllipsisToLine($lastLine, $template, $maxWidth);
+					$fittedLines[] = $ellipsisLine;
+				}
+				break;
+			}
+		}
+
+		return $fittedLines;
+	}
+
+	/**
+	 * Add ellipsis to a line, truncating words if necessary to fit within the width.
+	 *
+	 * @param   string  $line      The original line
+	 * @param   array   $template  Template configuration
+	 * @param   int     $maxWidth  Maximum width in pixels
+	 *
+	 * @return  string  Line with ellipsis that fits within the width
+	 *
+	 * @since   1.0.0
+	 */
+	private function addEllipsisToLine(string $line, array $template, int $maxWidth): string
+	{
+		// First try adding ellipsis to the full line
+		$testLine = $line . '…';
+		$testMetrics = $this->measureText($testLine, $template);
+
+		if ($testMetrics['width'] <= $maxWidth)
+		{
+			return $testLine;
+		}
+
+		// If it doesn't fit, remove words until it does
+		$words = explode(' ', $line);
+		
+		while (count($words) > 1)
+		{
+			array_pop($words);
+			$testLine = implode(' ', $words) . '…';
+			$testMetrics = $this->measureText($testLine, $template);
+			
+			if ($testMetrics['width'] <= $maxWidth)
+			{
+				return $testLine;
+			}
+		}
+
+		// If we still don't fit with just one word, truncate character by character
+		if (!empty($words))
+		{
+			$word = $words[0];
+			$chars = mb_str_split($word);
+			
+			while (count($chars) > 1)
+			{
+				array_pop($chars);
+				$testLine = implode('', $chars) . '…';
+				$testMetrics = $this->measureText($testLine, $template);
+				
+				if ($testMetrics['width'] <= $maxWidth)
+				{
+					return $testLine;
+				}
+			}
+		}
+
+		// Fallback to just ellipsis
+		return '…';
 	}
 }

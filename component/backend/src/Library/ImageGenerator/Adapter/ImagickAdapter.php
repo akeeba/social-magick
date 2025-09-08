@@ -287,21 +287,14 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		/* Create text */
-		switch ($template['text-align'])
+		$gravity = match($template['text-align'])
 		{
-			default:
-			case 'center':
-				$theText->setGravity(Imagick::GRAVITY_CENTER);
-				break;
+			'left' => Imagick::GRAVITY_NORTHWEST,
+			'right' => Imagick::GRAVITY_NORTHEAST,
+			default => Imagick::GRAVITY_NORTH,
+		};
 
-			case 'left':
-				$theText->setGravity(Imagick::GRAVITY_WEST);
-				break;
-
-			case 'right':
-				$theText->setGravity(Imagick::GRAVITY_EAST);
-				break;
-		}
+		$theText->setGravity($gravity);
 
 		// Create a `caption:` pseudo image that only manages text.
 		$theText->newPseudoImage($template['text-width'],

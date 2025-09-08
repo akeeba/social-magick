@@ -13,6 +13,7 @@ use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerCopyTrait;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerEvents;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerRegisterTasksTrait;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerReusableModelsTrait;
+use Akeeba\Component\SocialMagick\Administrator\Model\TemplateModel;
 use Joomla\CMS\MVC\Controller\AdminController;
 
 /**
@@ -33,4 +34,36 @@ class TemplatesController extends AdminController
 	{
 		return parent::getModel($name, $prefix, $config);
 	}
+
+	/**
+	 * Regenerates a preview image for a SocialMagick template
+	 *
+	 * @return  void
+	 * @throws  \Exception
+	 * @since   3.0.0
+	 */
+	public function regeneratePreview()
+	{
+		$previewData     = $this->input->get('preview', [], 'array');
+		$templateOptions = $this->input->get('jform', [], 'array');
+		$text            = $previewData['text'] ?? null;
+		$sampleImage     = $previewData['sampleImage'] ?? null;
+
+		/** @var TemplateModel $model */
+		$model = $this->getModel();
+		try
+		{
+			$image = json_encode($model->getPreviewImage($templateOptions, $text, $sampleImage));
+		}
+		catch (\Exception)
+		{
+			$image = 'NULL';
+		}
+
+		echo <<< JSON
+{"image": $image}
+JSON;
+
+	}
+
 }

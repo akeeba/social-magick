@@ -14,5 +14,3 @@ use Joomla\CMS\Router\Route;
 /** @var $this \Akeeba\Component\SocialMagick\Administrator\View\Template\HtmlView */
 
 echo $this->form->renderField('enabled');
-echo $this->form->renderField('template-w');
-echo $this->form->renderField('template-h');

@@ -5,3 +5,4 @@ SocialMagick 3.0.0
 + New OpenGraph Preview in the frontend
 + Correct cascading of the options
 + Image sources with fallbacks
++ Preview template

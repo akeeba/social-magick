@@ -37,17 +37,36 @@ class HtmlView extends BaseHtmlView
 
 	public object $item;
 
+	public ?string $previewImage = null;
+
+	public array $sampleImages;
+
+	public string $sampleImage = 'olly';
+
+	public string $sampleText = '';
+
 	public function display($tpl = null)
 	{
 		/** @var TemplateModel $model */
 		$model = $this->getModel();
 
-		$this->form      = $model->getForm();
-		$this->item      = $model->getItem();
+		$this->form         = $model->getForm();
+		$this->item         = $model->getItem();
+		$this->previewImage = $model->getPreviewImageById($this->item->id);
+		$this->sampleImages = $model->getSampleImageData();
+
+		$previewConfig     = $model->getPreviewConfig();
+		$this->sampleImage = $previewConfig['image'] ?: 'olly';
+		$this->sampleText  = $previewConfig['text'] ?: Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
+
+		$doc = $this->getDocument();
+		$doc->addScriptOptions('socialmagick_preview_samples', $this->sampleImages);
+		$doc->getWebAssetManager()->useScript('com_socialmagick.template_preview');
 
 		// Push translations
 		Text::script('JNO', true);
 		Text::script('JYES', true);
+		Text::script('COM_SOCIALMAGICK_TEMPLATE_ERR_REGEN_NETWORK', true);
 
 		$this->addToolbar();
 

@@ -10,6 +10,18 @@
 			"description": "Common backend user interface CSS",
 			"type": "style",
 			"uri": "com_socialmagick/backend.css"
+		},
+		{
+			"name": "com_socialmagick.template_preview",
+			"description": "JS for previewing OpenGraph templates",
+			"type": "script",
+			"uri": "com_socialmagick/template_preview.min.js",
+			"dependencies": [
+				"core"
+			],
+			"attributes": {
+				"defer": true
+			}
 		}
 	]
 }

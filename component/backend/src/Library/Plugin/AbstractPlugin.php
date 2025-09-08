@@ -16,6 +16,7 @@ use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemImageEv
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemParametersEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemTitleEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\MenuItemFormEvent;
+use JForm;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -262,6 +263,11 @@ abstract class AbstractPlugin extends CMSPlugin implements SubscriberInterface, 
 		if (is_array($formData))
 		{
 			$formData = (object) $formData;
+		}
+
+		if ($formData instanceof Registry)
+		{
+			$formData = (object) $formData->toArray();
 		}
 
 		// This must be a link to a component, obviously.

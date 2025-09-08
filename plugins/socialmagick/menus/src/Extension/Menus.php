@@ -74,7 +74,7 @@ final class Menus extends AbstractPlugin
 		 */
 		PluginHelper::importPlugin('socialmagick');
 		$smEvent  = new MenuItemFormEvent(arguments: ['formdata' => $form->getData()]);
-		$results  = $this->getApplication()->getDispatcher()->dispatch($smEvent->getName(), $smEvent)['result'];
+		$results  = $this->getApplication()->getDispatcher()->dispatch($smEvent->getName(), $smEvent)['result'] ?? [];
 		$formName = array_reduce($results, fn($carry, $result) => $carry ?? $result, null);
 
 		// No custom form. Use the generic one, built into this plugin.

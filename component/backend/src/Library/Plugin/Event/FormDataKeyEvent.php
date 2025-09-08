@@ -11,6 +11,7 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event;
 
 use Joomla\CMS\Event\AbstractImmutableEvent;
 use Joomla\CMS\Event\Result\ResultAware;
+use Joomla\CMS\Event\Result\ResultAwareInterface;
 use Joomla\CMS\Event\Result\ResultTypeStringAware;
 
 /**
@@ -18,7 +19,7 @@ use Joomla\CMS\Event\Result\ResultTypeStringAware;
  *
  * @since  3.0.0
  */
-final class FormDataKeyEvent extends AbstractImmutableEvent
+final class FormDataKeyEvent extends AbstractImmutableEvent implements ResultAwareInterface
 {
 	use ResultAware;
 	use ResultTypeStringAware;

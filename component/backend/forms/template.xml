@@ -38,7 +38,9 @@
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
+    </fieldset>
 
+    <fieldset name="composition" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_COMPOSITION">
         <field
                 name="template-w"
                 type="text"
@@ -58,9 +60,7 @@
                 filter="integer"
                 default="630"
         />
-    </fieldset>
 
-    <fieldset name="composition" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_COMPOSITION">
         <field
                 name="base-color"
                 type="color"

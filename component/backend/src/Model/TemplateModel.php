@@ -9,11 +9,15 @@ namespace Akeeba\Component\SocialMagick\Administrator\Model;
 
 \defined('_JEXEC') || die;
 
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\ImageGenerator;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\LegacyObjectTrait;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ModelCopyTrait;
+use Exception;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\FormFactoryInterface;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\AdminModel;
 
@@ -57,6 +61,168 @@ class TemplateModel extends AdminModel
 	}
 
 	/**
+	 * Saves the given data while processing custom parameters.
+	 *
+	 * Filters the input data to separate keys that are not part of the database table fields or
+	 * Joomla-specific keys such as 'tags' and 'jcfields'. These keys are stored in a 'params' array.
+	 * The filtered array is then passed to the parent save method for persistence.
+	 *
+	 * @param   array  $data  The data to be saved, including any custom parameters and standard table fields.
+	 *
+	 * @return  bool  True on successful save, false otherwise.
+	 * @throws  Exception
+	 * @since   3.0.0
+	 */
+	public function save($data)
+	{
+		// Assume all form keys which are neither table field names, nor Joomla-specific are param keys.
+		$paramKeys = array_filter(
+			array_keys($data),
+			fn($key) => !$this->getTable()->hasField($key) && !in_array($key, ['tags', 'jcfields'])
+		);
+
+		// Assemble an array for the params key
+		$data['params'] = array_filter($data, fn($key) => in_array($key, $paramKeys), ARRAY_FILTER_USE_KEY);
+
+		// Delete the data keys we put into the params array
+		$data = array_filter($data, fn($key) => !in_array($key, $paramKeys), ARRAY_FILTER_USE_KEY);
+
+		return parent::save($data);
+	}
+
+	/**
+	 * Returns the sample image data from the examples.json file.
+	 *
+	 * @return  array<array>
+	 * @since   3.0.0
+	 */
+	public function getSampleImageData(): array
+	{
+		$source = JPATH_PUBLIC . '/media/com_socialmagick/images/examples/examples.json';
+		$json   = @file_get_contents($source);
+
+		if (empty($json))
+		{
+			return [];
+		}
+
+		$examples = @json_decode($json, true);
+
+		if (empty($examples) || !is_array($examples))
+		{
+			return [];
+		}
+
+		return $examples;
+	}
+
+	/**
+	 * Returns the credits for an example image.
+	 *
+	 * @param   string  $imageKey
+	 *
+	 * @return  array{source: string, credits: string, width: int, height: int}
+	 * @since   3.0.0
+	 */
+	public function getSampleImageCredits(string $imageKey): array
+	{
+		$data = $this->getSampleImageData()[$imageKey] ?? null;
+
+		return $data ?? [
+			'source'  => '',
+			'credits' => '',
+			'width'   => 0,
+			'height'  => 0,
+		];
+	}
+
+	/**
+	 * Returns the Template Preview configuration
+	 *
+	 * @return  array{text: string, image: string}
+	 * @throws  Exception
+	 * @since   3.0.0
+	 */
+	public function getPreviewConfig(): array
+	{
+		$session = Factory::getApplication()->getSession();
+
+		return [
+			'text' => $session->get('socialmagick_preview_text', Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT')),
+			'image' => $session->get('socialmagick_preview_image', 'olly'),
+		];
+	}
+
+	/**
+	 * Returns a preview image for the given template options
+	 *
+	 * @param   array        $templateParams  The template parameters to use.
+	 * @param   string|null  $text            The text to render.
+	 * @param   string       $sampleImage     The sample image to use.
+	 *
+	 * @return  string|null  The URL to the preview image.
+	 * @since   3.0.0
+	 */
+	public function getPreviewImage(array $templateParams = [], ?string $text = null, string $sampleImage = 'olly'): ?string
+	{
+		if (empty($templateParams))
+		{
+			return null;
+		}
+
+		$cParams        = ComponentHelper::getParams('com_socialmagick');
+		$db             = $this->getDatabase();
+		$imageGenerator = new ImageGenerator($cParams, $db);
+
+		$text           ??= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
+		$extraImage     = JPATH_PUBLIC . '/media/com_socialmagick/images/examples/' . $sampleImage . '.jpg';
+
+		$session = Factory::getApplication()->getSession();
+		$session->set('socialmagick_preview_text', $text);
+		$session->set('socialmagick_preview_image', $sampleImage);
+
+		try
+		{
+			$generatedImage = $imageGenerator->getOGImage($text, $templateParams, $extraImage);
+		}
+		catch (Exception)
+		{
+			$generatedImage = [];
+		}
+
+		return $generatedImage['imageURL'] ?? null;
+	}
+
+	/**
+	 * Retrieves the preview image URL for a template by its ID.
+	 *
+	 * @param   int          $templateId   The ID of the template to retrieve the preview image for.
+	 * @param   string|null  $text         Optional text to be included in the preview image.
+	 * @param   string       $sampleImage  The sample image type to use if applicable.
+	 *
+	 * @return  string|null  The URL of the preview image, or null on failure.
+	 * @since   3.0.0
+	 */
+	public function getPreviewImageById(int $templateId, ?string $text = null, string $sampleImage = 'olly'): ?string
+	{
+		try
+		{
+			$template = $this->getItem($templateId);
+		}
+		catch (\Throwable)
+		{
+			return null;
+		}
+
+		if (!$template || $template->id != $templateId)
+		{
+			return null;
+		}
+
+		return $this->getPreviewImage($template->params, $text, $sampleImage);
+	}
+
+	/**
 	 * Loads the form data for template editing process.
 	 *
 	 * Data is loaded from the user state (in case the last save was denied), falling back to the DB item. The loaded
@@ -64,7 +230,7 @@ class TemplateModel extends AdminModel
 	 * Forms to edit the template without having to create dozens of table columns.
 	 *
 	 * @return  object  The data prepared for the form, as an object.
-	 * @throws  \Exception
+	 * @throws  Exception
 	 * @since   3.0.0
 	 */
 	protected function loadFormData()
@@ -112,35 +278,5 @@ class TemplateModel extends AdminModel
 		$this->preprocessData('com_socialmagick.template', $data);
 
 		return $data;
-	}
-
-	/**
-	 * Saves the given data while processing custom parameters.
-	 *
-	 * Filters the input data to separate keys that are not part of the database table fields or
-	 * Joomla-specific keys such as 'tags' and 'jcfields'. These keys are stored in a 'params' array.
-	 * The filtered array is then passed to the parent save method for persistence.
-	 *
-	 * @param   array  $data  The data to be saved, including any custom parameters and standard table fields.
-	 *
-	 * @return  bool  True on successful save, false otherwise.
-	 * @throws  \Exception
-	 * @since   3.0.0
-	 */
-	public function save($data)
-	{
-		// Assume all form keys which are neither table field names, nor Joomla-specific are param keys.
-		$paramKeys = array_filter(
-			array_keys($data),
-			fn($key) => !$this->getTable()->hasField($key) && !in_array($key, ['tags', 'jcfields'])
-		);
-
-		// Assemble an array for the params key
-		$data['params'] = array_filter($data, fn($key) => in_array($key, $paramKeys), ARRAY_FILTER_USE_KEY);
-
-		// Delete the data keys we put into the params array
-		$data = array_filter($data, fn($key) => !in_array($key, $paramKeys), ARRAY_FILTER_USE_KEY);
-
-		return parent::save($data);
 	}
 }

@@ -38,14 +38,24 @@ $wa = $this->getDocument()->getWebAssetManager()
 
 	<?php // --- Preview ?>
 	<div class="card border-info mb-3">
-		<h4 class="card-header bg-info text-white">
-			<?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW') ?>
-		</h4>
-		<p class="card-text px-3 py-1 mb-0 small">
-			<span class="fa fa-fw fa-info-circle pe-1" aria-hidden="true"></span>
-			<?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_HELP') ?>
-		</p>
-		<div class="card-body">
+		<div class="card-header bg-info d-flex align-items-center">
+			<h4 class="flex-grow-1 text-white m-0 p-0">
+				<?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW') ?>
+			</h4>
+			<button type="button" class="btn btn-outline-light btn-sm"
+					data-bs-toggle="collapse" data-bs-target="#socialMagickPreviewContainer"
+					aria-expanded="true" aria-controls="socialMagickPreviewContainer"
+					title="<?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_SHOW_HIDE') ?>"
+			>
+				<span class="fa fa-fw fa-arrow-down-up-across-line"></span>
+				<span class="visually-hidden"><?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_SHOW_HIDE') ?></span>
+			</button>
+		</div>
+		<div class="card-body collapse show" id="socialMagickPreviewContainer">
+			<div class="alert alert-info small mt-0 mb-3">
+				<span class="fa fa-fw fa-info-circle pe-1" aria-hidden="true"></span>
+				<?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_HELP') ?>
+			</div>
 			<div class="row">
 				<div class="col-12 col-md-6">
 

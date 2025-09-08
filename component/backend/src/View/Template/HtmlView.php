@@ -52,7 +52,7 @@ class HtmlView extends BaseHtmlView
 
 		$this->form         = $model->getForm();
 		$this->item         = $model->getItem();
-		$this->previewImage = $model->getPreviewImageById($this->item->id);
+		$this->previewImage = $model->getPreviewImageById($this->item->id ?? 0);
 		$this->sampleImages = $model->getSampleImageData();
 
 		$previewConfig     = $model->getPreviewConfig();

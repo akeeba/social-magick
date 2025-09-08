@@ -60,7 +60,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($opacity > 0.0001)
 		{
-			$alpha   = round($opacity * 255);
+			$alpha   = (int) round($opacity * 255 / 100);
 			$hex     = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
 			$pixel   = new ImagickPixel($template['base-color'] . $hex);
 

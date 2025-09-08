@@ -42,8 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented and may end up becoming issues to handle later...
 
-* [ ] Install default templates
-* [ ] Is the opacity working correctly?
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
     * This is now done in the plugins; just check that this works as expected.
 * [ ] User group restriction for OG image preview in the frontend. See notes on [gh-26].

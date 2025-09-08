@@ -41,7 +41,7 @@ class HtmlView extends BaseHtmlView
 
 	public array $sampleImages;
 
-	public string $sampleImage = 'olly';
+	public string $sampleImage = 'erensever';
 
 	public string $sampleText = '';
 
@@ -56,7 +56,7 @@ class HtmlView extends BaseHtmlView
 		$this->sampleImages = $model->getSampleImageData();
 
 		$previewConfig     = $model->getPreviewConfig();
-		$this->sampleImage = $previewConfig['image'] ?: 'olly';
+		$this->sampleImage = $previewConfig['image'] ?: 'erensever';
 		$this->sampleText  = $previewConfig['text'] ?: Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
 
 		$doc = $this->getDocument();

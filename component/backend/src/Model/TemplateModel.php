@@ -149,7 +149,7 @@ class TemplateModel extends AdminModel
 
 		return [
 			'text' => $session->get('socialmagick_preview_text', Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT')),
-			'image' => $session->get('socialmagick_preview_image', 'olly'),
+			'image' => $session->get('socialmagick_preview_image', 'erensever'),
 		];
 	}
 
@@ -163,7 +163,7 @@ class TemplateModel extends AdminModel
 	 * @return  string|null  The URL to the preview image.
 	 * @since   3.0.0
 	 */
-	public function getPreviewImage(array $templateParams = [], ?string $text = null, string $sampleImage = 'olly'): ?string
+	public function getPreviewImage(array $templateParams = [], ?string $text = null, string $sampleImage = 'erensever'): ?string
 	{
 		if (empty($templateParams))
 		{
@@ -203,7 +203,7 @@ class TemplateModel extends AdminModel
 	 * @return  string|null  The URL of the preview image, or null on failure.
 	 * @since   3.0.0
 	 */
-	public function getPreviewImageById(int $templateId, ?string $text = null, string $sampleImage = 'olly'): ?string
+	public function getPreviewImageById(int $templateId, ?string $text = null, string $sampleImage = 'erensever'): ?string
 	{
 		try
 		{

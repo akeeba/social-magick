@@ -79,11 +79,11 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		imagealphablending($image, true);
 
 		// Get the base image (resized image file or solid color image)
-		if ($template['base-image'])
+		if ($template['base-image'] ?? null)
 		{
 			// Joomla 4 append infomration to the image after either a question mark OR a hash sign. Let's fix that.
 			$baseImage = $template['base-image'];
-
+			
 			$imageInfo = HTMLHelper::_('cleanImageURL', $baseImage);
 			$baseImage = $imageInfo->url;
 
@@ -95,11 +95,13 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			[$baseImage, $baseImageWidth, $baseImageHeight] = $this->loadImageFile($baseImage);
 			$baseImage = $this->resizeImage($baseImage, $baseImageWidth, $baseImageHeight, $templateWidth, $templateHeight);
 
+			$this->applyImageEffects($baseImage, $template, 'base-image-');
+
 			imagealphablending($image, true);
 			imagecopy($image, $baseImage, 0, 0, 0, 0, $templateWidth, $templateHeight);
 			imagealphablending($image, false);
 		}
-
+		
 		// Layer an extra image, if necessary
 		if (!empty($extraImage) && ($template['use-article-image'] !== '0'))
 		{
@@ -237,6 +239,9 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		$tmpImg = $this->resizeImage($tmpImg, $width, $height, $tmpWidth, $tmpHeight);
+
+		// Apply image effects
+		$this->applyImageEffects($tmpImg, $template, 'image-');
 
 		imagealphablending($extraCanvas, true);
 		imagecopy($extraCanvas, $tmpImg, $imgX, $imgY, 0, 0, $tmpWidth, $tmpHeight);
@@ -882,5 +887,270 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	private function applyMaximumHeight(array $lines, int $maxHeight): array
 	{
 		return array_filter($lines, fn(array $line): bool => ($line['y'] + $line['height']) <= $maxHeight);
+	}
+
+
+	/**
+	 * Apply various image effects to the base image using GD.
+	 *
+	 * @param   resource  $image     The GD image resource to apply effects to
+	 * @param   array     $template  The template configuration
+	 * @param   string    $prefix    The template parameters prefix
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applyImageEffects(&$image, array $template, string $prefix = 'image-'): void
+	{
+		// Apply grayscale effect
+		if (isset($template[$prefix . 'grayscale']) && $template[$prefix . 'grayscale'] > 0)
+		{
+			$this->applyImageEffectGrayscale($image, (float) $template[$prefix . 'grayscale']);
+		}
+
+		// Apply sepia effect
+		if (isset($template[$prefix . 'sepia']) && $template[$prefix . 'sepia'] > 0)
+		{
+			$this->applyImageEffectSepia($image, (float) $template[$prefix . 'sepia']);
+		}
+
+		// Apply transparency/opacity effect
+		if (isset($template[$prefix . 'opacity']) && $template[$prefix . 'opacity'] < 100 && $template[$prefix . 'opacity'] >= 0)
+		{
+			$this->applyImageEffectOpacity($image, (float) $template[$prefix . 'opacity']);
+		}
+	}
+
+	/**
+	 * Apply grayscale effect to an image
+	 *
+	 * @param   resource  $image      The GD image resource
+	 * @param   float     $intensity  Grayscale intensity (0-100)
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applyImageEffectGrayscale(&$image, float $intensity): void
+	{
+		$intensity = $intensity / 100.0;
+
+		if ($intensity >= 1.0)
+		{
+			// Full grayscale - use GD's built-in filter
+			imagefilter($image, IMG_FILTER_GRAYSCALE);
+		}
+		else
+		{
+			// Partial grayscale - create a grayscale version and blend
+			$width          = imagesx($image);
+			$height         = imagesy($image);
+			$grayscaleImage = imagecreatetruecolor($width, $height);
+
+			// Enable alpha blending and preserve transparency
+			imagealphablending($grayscaleImage, false);
+			imagesavealpha($grayscaleImage, true);
+			$transparent = imagecolorallocatealpha($grayscaleImage, 0, 0, 0, 127);
+			imagefill($grayscaleImage, 0, 0, $transparent);
+
+			// Copy and convert to grayscale
+			imagecopy($grayscaleImage, $image, 0, 0, 0, 0, $width, $height);
+			imagefilter($grayscaleImage, IMG_FILTER_GRAYSCALE);
+
+			// Blend based on intensity using imagecopymerge
+			imagealphablending($image, true);
+			imagealphablending($grayscaleImage, true);
+
+			// Convert intensity to alpha value (0-100 for imagecopymerge)
+			$alpha = (int) round($intensity * 100);
+			imagecopymerge($image, $grayscaleImage, 0, 0, 0, 0, $width, $height, $alpha);
+
+			imagedestroy($grayscaleImage);
+		}
+	}
+
+	/**
+	 * Apply sepia effect to an image
+	 *
+	 * @param   resource  $image      The GD image resource
+	 * @param   float     $intensity  Sepia intensity (0-100)
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applyImageEffectSepia(&$image, float $intensity): void
+	{
+		$intensity = $intensity / 100.0;
+
+		if ($intensity >= 1.0)
+		{
+			// Full sepia using custom matrix
+			$this->applySepiaFilter($image);
+		}
+		else
+		{
+			// Partial sepia - create sepia version and blend
+			$width      = imagesx($image);
+			$height     = imagesy($image);
+			$sepiaImage = imagecreatetruecolor($width, $height);
+
+			// Enable alpha blending and preserve transparency
+			imagealphablending($sepiaImage, false);
+			imagesavealpha($sepiaImage, true);
+			$transparent = imagecolorallocatealpha($sepiaImage, 0, 0, 0, 127);
+			imagefill($sepiaImage, 0, 0, $transparent);
+
+			// Copy and apply sepia
+			imagecopy($sepiaImage, $image, 0, 0, 0, 0, $width, $height);
+			$this->applySepiaFilter($sepiaImage);
+
+			// Blend based on intensity
+			imagealphablending($image, true);
+			imagealphablending($sepiaImage, true);
+
+			$alpha = (int) round($intensity * 100);
+			imagecopymerge($image, $sepiaImage, 0, 0, 0, 0, $width, $height, $alpha);
+
+			imagedestroy($sepiaImage);
+		}
+	}
+
+	/**
+	 * Apply opacity effect to an image
+	 *
+	 * @param   resource  $image    The GD image resource
+	 * @param   float     $opacity  Opacity value (0-100)
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applyImageEffectOpacity(&$image, float $opacity): void
+	{
+		if ($opacity >= 100.0 || $opacity < 0.0)
+		{
+			return;
+		}
+
+		$width = imagesx($image);
+		$height = imagesy($image);
+		
+		// Create a transparent overlay with the desired opacity
+		$overlay = imagecreatetruecolor($width, $height);
+		imagealphablending($overlay, false);
+		imagesavealpha($overlay, true);
+		
+		// Calculate alpha value for the overlay (127 = fully transparent, 0 = fully opaque)
+		$alpha = (int) round(127 * (1.0 - $opacity / 100.0));
+		
+		// Fill the overlay with a fully transparent color
+		$transparent = imagecolorallocatealpha($overlay, 0, 0, 0, $alpha);
+		imagefill($overlay, 0, 0, $transparent);
+		
+		// Apply the overlay to reduce opacity
+		imagealphablending($image, true);
+		imagecopy($image, $overlay, 0, 0, 0, 0, $width, $height);
+		
+		imagedestroy($overlay);
+	}
+
+	/**
+	 * Apply a sepia filter to a GD image resource using color matrix transformation.
+	 *
+	 * @param   resource  $image  The GD image resource
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applySepiaFilter(&$image): void
+	{
+		// Method 1: Using built-in imagefilter (most efficient)
+		if (function_exists('imagefilter'))
+		{
+			// Convert to grayscale first
+			imagefilter($image, IMG_FILTER_GRAYSCALE);
+			
+			// Apply sepia tone using colorize
+			imagefilter($image, IMG_FILTER_COLORIZE, 100, 50, 0, 0);
+			
+			return;
+		}
+		
+		// Method 2: Using imageconvolution for sepia matrix (fallback if imagefilter not available)
+		if (function_exists('imageconvolution'))
+		{
+			$this->applySepiaUsingConvolution($image);
+			
+			return;
+		}
+		
+		// Method 3: Fallback to pixel-by-pixel (original implementation)
+		$this->applySepiaFilterPixelByPixel($image);
+	}
+
+	
+	/**
+	 * Apply sepia effect using color overlay technique (more efficient than pixel-by-pixel)
+	 *
+	 * @param   resource  $image  The GD image resource
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applySepiaUsingConvolution(&$image): void
+	{
+		/**
+		 * Sepia convolution matrix coefficients
+		 * @link https://lucasdavid.github.io/blog/computer-vision/vectorization/
+		 */
+		$matrix = [
+			[0.393, 0.769, 0.189],
+			[0.349, 0.686, 0.168],
+			[0.272, 0.534, 0.131],
+		];
+
+		// Apply the convolution
+		imageconvolution($image, $matrix, 1, 0);
+	}
+
+	/**
+	 * Original pixel-by-pixel sepia implementation.
+	 *
+	 * This is the same as using a convolution matrix, but instead of it being implemented in fast, efficient C code it
+	 * is implemented in pure PHP. The performance is abysmal. If you hit this code you're better off using underlay,
+	 * apply grayscale proportional to the sepia effect you want, and finally set a color layer with color value #704214
+	 * (sepia brown) with transparency equal to the 100 complement of the grayscale opacity you used.
+	 *
+	 * @param   resource  $image  The GD image resource
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function applySepiaFilterPixelByPixel(&$image): void
+	{
+		$width = imagesx($image);
+		$height = imagesy($image);
+		
+		// Enable alpha blending for proper color handling
+		imagealphablending($image, false);
+		imagesavealpha($image, true);
+		
+		// Apply sepia transformation pixel by pixel
+		for ($x = 0; $x < $width; $x++)
+		{
+			for ($y = 0; $y < $height; $y++)
+			{
+				$rgba = imagecolorat($image, $x, $y);
+				$alpha = ($rgba & 0x7F000000) >> 24;
+				$red = ($rgba & 0xFF0000) >> 16;
+				$green = ($rgba & 0x00FF00) >> 8;
+				$blue = $rgba & 0x0000FF;
+				
+				// Sepia transformation matrix
+				$newRed = min(255, (int) round(($red * 0.393) + ($green * 0.769) + ($blue * 0.189)));
+				$newGreen = min(255, (int) round(($red * 0.349) + ($green * 0.686) + ($blue * 0.168)));
+				$newBlue = min(255, (int) round(($red * 0.272) + ($green * 0.534) + ($blue * 0.131)));
+				
+				$newColor = imagecolorallocatealpha($image, $newRed, $newGreen, $newBlue, $alpha);
+				imagesetpixel($image, $x, $y, $newColor);
+			}
+		}
 	}
 }

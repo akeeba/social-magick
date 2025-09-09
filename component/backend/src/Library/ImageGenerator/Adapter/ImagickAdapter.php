@@ -12,6 +12,7 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Ada
 
 use Imagick;
 use ImagickDraw;
+use ImagickException;
 use ImagickPixel;
 use Joomla\CMS\HTML\HTMLHelper;
 
@@ -70,7 +71,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		// Overlay the base image
-		if ($template['base-image'])
+		if ($template['base-image'] ?? null)
 		{
 			// So, Joomla 4 adds some crap to the image. Let's fix that.
 			$baseImage = $template['base-image'];
@@ -86,6 +87,8 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			$tmpImg = $this->resize($baseImage, $templateWidth, $templateHeight);
 			$imgX   = 0;
 			$imgY   = 0;
+
+			$this->applyImageEffects($tmpImg, $template, 'base-image-');
 
 			$image->compositeImage($tmpImg, Imagick::COMPOSITE_OVER, $imgX, $imgY);
 		}
@@ -121,6 +124,10 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 					0,
 					0);
 			}
+
+
+			// Apply image effects
+			$this->applyImageEffects($extraCanvas, $template, 'image-');
 
 			if ($template['image-z'] == 'under')
 			{
@@ -197,7 +204,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @return  Imagick
 	 *
-	 * @throws \ImagickException
+	 * @throws ImagickException
 	 *
 	 * @since   1.0.0
 	 */
@@ -618,5 +625,161 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		// Fallback to just ellipsis
 		return '…';
+	}
+
+	
+	/**
+	 * Apply various image effects to the base image.
+	 *
+	 * @param   Imagick  $image     The image to apply effects to
+	 * @param   array    $template  The template configuration
+	 * @param   string  $prefix  Prefix for the template array keys
+	 *
+	 * @return  void
+	 *
+	 * @since   3.0.0
+	 */
+	private function applyImageEffects(Imagick &$image, array $template, string $prefix = 'image-'): void
+	{
+		$this->applyImageEffectGrayscale($image, $template, $prefix);
+		$this->applyImageEffectSepia($image, $template, $prefix);
+		$this->applyImageEffectOpacity($image, $template, $prefix);
+	}
+
+	/**
+	 * Apply a grayscale effect to an image based on the specified intensity in the template.
+	 *
+	 * @param   Imagick  $image     The image object to modify, passed by reference.
+	 * @param   array    $template  Template configuration containing grayscale intensity.
+	 * @param   string   $prefix    Prefix to identify the grayscale configuration key in the template.
+	 *
+	 * @return  void
+	 * @throws  ImagickException
+	 * @since   3.0.0
+	 */
+	private function applyImageEffectGrayscale(Imagick &$image, array $template, string $prefix): void
+	{
+		if (!isset($template[$prefix . 'grayscale']) || $template[$prefix . 'grayscale'] <= 0)
+		{
+			return;
+		}
+
+		$intensity = (float) $template[$prefix . 'grayscale'] / 100.0;
+
+		if ($intensity >= 1.0)
+		{
+			// Full grayscale - use simple desaturation
+			$image->modulateImage(100, 0, 100);
+		}
+		else
+		{
+			// Partial grayscale - blend original with grayscale version
+			$grayscaleImage = clone $image;
+			$grayscaleImage->modulateImage(100, 0, 100);
+
+			// Create a composite with the desired intensity
+			$originalOpacity  = 1.0 - $intensity;
+			$grayscaleOpacity = $intensity;
+
+			// Apply opacity to both images
+			$image->evaluateImage(Imagick::EVALUATE_MULTIPLY, $originalOpacity, Imagick::CHANNEL_ALPHA);
+			$grayscaleImage->evaluateImage(Imagick::EVALUATE_MULTIPLY, $grayscaleOpacity, Imagick::CHANNEL_ALPHA);
+
+			// Composite the grayscale over the original
+			$image->compositeImage($grayscaleImage, Imagick::COMPOSITE_OVER, 0, 0);
+
+			$grayscaleImage->destroy();
+		}
+	}
+
+	/**
+	 * Applies a sepia effect to an image with the specified intensity.
+	 *
+	 * The intensity is defined in the template configuration and can range from 0 to 1.
+	 * If the intensity is 1, a full sepia effect is applied using the built-in sepia tone method.
+	 * Otherwise, a partial sepia effect is created by blending the original image with a sepia-toned version.
+	 *
+	 * @param   Imagick  $image     The image object to apply the sepia effect to, passed by reference
+	 * @param   array    $template  The configuration template containing the sepia intensity value
+	 * @param   string   $prefix    The prefix for locating the sepia intensity within the template
+	 *
+	 * @return  void
+	 * @throws  ImagickException
+	 * @throws  \ImagickPixelException
+	 * @since   3.0.0
+	 */
+	private function applyImageEffectSepia(Imagick &$image, array $template, string $prefix): void
+	{
+		if (!isset($template[$prefix . 'sepia']) || $template[$prefix . 'sepia'] <= 0)
+		{
+			return;
+		}
+
+		$intensity = (float) $template[$prefix . 'sepia'] / 100.0;
+
+		if ($intensity >= 1.0)
+		{
+			// Full sepia using built-in method
+			$image->sepiaToneImage(80);
+		}
+		else
+		{
+			// Partial sepia - blend original with sepia version
+			$sepiaImage = clone $image;
+
+			// Create sepia version using color matrix for better control
+			$sepiaImage->modulateImage(100, 0, 100); // First convert to grayscale
+
+			// Apply sepia tint using color matrix for a more natural look
+			$colorMatrix = [
+				1.2, 0.2, 0.2, 0, 0,    // Red values
+				0.2, 1.0, 0.2, 0, 0,    // Green values
+				0.2, 0.2, 0.8, 0, 0,    // Blue values
+				0, 0, 0, 1, 0,          // Alpha values
+				0, 0, 0, 0, 1,           // Offset values
+			];
+			$sepiaImage->colorMatrixImage($colorMatrix);
+
+			// Blend based on intensity
+			$originalOpacity = 1.0 - $intensity;
+			$sepiaOpacity    = $intensity;
+
+			// Apply opacity to both images
+			$image->evaluateImage(Imagick::EVALUATE_MULTIPLY, $originalOpacity, Imagick::CHANNEL_ALPHA);
+			$sepiaImage->evaluateImage(Imagick::EVALUATE_MULTIPLY, $sepiaOpacity, Imagick::CHANNEL_ALPHA);
+
+			// Composite the sepia over the original
+			$image->compositeImage($sepiaImage, Imagick::COMPOSITE_OVER, 0, 0);
+
+			$sepiaImage->destroy();
+		}
+	}
+
+	/**
+	 * Applies an opacity effect to an Imagick image based on the given template configuration.
+	 *
+	 * @param   Imagick  $image     Reference to the Imagick image object to which the opacity effect will be applied.
+	 * @param   array    $template  Template array containing configuration values, specifically the opacity value
+	 *                              associated with a prefix.
+	 * @param   string   $prefix    Prefix used to locate the opacity value in the template array.
+	 *
+	 * @return  void
+	 * @throws  ImagickException
+	 * @since   3.0.0
+	 */
+	private function applyImageEffectOpacity(Imagick &$image, array $template, string $prefix): void
+	{
+		if (!isset($template[$prefix . 'opacity']) || $template[$prefix . 'opacity'] >= 100 || $template[$prefix . 'opacity'] < 0)
+		{
+			return;
+		}
+
+		$opacity = (float) $template[$prefix . 'opacity'] / 100.0;
+
+		// Ensure opacity is within valid range
+		$opacity = max(0.0, min(1.0, $opacity));
+
+		// Apply opacity to the alpha channel
+		$image->evaluateImage(Imagick::EVALUATE_MULTIPLY, $opacity, Imagick::CHANNEL_ALPHA);
 	}
 }

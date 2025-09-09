@@ -91,6 +91,40 @@
                 relative="true"
                 directory="og-templates"
         />
+
+        <field
+                name="base-image-grayscale"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_GRAYSCALE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_GRAYSCALE_DESC"
+                min="0"
+                max="100"
+                default="0"
+                step="1"
+        />
+
+        <field
+                name="base-image-sepia"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SEPIA_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SEPIA_DESC"
+                min="0"
+                max="100"
+                default="0"
+                step="1"
+        />
+
+        <field
+                name="base-image-opacity"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OPACITY_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OPACITY_DESC"
+                min="0"
+                max="100"
+                default="100"
+                step="1"
+        />
+
     </fieldset>
 
     <fieldset name="extra_image" label="COM_SOCIALMAGICK_TEMPLATES_FIELDSET_EXTRA_IMAGE">
@@ -216,6 +250,42 @@
                 filter="integer"
                 default="0"
                 showon="use-article-image:1[AND]image-cover:0[AND]image_source!:none"
+        />
+
+        <field
+                name="image-grayscale"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_GRAYSCALE_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_GRAYSCALE_DESC"
+                min="0"
+                max="100"
+                default="0"
+                step="1"
+                showon="image_source!:none[AND]use-article-image:1"
+        />
+
+        <field
+                name="image-sepia"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SEPIA_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_SEPIA_DESC"
+                min="0"
+                max="100"
+                default="0"
+                step="1"
+                showon="image_source!:none[AND]use-article-image:1"
+        />
+
+        <field
+                name="image-opacity"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OPACITY_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OPACITY_DESC"
+                min="0"
+                max="100"
+                default="100"
+                step="1"
+                showon="image_source!:none[AND]use-article-image:1"
         />
     </fieldset>
 

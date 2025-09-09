@@ -45,7 +45,6 @@ This is meant as a quick brain-dump. Things here may or may not be implemented a
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
     * This is now done in the plugins; just check that this works as expected.
 * [ ] User group restriction for OG image preview in the frontend. See notes on [gh-26].
-* [ ] Image effects: opacity, grayscale, sepia. Adjust them individually.
 * [ ] Rewrite documentation as DocBook XML [gh-14]
 * [ ] Document that `imagick` or `gd` are required. Explain how you can use the PHP Information page in Joomla to determine if they are installed. Explain that if it's not enabled you can do that from the hosting control panel, or ask your host.
 * [ ] Document that the lang strings are in the backend, but the overrides must be set for BOTH backend AND frontend

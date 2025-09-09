@@ -156,7 +156,9 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		// Overlay the text (if necessary)
-		$this->renderOverlayText($text, $template, $image);
+		$strokeColor = $template['text-stroke-color'] ?? '#000000';
+		$strokeWidth = $template['text-stroke-width'] ?? 0;
+		$this->renderOverlayText($text, $template, $image, $strokeColor, $strokeWidth);
 
 		// Write the image
 		$imageFormat = $this->getNormalizedExtension($outFile);
@@ -265,12 +267,14 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 * @param   string          $text      The text to render.
 	 * @param   array           $template  The OpenGraph image template definition.
 	 * @param   Imagick  $image     The image to overlay the text.
+	 * @param   string          $strokeColor  The stroke color (optional, default empty)
+	 * @param   int             $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
 	 * @return  void
 	 *
 	 * @since   1.0.0
 	 */
-	private function renderOverlayText(string $text, array $template, Imagick &$image): void
+	private function renderOverlayText(string $text, array $template, Imagick &$image, string $strokeColor = '', int $strokeWidth = 0): void
 	{
 		// Make sure we are told to overlay text
 		if (($template['overlay_text'] ?? 1) != 1)
@@ -305,6 +309,83 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		};
 
 		$theText->setGravity($gravity);
+
+		// Add stroke if specified
+		if (!empty($strokeColor) && $strokeWidth > 0)
+		{
+			// Create stroke version first
+			$strokeText = new Imagick();
+			$strokeText->setBackgroundColor('transparent');
+			$strokeText->setFont($this->normalizeFont($template['text-font']));
+			
+			if ($template['font-size'] > 0)
+			{
+				$strokeText->setPointSize($template['font-size']);
+			}
+			
+			$strokeText->setGravity($gravity);
+			
+			// Create a `caption:` pseudo image with stroke
+			$strokeText->newPseudoImage($template['text-width'],
+				$template['text-height'],
+				'caption:' . $fittedText);
+			$strokeText->setBackgroundColor('transparent');
+			
+			// Remove extra height
+			$strokeText->trimImage(0.0);
+			
+			// Apply stroke color
+			$strokeClut = new Imagick();
+			$strokeColorPixel = new ImagickPixel($strokeColor);
+			$strokeClut->newImage(1, 1, $strokeColorPixel);
+			$strokeColorPixel->destroy();
+			$strokeText->clutImage($strokeClut, 7);
+			$strokeClut->destroy();
+			
+			// Create stroke effect by compositing multiple offset copies
+			$strokeCanvas = new Imagick();
+			$strokeCanvas->newImage($strokeText->getImageWidth() + ($strokeWidth * 2), 
+				$strokeText->getImageHeight() + ($strokeWidth * 2), 
+				new ImagickPixel('transparent'));
+			
+			// Draw stroke at multiple offset positions
+			for ($x = -$strokeWidth; $x <= $strokeWidth; $x++)
+			{
+				for ($y = -$strokeWidth; $y <= $strokeWidth; $y++)
+				{
+					if ($x !== 0 || $y !== 0)
+					{
+						$strokeCanvas->compositeImage($strokeText, 
+							Imagick::COMPOSITE_OVER, 
+							$strokeWidth + $x, 
+							$strokeWidth + $y);
+					}
+				}
+			}
+			
+			$strokeText->destroy();
+			
+			// Composite stroke canvas onto main image first
+			$yPos = $template['text-y-absolute'];
+			if ($template['text-y-center'] == '1')
+			{
+				$yPos = ($image->getImageHeight() - $strokeCanvas->getImageHeight()) / 2.0 + $template['text-y-adjust'];
+			}
+			
+			$xPos = $template['text-x-absolute'];
+			if ($template['text-x-center'] == '1')
+			{
+				$xPos = ($image->getImageWidth() - $strokeCanvas->getImageWidth()) / 2.0 + $template['text-x-adjust'];
+			}
+			
+			$image->compositeImage(
+				$strokeCanvas,
+				Imagick::COMPOSITE_DEFAULT,
+				(int) $xPos,
+				(int) $yPos);
+			
+			$strokeCanvas->destroy();
+		}
 
 		// Create a `caption:` pseudo image that only manages text.
 		$theText->newPseudoImage($template['text-width'],

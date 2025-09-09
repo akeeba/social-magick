@@ -336,6 +336,26 @@
         />
 
         <field
+                name="text-stroke-color"
+                type="color"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_STROKE_COLOR_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_STROKE_COLOR_DESC"
+                default="#000000"
+                format="hex"
+                showon="overlay_text:1"
+        />
+
+        <field
+                name="text-stroke-width"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_STROKE_WIDTH_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_STROKE_WIDTH_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+        />
+
+        <field
                 name="text-height"
                 type="text"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_HEIGHT_LABEL"

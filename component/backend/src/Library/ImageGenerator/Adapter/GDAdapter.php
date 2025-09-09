@@ -109,7 +109,9 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		// Overlay the text (if necessary)
-		$this->renderOverlayText($text, $template, $image);
+		$strokeColor = $template['text-stroke-color'] ?? '#000000';
+		$strokeWidth = $template['text-stroke-width'] ?? 0;
+		$this->renderOverlayText($text, $template, $image, $strokeColor, $strokeWidth);
 
 		// Write out the image file...
 		$imageType = $this->getNormalizedExtension($outFile);
@@ -454,12 +456,14 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	 * @param   string    $text      The text to render.
 	 * @param   array     $template  The OpenGraph image template definition.
 	 * @param   resource  $image     The GD image resource to overlay the text.
+	 * @param   string    $strokeColor  The stroke color (optional, default empty)
+	 * @param   int       $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
 	 * @return  void
 	 *
 	 * @since   1.0.0
 	 */
-	private function renderOverlayText(string $text, array $template, &$image): void
+	private function renderOverlayText(string $text, array $template, &$image, string $strokeColor = '', int $strokeWidth = 0): void
 	{
 		// Make sure we are told to overlay text
 		if (($template['overlay_text'] ?? 1) != 1)
@@ -476,7 +480,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		$fontPath = $this->normalizeFont($template['text-font']);
 		[
 			$textImage, $textImageWidth, $textImageHeight,
-		] = $this->renderText($text, $template['text-color'], $template['text-align'], $fontPath, $fontSize, $template['text-width'], $template['text-height'], $template['text-y-center'] == 1, 1.35);
+		] = $this->renderText($text, $template['text-color'], $template['text-align'], $fontPath, $fontSize, $template['text-width'], $template['text-height'], $template['text-y-center'] == 1, 1.35, $strokeColor, $strokeWidth);
 		$centerVertically   = $template['text-y-center'] == 1;
 		$verticalOffset     = $centerVertically ? $template['text-y-adjust'] : $template['text-y-absolute'];
 		$centerHorizontally = $template['text-x-center'] == 1;
@@ -505,12 +509,14 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	 * @param   int     $maxHeight    Maximum text render height, in pixels.
 	 * @param   bool    $centerTextVertically
 	 * @param   float   $lineSpacing  Line spacing factor. 1.35 is what Imagick uses by default as far as I can tell.
+	 * @param   string  $strokeColor  The stroke color (optional, default empty)
+	 * @param   int     $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
 	 * @return  array  [$image, $textWidth, $textHeight]  The width and height include the 50px margin on all sides
 	 *
 	 * @since   1.0.0
 	 */
-	private function renderText(string $text, string $color, string $alignment, string $font, float $fontSize, int $maxWidth, int $maxHeight, bool $centerTextVertically, float $lineSpacing = 1.35)
+	private function renderText(string $text, string $color, string $alignment, string $font, float $fontSize, int $maxWidth, int $maxHeight, bool $centerTextVertically, float $lineSpacing = 1.35, string $strokeColor = '', int $strokeWidth = 0)
 	{
 		// Pre-process text
 		$text = $this->preProcessText($text);
@@ -596,7 +602,44 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 		imagealphablending($image, true);
 
-		// Render the text on the transparent image
+		// Render stroke if specified
+		if (!empty($strokeColor) && $strokeWidth > 0)
+		{
+			$strokeColorValues = $this->hexToRGBA($strokeColor);
+			$strokeColorResource = imagecolorallocate($image, $strokeColorValues[0], $strokeColorValues[1], $strokeColorValues[2]);
+
+			// Get the y offset because GD is doing weird things
+			$boundingBox   = imagettfbbox($fontSize, 0, $font, $lines[0]['text']);
+			$yOffset       = -$boundingBox[7] + 1;
+			$centerYOffset = 0;
+
+			// At this point the text would be anchored to the top of the text box. We want it centred in the box.
+			if ($centerTextVertically)
+			{
+				$centerYOffset = (int) ceil(($maxHeight - $textHeight) / 2.0);
+			}
+
+			// Draw stroke by rendering text multiple times with offsets
+			foreach ($lines as $line)
+			{
+				$x1 = 50 + $line['x'];
+				$y1 = 50 + $line['y'] + $yOffset + $centerYOffset;
+
+				// Create stroke effect by drawing text at offset positions
+				for ($xOffset = -$strokeWidth; $xOffset <= $strokeWidth; $xOffset++)
+				{
+					for ($yOffsetStroke = -$strokeWidth; $yOffsetStroke <= $strokeWidth; $yOffsetStroke++)
+					{
+						if ($xOffset !== 0 || $yOffsetStroke !== 0)
+						{
+							imagettftext($image, $fontSize, 0, $x1 + $xOffset, $y1 + $yOffsetStroke, $strokeColorResource, $font, $line['text']);
+						}
+					}
+				}
+			}
+		}
+
+		// Render the main text on top
 		$colorResource = imagecolorallocate($image, $colorValues[0], $colorValues[1], $colorValues[2]);
 
 		// Get the y offset because GD is doing weird things
@@ -612,10 +655,10 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 		foreach ($lines as $line)
 		{
-			$x1 = 50 + $line['x'];
-			$y1 = 50 + $line['y'] + $centerYOffset;
+			$x1 = (int) (50 + $line['x']);
+			$y1 = (int) (50 + $line['y'] + $centerYOffset);
 
-			imagettftext($image, $fontSize, 0, (int) $x1, (int) $y1 + (int) $yOffset, $colorResource, $font, $line['text']);
+			imagettftext($image, $fontSize, 0, $x1, $y1 + (int) $yOffset, $colorResource, $font, $line['text']);
 
 			if ($this->debugText)
 			{

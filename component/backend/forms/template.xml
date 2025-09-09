@@ -336,6 +336,17 @@
         />
 
         <field
+                name="text-opacity"
+                type="range"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_OPACITY_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_OPACITY_DESC"
+                min="0"
+                max="100"
+                default="100"
+                step="1"
+        />
+
+        <field
                 name="text-stroke-color"
                 type="color"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_STROKE_COLOR_LABEL"

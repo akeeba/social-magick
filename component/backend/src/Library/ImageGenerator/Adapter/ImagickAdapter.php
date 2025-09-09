@@ -20,6 +20,27 @@ defined('_JEXEC') || die();
 
 class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 {
+	private function hexColorWithOpacity(string $baseColorHex, int $opacity): string
+	{
+		// Clamp the opacity
+		$opacity = max(min($opacity, 100), 0);
+
+		// Extreme values fon't have to go through calculations.
+		if ($opacity == 0)
+		{
+			return $baseColorHex . '00';
+		}
+		elseif ($opacity == 100)
+		{
+			return $baseColorHex . 'FF';
+		}
+
+		$alpha   = (int) round($opacity * 255 / 100);
+		$hex     = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
+
+		return $baseColorHex . $hex;
+	}
+
 	public function makeImage(string $text, array $template, string $outFile, ?string $extraImage): void
 	{
 		/**
@@ -61,9 +82,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($opacity > 0.0001)
 		{
-			$alpha   = (int) round($opacity * 255 / 100);
-			$hex     = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
-			$pixel   = new ImagickPixel($template['base-color'] . $hex);
+			$pixel   = new ImagickPixel($this->hexColorWithOpacity($template['base-color'], $opacity));
 
 			$image->newImage($templateWidth, $templateHeight, $pixel);
 
@@ -282,6 +301,8 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			return;
 		}
 
+		$textOpacity = $template['text-opacity'] ?? 100;
+
 		// Normalize text
 		$text = $this->preProcessText($text, false);
 
@@ -362,7 +383,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 					}
 				}
 			}
-			
+
 			$strokeText->destroy();
 			
 			// Composite stroke canvas onto main image first
@@ -377,14 +398,8 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			{
 				$xPos = ($image->getImageWidth() - $strokeCanvas->getImageWidth()) / 2.0 + $template['text-x-adjust'];
 			}
-			
-			$image->compositeImage(
-				$strokeCanvas,
-				Imagick::COMPOSITE_DEFAULT,
-				(int) $xPos,
-				(int) $yPos);
-			
-			$strokeCanvas->destroy();
+
+			// TODO strokeCanvas must be composited with the text canvas and the whole shebang made transparent...
 		}
 
 		// Create a `caption:` pseudo image that only manages text.
@@ -453,6 +468,28 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			);
 			$debugImage->destroy();
 		}
+
+		// If we have a stroke we need to composite the text on top of the stroke, otherwise text opacity will not work.
+		if (isset($strokeCanvas))
+		{
+			$strokeCanvas->compositeImage(
+				$theText,
+				Imagick::COMPOSITE_DEFAULT,
+				$strokeWidth,
+				$strokeWidth
+			);
+
+			$theText->destroy();
+
+			unset($theText);
+
+			$theText = $strokeCanvas;
+
+			unset($strokeCanvas);
+		}
+
+		// Apply opacity to $theText
+		$this->applyImageEffectOpacity($theText, $template, 'text-');
 
 		// Composite bestfit caption over base image.
 		$image->compositeImage(

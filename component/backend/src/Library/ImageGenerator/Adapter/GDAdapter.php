@@ -490,6 +490,9 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			$textOffsetX, $textOffsetY,
 		] = $this->getTextRenderOffsets($templateWidth, $templateHeight, $textImageWidth, $textImageHeight, $centerVertically, $verticalOffset, $centerHorizontally, $horizontalOffset);
 
+		// Apply opacity to $textImage
+		$this->applyImageEffectOpacity($textImage, $template['text-opacity'] ?? 100.0);
+
 		// Render text
 		imagealphablending($image, true);
 		imagealphablending($textImage, true);

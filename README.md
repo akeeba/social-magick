@@ -3,7 +3,7 @@
 Automatically generate OpenGraph images for Joomla! content.
 
 > [!WARNING]  
-> 🚧 **Work In Progress** 🚧 This plugin was recently transferred from Lucid Fox to Akeeba Ltd. We are reworking this plugin. Expect more news from this plugin in Q4 2025! 
+> 🚧 **Work In Progress** 🚧 This project was recently transferred from Lucid Fox to Akeeba Ltd. We are actively reworking it. 
 
 ## What is this
 
@@ -14,7 +14,7 @@ This plugin allows you to automatically generate OpenGraph images for your site'
 
 ## Requirements
 
-This plugin has the following minimum requirements:
+This extension has the following minimum requirements:
 
 * Joomla 5.3 or later
 * PHP 8.1, 8.2, 8.3, or 8.4
@@ -22,11 +22,11 @@ This plugin has the following minimum requirements:
 
 ## Quick start
 
-* Download and install the plugin ZIP file.
-* Publish the System – SocialMagick plugin.
-* Edit the menu item you want to have OpenGraph images automatically generated. In its “OpenGraph images” tab:
+* Download and install the ZIP file.
+* Review the templates in Components, SocialMagick, Templates.
+* Edit the menu item you want to have OpenGraph images automatically generated. It is in the “OpenGraph images” tab.
 * Set “Generate OpenGraph images” to Yes.
-* Select the Solid template.
+* Select a template, e.g. the Solid template.
 * Save your menu item.
 * Go to [metatags.io](https://metatags.io/) and paste the URL to the page of your site that corresponds to the menu item you selected. You can now see that it has a preview image.
 
@@ -42,8 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented and may end up becoming issues to handle later...
 
-* [ ] Crop anchor: Right now, we use central anchoring. We can use the 9 combinations of center and cardinal points for maximum ease of use without case by case left/right adjustments.
-* [ ] Preview Template: store the options in the browser's storage instead of the session (since we can't update the session when doing an AJAX request).
 * [ ] Limit the form tabs for menu items, categories, and articles to specific user groups [gh-46]
     * This is now done in the plugins; just check that this works as expected.
 * [ ] User group restriction for OG image preview in the frontend. See notes on [gh-26].

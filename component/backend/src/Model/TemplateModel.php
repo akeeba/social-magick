@@ -138,23 +138,6 @@ class TemplateModel extends AdminModel
 	}
 
 	/**
-	 * Returns the Template Preview configuration
-	 *
-	 * @return  array{text: string, image: string}
-	 * @throws  Exception
-	 * @since   3.0.0
-	 */
-	public function getPreviewConfig(): array
-	{
-		$session = Factory::getApplication()->getSession();
-
-		return [
-			'text' => $session->get('socialmagick_preview_text', Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT')),
-			'image' => $session->get('socialmagick_preview_image', 'erensever'),
-		];
-	}
-
-	/**
 	 * Returns a preview image for the given template options
 	 *
 	 * @param   array        $templateParams  The template parameters to use.
@@ -187,10 +170,6 @@ class TemplateModel extends AdminModel
 			$extraImage = JPATH_ROOT . '/' .
 				urldecode(HTMLHelper::cleanImageURL($templateParams['static_image'])?->url ?? '') ?: '';
 		}
-
-		$session = Factory::getApplication()->getSession();
-		$session->set('socialmagick_preview_text', $text);
-		$session->set('socialmagick_preview_image', $sampleImage);
 
 		try
 		{

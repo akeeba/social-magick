@@ -14,6 +14,7 @@ use Akeeba\Component\SocialMagick\Administrator\Mixin\ViewToolbarTrait;
 use Akeeba\Component\SocialMagick\Administrator\Model\TemplateModel;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
@@ -52,12 +53,11 @@ class HtmlView extends BaseHtmlView
 
 		$this->form         = $model->getForm();
 		$this->item         = $model->getItem();
-		$this->previewImage = $model->getPreviewImageById($this->item->id ?? 0);
+		$this->previewImage = HTMLHelper::image('com_socialmagick/loading.svg', '', returnPath: 1);
 		$this->sampleImages = $model->getSampleImageData();
 
-		$previewConfig     = $model->getPreviewConfig();
-		$this->sampleImage = $previewConfig['image'] ?: 'erensever';
-		$this->sampleText  = $previewConfig['text'] ?: Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
+		$this->sampleImage = 'erensever';
+		$this->sampleText  = Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
 
 		$doc = $this->getDocument();
 		$doc->addScriptOptions('socialmagick_preview_samples', $this->sampleImages);

@@ -37,7 +37,9 @@
 
         formData.set('task', 'regeneratePreview');
 
-        console.log(Object.fromEntries(formData));
+        // Store preview values in localStorage
+        window.localStorage.setItem("socialmagick_preview_image", formData.get("preview[sampleImage]"));
+        window.localStorage.setItem("socialmagick_preview_text", formData.get("preview[text]"));
 
         const response = await fetch(
             "index.php?option=com_socialmagick&view=templates&task=regeneratePreview&format=json",
@@ -88,4 +90,24 @@
     });
 
     document.getElementById('socialmagic_preview_refresh')?.addEventListener('click', onSocialMagickRegenerateTemplatePreview);
+
+    // Load stored preview values
+    const storedImage = window.localStorage.getItem("socialmagick_preview_image");
+    const storedText  = window.localStorage.getItem("socialmagick_preview_text");
+
+    if (storedImage)
+    {
+        document.querySelectorAll("[id^=\"socialMagickPreviewSample\"]")?.forEach((el) =>
+        {
+            el.checked = (el.value === storedImage);
+        });
+    }
+
+    if (storedText && storedText !== '')
+    {
+        document.getElementById('socialMagickPreviewText').value = storedText;
+    }
+
+    // Apply the preview
+    document.getElementById("socialmagic_preview_refresh")?.click();
 })(window, document);

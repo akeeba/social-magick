@@ -33,5 +33,19 @@
 		"width": "6000",
 		"height": "4000",
 		"comment": "Landscape photo, subject on the centre"
+	},
+	"lindsey": {
+		"source": "https://www.pexels.com/photo/majestic-mountain-overlooking-lush-forest-33812918/",
+		"credits": "Lindsey Mateo",
+		"width": "2268",
+		"height": "4032",
+		"comment": "Panorama portrait (tall and narrow), subject towards the top"
+	},
+	"spiske": {
+		"source": "https://www.pexels.com/photo/green-grass-field-and-mountains-under-blue-sky-144352//",
+		"credits": "Markus Spiske",
+		"width": "7524",
+		"height": "2885",
+		"comment": "Landscape portrait (short and wide), subject towards the left"
 	}
 }

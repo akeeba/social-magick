@@ -194,6 +194,90 @@ abstract class AbstractAdapter implements AdapterInterface
 	}
 
 	/**
+	 * Resize an $x x $y pixels image so that it can be cropped to $refX x $refY without leaving empty areas.
+	 *
+	 * If the images is narrower or shorter than $refX x $refY we will still have empty areas.
+	 *
+	 * @param   int  $x     The original image's width
+	 * @param   int  $y     The original image's height
+	 * @param   int  $refX  The reference width we need to achieve
+	 * @param   int  $refY  The reference height we need to achieve
+	 *
+	 * @return  int[]  The resize dimensions for best fit resize.
+	 * @since   3.0.0
+	 */
+	protected function getBestFitDimensions(int $x, int $y, int $refX, int $refY): array
+	{
+		if ($x < $refX || $y < $refY)
+		{
+			return [$x, $y];
+		}
+
+		$newX = $refX;
+		$newY = (int) floor($y * ($newX / $x));
+
+		if ($newY >= $refY)
+		{
+			return [$newX, $newY];
+		}
+
+		$newY = $refY;
+		$newX = (int) floor($x * ($refY / $y));
+
+		return [$newX, $newY];
+	}
+
+	/**
+	 * Applies an X-Y transform to the clip origin point so that the clipping stays with the image boundaries.
+	 *
+	 * For example, let's say you have a 200x200 pixels source, and you want to clip a 100x100 image from the origin
+	 * point (50, 50) with a transform of (70, 10).
+	 *
+	 * This would be an invalid transform because the new origin point becomes (120, 60), therefore the opposite corner
+	 * of the clip region would be (220, 160) which is outside the image boundaries.
+	 *
+	 * This method would restrict the X-transform in this case to 50 i.e. return [50,50]. The new origin point would now
+	 * be (100, 60), therefore the opposite corner of the clip region becomes (200, 160) which is well within the image
+	 * boundaries.
+	 *
+	 * @param   int  $sourceWidth   Source image width
+	 * @param   int  $sourceHeight  Source image height
+	 * @param   int  $originX       X coordinate of the clip region's origin point
+	 * @param   int  $originY       Y coordinate of the clip region's origin point
+	 * @param   int  $copyWidth     Clipping width
+	 * @param   int  $copyHeight    Clipping height
+	 * @param   int  $transformX    The desired transform (nudge) of the origin point on the X axis
+	 * @param   int  $transformY    A desired transform (nudge) of the origin point on the Y axis
+	 *
+	 * @return  array
+	 */
+	protected function nudgeClipRegion(int $sourceWidth, int $sourceHeight, int $originX, int $originY, int $copyWidth, int $copyHeight, int $transformX, int $transformY): array
+	{
+		$newOriginX = $originX + $transformX;
+		$newOriginY = $originY + $transformY;
+
+		if ($newOriginX < 0)
+		{
+			$transformX += abs($newOriginX);
+		}
+		elseif ($newOriginX + $copyWidth > $sourceWidth)
+		{
+			$transformX -= ($newOriginX + $copyWidth) - $sourceWidth;
+		}
+
+		if ($newOriginY < 0)
+		{
+			$transformY += abs($newOriginY);
+		}
+		elseif ($newOriginY + $copyHeight > $sourceHeight)
+		{
+			$transformY -= ($newOriginY + $copyHeight) - $sourceHeight;
+		}
+
+		return [$transformX, $transformY];
+	}
+
+	/**
 	 * Strip Emoji and Dingbats off a string
 	 *
 	 * @param   string  $string  The string to process

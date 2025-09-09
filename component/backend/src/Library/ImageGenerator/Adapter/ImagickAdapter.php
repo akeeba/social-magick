@@ -120,9 +120,11 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			$extraCanvas->newImage($templateWidth, $templateHeight, $transparentPixel);
 			$transparentPixel->destroy();
 
+			$anchor = $template['image-anchor'] ?? 'center';
+
 			if ($template['image-cover'] == '1')
 			{
-				$tmpImg = $this->resize($extraImage, $templateWidth, $templateHeight);
+				$tmpImg = $this->resize($extraImage, $templateWidth, $templateHeight, $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y']  ?? 0);
 				$imgX   = 0;
 				$imgY   = 0;
 				$extraCanvas->compositeImage(
@@ -134,14 +136,14 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			}
 			else
 			{
-				$tmpImg = $this->resize($extraImage, $template['image-width'], $template['image-height']);
+				$tmpImg = $this->resize($extraImage, $template['image-width'], $template['image-height'], $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y']  ?? 0);
 				$imgX   = $template['image-x'];
 				$imgY   = $template['image-y'];
 				$extraCanvas->compositeImage(
 					$tmpImg,
 					Imagick::COMPOSITE_DEFAULT,
-					0,
-					0);
+					$imgX,
+					$imgY);
 			}
 
 
@@ -229,53 +231,45 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @since   1.0.0
 	 */
-	private function resize(string $src, $new_w, $new_h, string $focus = 'center'): Imagick
+	private function resize(string $src, $new_w, $new_h, string $focus = 'center', int $clipTransformX = 0, int $clipTransformY = 0): Imagick
 	{
 		$image = new Imagick($src);
 
 		$w = $image->getImageWidth();
 		$h = $image->getImageHeight();
 
-		$resize_w = $new_w;
-		$resize_h = $h * $new_w / $w;
-
-		if ($w > $h)
-		{
-			$resize_w = $w * $new_h / $h;
-			$resize_h = $new_h;
-
-			if ($resize_w < $new_w)
-			{
-				$resize_w = $new_w;
-				$resize_h = $h * $new_w / $w;
-			}
-		}
+		[$resize_w, $resize_h] = $this->getBestFitDimensions($w, $h, $new_w, $new_h);
 
 		$image->resizeImage((int) $resize_w, (int) $resize_h, Imagick::FILTER_LANCZOS, 0.9);
 
-		switch ($focus)
+		$xCenter = (int) (($resize_w - $new_w) / 2);
+		$yCenter = (int) (($resize_h - $new_h) / 2);
+		$north   = 0;
+		$south   = (int) ($resize_h - $new_h);
+		$west    = 0;
+		$east    = (int) ($resize_w - $new_w);
+
+		[$sourceX, $sourceY] = match ($focus)
 		{
-			case 'northwest':
-				$image->cropImage((int) $new_w, (int) $new_h, 0, 0);
-				break;
+			'northwest' => [$west, $north],
+			'north'     => [$xCenter, $north],
+			'northeast' => [$east, $north],
+			'west'      => [$west, $yCenter],
+			default     => [$xCenter, $yCenter],
+			'east'      => [$east, $yCenter],
+			'southwest' => [$west, $south],
+			'south'     => [$xCenter, $south],
+			'southeast' => [$east, $south],
+		};
 
-			default:
-			case 'center':
-				$image->cropImage((int) $new_w, (int) $new_h, (int) (($resize_w - $new_w) / 2), (int) (($resize_h - $new_h) / 2));
-				break;
-
-			case 'northeast':
-				$image->cropImage((int) $new_w, (int) $new_h, (int) ($resize_w - $new_w), 0);
-				break;
-
-			case 'southwest':
-				$image->cropImage((int) $new_w, (int) $new_h, 0, (int) ($resize_h - $new_h));
-				break;
-
-			case 'southeast':
-				$image->cropImage((int) $new_w, (int) $new_h, (int) ($resize_w - $new_w), (int) ($resize_h - $new_h));
-				break;
+		if ($clipTransformX != 0 || $clipTransformY != 0)
+		{
+			[$clipTransformX, $clipTransformY] = $this->nudgeClipRegion($resize_w, $resize_h, $sourceX, $sourceY, $new_w, $new_h, $clipTransformX, $clipTransformY);
+			$sourceX += $clipTransformX;
+			$sourceY += $clipTransformY;
 		}
+
+		$image->cropImage((int) $new_w, (int) $new_h, $sourceX, $sourceY);
 
 		return $image;
 	}

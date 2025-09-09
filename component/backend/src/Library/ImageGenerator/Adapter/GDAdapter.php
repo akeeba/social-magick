@@ -240,7 +240,8 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			$imgY      = $template['image-y'];
 		}
 
-		$tmpImg = $this->resizeImage($tmpImg, $width, $height, $tmpWidth, $tmpHeight);
+		$anchor = $template['image-anchor'] ?? 'center';
+		$tmpImg = $this->resizeImage($tmpImg, $width, $height, $tmpWidth, $tmpHeight, $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y'] ?? 0);
 
 		// Apply image effects
 		$this->applyImageEffects($tmpImg, $template, 'image-');
@@ -356,7 +357,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @since   1.0.0
 	 */
-	private function resizeImage(&$image, int $oldWidth, int $oldHeight, int $newWidth, int $newHeight, string $focus = 'center')
+	private function resizeImage(&$image, int $oldWidth, int $oldHeight, int $newWidth, int $newHeight, string $focus = 'center', int $clipTransformX = 0, int $clipTransformY = 0)
 	{
 		if (($oldWidth === $newWidth) && ($oldHeight === $newHeight))
 		{
@@ -364,20 +365,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		// Get the resize dimensions
-		$resizeWidth  = $newWidth;
-		$resizeHeight = $oldHeight * $newWidth / $oldWidth;
-
-		if ($oldWidth > $oldHeight)
-		{
-			$resizeWidth  = $oldWidth * $newHeight / $oldHeight;
-			$resizeHeight = $newHeight;
-
-			if ($resizeWidth < $newWidth)
-			{
-				$resizeWidth  = $newWidth;
-				$resizeHeight = $oldHeight * $newWidth / $oldWidth;
-			}
-		}
+		[$resizeWidth, $resizeHeight] = $this->getBestFitDimensions($oldWidth, $oldHeight, $newWidth, $newHeight);
 
 		// Resize the image
 		$newImage = imagecreatetruecolor((int) $resizeWidth, (int) $resizeHeight);
@@ -396,30 +384,34 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		$transparent = imagecolorallocatealpha($newImage, 0, 0, 0, 127);
 		imagefilledrectangle($newImage, 0, 0, (int) $resizeWidth, (int) $resizeHeight, $transparent);
 
-		switch ($focus)
+		$xCenter = (int) (abs($resizeWidth - $newWidth) / 2);
+		$yCenter = (int) (abs($resizeHeight - $newHeight) / 2);
+		$north   = 0;
+		$south   = (int) abs($resizeHeight - $newHeight);
+		$west    = 0;
+		$east    = (int) abs($resizeWidth - $newWidth);
+
+		[$sourceX, $sourceY] = match ($focus)
 		{
-			case 'northwest':
-				imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $newWidth, $newHeight);
-				break;
+			'northwest' => [$west, $north],
+			'north'     => [$xCenter, $north],
+			'northeast' => [$east, $north],
+			'west'      => [$west, $yCenter],
+			default     => [$xCenter, $yCenter],
+			'east'      => [$east, $yCenter],
+			'southwest' => [$west, $south],
+			'south'     => [$xCenter, $south],
+			'southeast' => [$east, $south],
+		};
 
-			default:
-			case 'center':
-				imagecopyresampled($newImage, $image, 0, 0, (int) (abs($resizeWidth - $newWidth) / 2), (int) (abs($resizeHeight - $newHeight) / 2), $newWidth, $newHeight, $newWidth, $newHeight);
-				break;
-
-			case 'northeast':
-				imagecopyresampled($newImage, $image, 0, 0, (int) abs($resizeWidth - $newWidth), 0, $newWidth, $newHeight, $newWidth, $newHeight);
-				break;
-
-			case 'southwest':
-				imagecopyresampled($newImage, $image, 0, 0, 0, (int) abs($resizeHeight - $newHeight), $newWidth, $newHeight, $newWidth, $newHeight);
-				break;
-
-			case 'southeast':
-				imagecopyresampled($newImage, $image, 0, 0, (int) abs($resizeWidth - $newWidth), (int) abs($resizeHeight - $newHeight), $newWidth, $newHeight, $newWidth, $newHeight);
-				break;
+		if ($clipTransformX != 0 || $clipTransformY != 0)
+		{
+			[$clipTransformX, $clipTransformY] = $this->nudgeClipRegion($resizeWidth, $resizeHeight, $sourceX, $sourceY, $newWidth, $newHeight, $clipTransformX, $clipTransformY);
+			$sourceX += $clipTransformX;
+			$sourceY += $clipTransformY;
 		}
 
+		imagecopyresampled($newImage, $image, 0, 0, $sourceX, $sourceY, $newWidth, $newHeight, $newWidth, $newHeight);
 		imagedestroy($image);
 		$image = $newImage;
 		unset($newImage);

@@ -209,6 +209,27 @@
         </field>
 
         <field
+                name="image-anchor"
+                type="list"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_DESC"
+                class="btn-group btn-group-yesno"
+                default="center"
+                showon="use-article-image:1[AND]image_source!:none"
+        >
+            <!-- The corners don't make sense because I do best fit, i.e. EITHER the width, OR the height will be equal to the target image width and height. DOH! -->
+<!--            <option value="northwest">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_NORTHWEST</option>-->
+            <option value="north">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_NORTH</option>
+<!--            <option value="northeast">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_NORTHEAST</option>-->
+            <option value="west">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_WEST</option>
+            <option value="center">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_CENTER</option>
+            <option value="east">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_EAST</option>
+<!--            <option value="southwest">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_SOUTHWEST</option>-->
+            <option value="south">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_SOUTH</option>
+<!--            <option value="southeast">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_SOUTHEAST</option>-->
+        </field>
+
+        <field
                 name="image-width"
                 type="text"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_WIDTH_LABEL"
@@ -227,6 +248,28 @@
                 addonAfter="px"
                 default="630"
                 showon="use-article-image:1[AND]image-cover:0[AND]image_source!:none"
+                filter="integer"
+        />
+
+        <field
+                name="image-clip-transform-x"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_CLIP_TRANSFORM_X_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_CLIP_TRANSFORM_X_DESC"
+                addonAfter="px"
+                default="0"
+                showon="use-article-image:1[AND]image_source!:none"
+                filter="integer"
+        />
+
+        <field
+                name="image-clip-transform-y"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_CLIP_TRANSFORM_Y_LABEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_CLIP_TRANSFORM_Y_DESC"
+                addonAfter="px"
+                default="0"
+                showon="use-article-image:1[AND]image_source!:none"
                 filter="integer"
         />
 

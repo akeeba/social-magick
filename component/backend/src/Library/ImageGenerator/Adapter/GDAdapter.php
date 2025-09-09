@@ -1032,24 +1032,37 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 		$width = imagesx($image);
 		$height = imagesy($image);
-		
-		// Create a transparent overlay with the desired opacity
-		$overlay = imagecreatetruecolor($width, $height);
-		imagealphablending($overlay, false);
-		imagesavealpha($overlay, true);
-		
-		// Calculate alpha value for the overlay (127 = fully transparent, 0 = fully opaque)
-		$alpha = (int) round(127 * (1.0 - $opacity / 100.0));
-		
-		// Fill the overlay with a fully transparent color
-		$transparent = imagecolorallocatealpha($overlay, 0, 0, 0, $alpha);
-		imagefill($overlay, 0, 0, $transparent);
-		
-		// Apply the overlay to reduce opacity
-		imagealphablending($image, true);
-		imagecopy($image, $overlay, 0, 0, 0, 0, $width, $height);
-		
-		imagedestroy($overlay);
+
+		// Create a new image that will hold our semi-transparent result
+		$newImage = imagecreatetruecolor($width, $height);
+		imagealphablending($newImage, false);
+		imagesavealpha($newImage, true);
+
+		// Process each pixel to adjust opacity
+		for ($x = 0; $x < $width; $x++)
+		{
+			for ($y = 0; $y < $height; $y++)
+			{
+				$rgba = imagecolorat($image, $x, $y);
+
+				// Extract color components
+				$alpha = ($rgba >> 24) & 0x7F;
+				$red   = ($rgba >> 16) & 0xFF;
+				$green = ($rgba >> 8) & 0xFF;
+				$blue  = $rgba & 0xFF;
+
+				// Calculate new alpha value
+				$newAlpha = min(127, $alpha + (int) ((127 - $alpha) * (100 - $opacity) / 100));
+
+				// Allocate new color with adjusted opacity
+				$color = imagecolorallocatealpha($newImage, $red, $green, $blue, $newAlpha);
+				imagesetpixel($newImage, $x, $y, $color);
+			}
+		}
+
+		// Replace original image with the new one
+		imagedestroy($image);
+		$image = $newImage;
 	}
 
 	/**

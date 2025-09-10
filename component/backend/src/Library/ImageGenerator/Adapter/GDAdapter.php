@@ -123,7 +123,9 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			case 'png':
 				if (function_exists('imagepng'))
 				{
-					$ret = @imagepng($image, null, min((int) ceil((100 - $this->quality) / 10), 9));
+					$ret = @imagepng($image,
+						null,
+						(int) (min((int) floor((100 - $this->quality) / 10), 9)));
 				}
 
 				break;
@@ -166,7 +168,14 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			case 'webp':
 				if (function_exists('imagewebp'))
 				{
-					$ret = @imagewebp($image, null, $this->quality);
+					$compressionLevel = $this->quality;
+
+					if (defined('IMG_WEBP_LOSSLESS') && $this->quality >= 90)
+					{
+						$compressionLevel = IMG_WEBP_LOSSLESS;
+					}
+
+					$ret = @imagewebp($image, null, $compressionLevel);
 				}
 
 				break;

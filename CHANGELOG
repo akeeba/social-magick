@@ -12,5 +12,6 @@ SocialMagick 3.0.0
 + Text opacity
 + Crop anchor and crop point nudging
 + Scheduled Task plugin to clean up old images
++ Choose between JPG (default), PNG, or WebP format for generated OpenGraph images
 # [LOW] ImageMagick: The text was vertically anchored in the centre instead of the top
 # [LOW] GD: The ellipses when clipping a long sentence were unreliable

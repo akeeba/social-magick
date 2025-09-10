@@ -86,6 +86,14 @@ final class ImageGenerator implements DatabaseAwareInterface
 	private int $folderLevels = 1;
 
 	/**
+	 * The image format to use for generated images.
+	 *
+	 * @var   string
+	 * @since 3.0.0
+	 */
+	private string $imageType;
+
+	/**
 	 * ImageGenerator constructor.
 	 *
 	 * @param   Registry  $cParams  The component parameters. Used to set up internal properties.
@@ -95,8 +103,9 @@ final class ImageGenerator implements DatabaseAwareInterface
 	public function __construct(Registry $cParams, DatabaseInterface $db)
 	{
 		$this->setDatabase($db);
-		$this->devMode             = $cParams->get('devmode', 0) == 1;
-		$this->outputFolder        = JPATH_PUBLIC . '/media/com_socialmagick/generated';
+		$this->devMode      = $cParams->get('devmode', 0) == 1;
+		$this->outputFolder = 'media/com_socialmagick/generated';
+		$this->imageType    = $cParams->get('imagetype', 'jpg') ?: 'jpg';
 
 		// Make sure the output folder exists
 		if (!@is_dir($this->outputFolder))
@@ -106,7 +115,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 
 		$rendererType = $cParams->get('library', 'auto');
 		$textDebug    = $cParams->get('textdebug', '0') == 1;
-		$quality      = 100 - $cParams->get('quality', '95');
+		$quality  = $cParams->get('quality', '95');
 
 		$this->loadImageTemplates();
 
@@ -294,10 +303,11 @@ final class ImageGenerator implements DatabaseAwareInterface
 		// Get the generated image filename and URL
 		$outputFolder     = trim($this->outputFolder, '/\\');
 		$outputFolder     = str_replace('\\', '/', $outputFolder);
-		$filename         = Path::clean(sprintf("%s/%s/%s.png",
+		$filename         = Path::clean(sprintf("%s/%s/%s.%s",
 			JPATH_ROOT,
 			$outputFolder,
-			md5($text . serialize($templateOptions) . ($extraImage ?? '') . $this->renderer->getOptionsKey())
+			md5($text . serialize($templateOptions) . ($extraImage ?? '') . $this->renderer->getOptionsKey()),
+			$this->imageType
 		));
 		$filename         = FileDistributor::ensureDistributed(dirname($filename), basename($filename), $this->folderLevels);
 		$realRelativePath = ltrim(substr($filename, strlen(JPATH_ROOT)), '/');

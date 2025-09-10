@@ -20,27 +20,6 @@ defined('_JEXEC') || die();
 
 class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 {
-	private function hexColorWithOpacity(string $baseColorHex, int $opacity): string
-	{
-		// Clamp the opacity
-		$opacity = max(min($opacity, 100), 0);
-
-		// Extreme values fon't have to go through calculations.
-		if ($opacity == 0)
-		{
-			return $baseColorHex . '00';
-		}
-		elseif ($opacity == 100)
-		{
-			return $baseColorHex . 'FF';
-		}
-
-		$alpha   = (int) round($opacity * 255 / 100);
-		$hex     = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
-
-		return $baseColorHex . $hex;
-	}
-
 	public function makeImage(string $text, array $template, string $outFile, ?string $extraImage): void
 	{
 		/**
@@ -82,7 +61,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($opacity > 0.0001)
 		{
-			$pixel   = new ImagickPixel($this->hexColorWithOpacity($template['base-color'], $opacity));
+			$pixel = new ImagickPixel($this->hexColorWithOpacity($template['base-color'], $opacity));
 
 			$image->newImage($templateWidth, $templateHeight, $pixel);
 
@@ -124,7 +103,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 			if ($template['image-cover'] == '1')
 			{
-				$tmpImg = $this->resize($extraImage, $templateWidth, $templateHeight, $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y']  ?? 0);
+				$tmpImg = $this->resize($extraImage, $templateWidth, $templateHeight, $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y'] ?? 0);
 				$imgX   = 0;
 				$imgY   = 0;
 				$extraCanvas->compositeImage(
@@ -136,7 +115,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			}
 			else
 			{
-				$tmpImg = $this->resize($extraImage, $template['image-width'], $template['image-height'], $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y']  ?? 0);
+				$tmpImg = $this->resize($extraImage, $template['image-width'], $template['image-height'], $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y'] ?? 0);
 				$imgX   = $template['image-x'];
 				$imgY   = $template['image-y'];
 				$extraCanvas->compositeImage(
@@ -188,19 +167,21 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		switch ($imageFormat)
 		{
 			case 'jpg':
-				$image->setCompressionQuality($this->quality);
 				$image->setImageCompression(Imagick::COMPRESSION_JPEG);
+				$image->setImageCompressionQuality($this->quality);
 				break;
 
 			case 'png':
-				$image->setImageCompressionQuality(100 - $this->quality);
+				$image->setImageCompressionQuality($this->quality);
+				$image->setOption('png:compression-strategy', '0'); // 0-4, compression strategy
+
+			case 'webp':
+				$image->setImageCompressionQuality($this->quality);
+				$image->setOption('webp:lossless', $this->quality >= 90 ? 'true' : 'false');
 				break;
 		}
 
-		if (!file_put_contents($outFile, $image))
-		{
-			file_put_contents($outFile, $image);
-		}
+		file_put_contents($outFile, $image);
 
 		$image->clear();
 	}
@@ -215,6 +196,27 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		// Make sure the Imagick and ImagickPixel classes are not disabled.
 		return class_exists('Imagick') && class_exists('ImagickPixel');
+	}
+
+	private function hexColorWithOpacity(string $baseColorHex, int $opacity): string
+	{
+		// Clamp the opacity
+		$opacity = max(min($opacity, 100), 0);
+
+		// Extreme values fon't have to go through calculations.
+		if ($opacity == 0)
+		{
+			return $baseColorHex . '00';
+		}
+		elseif ($opacity == 100)
+		{
+			return $baseColorHex . 'FF';
+		}
+
+		$alpha = (int) round($opacity * 255 / 100);
+		$hex   = substr(base_convert(($alpha + 0x10000), 10, 16), -2, 2);
+
+		return $baseColorHex . $hex;
 	}
 
 	/**
@@ -252,19 +254,21 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		[$sourceX, $sourceY] = match ($focus)
 		{
 			'northwest' => [$west, $north],
-			'north'     => [$xCenter, $north],
+			'north' => [$xCenter, $north],
 			'northeast' => [$east, $north],
-			'west'      => [$west, $yCenter],
-			default     => [$xCenter, $yCenter],
-			'east'      => [$east, $yCenter],
+			'west' => [$west, $yCenter],
+			default => [$xCenter, $yCenter],
+			'east' => [$east, $yCenter],
 			'southwest' => [$west, $south],
-			'south'     => [$xCenter, $south],
+			'south' => [$xCenter, $south],
 			'southeast' => [$east, $south],
 		};
 
 		if ($clipTransformX != 0 || $clipTransformY != 0)
 		{
-			[$clipTransformX, $clipTransformY] = $this->nudgeClipRegion($resize_w, $resize_h, $sourceX, $sourceY, $new_w, $new_h, $clipTransformX, $clipTransformY);
+			[
+				$clipTransformX, $clipTransformY,
+			] = $this->nudgeClipRegion($resize_w, $resize_h, $sourceX, $sourceY, $new_w, $new_h, $clipTransformX, $clipTransformY);
 			$sourceX += $clipTransformX;
 			$sourceY += $clipTransformY;
 		}
@@ -277,11 +281,11 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Overlay the text on the image.
 	 *
-	 * @param   string          $text      The text to render.
-	 * @param   array           $template  The OpenGraph image template definition.
-	 * @param   Imagick  $image     The image to overlay the text.
-	 * @param   string          $strokeColor  The stroke color (optional, default empty)
-	 * @param   int             $strokeWidth  The stroke width in pixels (optional, default 0)
+	 * @param   string   $text         The text to render.
+	 * @param   array    $template     The OpenGraph image template definition.
+	 * @param   Imagick  $image        The image to overlay the text.
+	 * @param   string   $strokeColor  The stroke color (optional, default empty)
+	 * @param   int      $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
 	 * @return  void
 	 *
@@ -316,7 +320,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		/* Create text */
-		$gravity = match($template['text-align'])
+		$gravity = match ($template['text-align'])
 		{
 			'left' => Imagick::GRAVITY_NORTHWEST,
 			'right' => Imagick::GRAVITY_NORTHEAST,
@@ -332,37 +336,37 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			$strokeText = new Imagick();
 			$strokeText->setBackgroundColor('transparent');
 			$strokeText->setFont($this->normalizeFont($template['text-font']));
-			
+
 			if ($template['font-size'] > 0)
 			{
 				$strokeText->setPointSize($template['font-size']);
 			}
-			
+
 			$strokeText->setGravity($gravity);
-			
+
 			// Create a `caption:` pseudo image with stroke
 			$strokeText->newPseudoImage($template['text-width'],
 				$template['text-height'],
 				'caption:' . $fittedText);
 			$strokeText->setBackgroundColor('transparent');
-			
+
 			// Remove extra height
 			$strokeText->trimImage(0.0);
-			
+
 			// Apply stroke color
-			$strokeClut = new Imagick();
+			$strokeClut       = new Imagick();
 			$strokeColorPixel = new ImagickPixel($strokeColor);
 			$strokeClut->newImage(1, 1, $strokeColorPixel);
 			$strokeColorPixel->destroy();
 			$strokeText->clutImage($strokeClut, 7);
 			$strokeClut->destroy();
-			
+
 			// Create stroke effect by compositing multiple offset copies
 			$strokeCanvas = new Imagick();
-			$strokeCanvas->newImage($strokeText->getImageWidth() + ($strokeWidth * 2), 
-				$strokeText->getImageHeight() + ($strokeWidth * 2), 
+			$strokeCanvas->newImage($strokeText->getImageWidth() + ($strokeWidth * 2),
+				$strokeText->getImageHeight() + ($strokeWidth * 2),
 				new ImagickPixel('transparent'));
-			
+
 			// Draw stroke at multiple offset positions
 			for ($x = -$strokeWidth; $x <= $strokeWidth; $x++)
 			{
@@ -370,23 +374,23 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 				{
 					if ($x !== 0 || $y !== 0)
 					{
-						$strokeCanvas->compositeImage($strokeText, 
-							Imagick::COMPOSITE_OVER, 
-							$strokeWidth + $x, 
+						$strokeCanvas->compositeImage($strokeText,
+							Imagick::COMPOSITE_OVER,
+							$strokeWidth + $x,
 							$strokeWidth + $y);
 					}
 				}
 			}
 
 			$strokeText->destroy();
-			
+
 			// Composite stroke canvas onto main image first
 			$yPos = $template['text-y-absolute'];
 			if ($template['text-y-center'] == '1')
 			{
 				$yPos = ($image->getImageHeight() - $strokeCanvas->getImageHeight()) / 2.0 + $template['text-y-adjust'];
 			}
-			
+
 			$xPos = $template['text-x-absolute'];
 			if ($template['text-x-center'] == '1')
 			{
@@ -507,20 +511,20 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 */
 	private function fitTextIntoLines(string $text, array $template): string
 	{
-		$words = explode(' ', $text);
-		$lines = [];
+		$words       = explode(' ', $text);
+		$lines       = [];
 		$currentLine = '';
-		$maxWidth = $template['text-width'];
-		$maxHeight = $template['text-height'];
+		$maxWidth    = $template['text-width'];
+		$maxHeight   = $template['text-height'];
 		$lineSpacing = 1.35; // Similar to what GD adapter uses
 
 		foreach ($words as $word)
 		{
 			$testLine = empty($currentLine) ? $word : $currentLine . ' ' . $word;
-			
+
 			// Measure the test line
 			$testMetrics = $this->measureText($testLine, $template);
-			
+
 			if ($testMetrics['width'] <= $maxWidth)
 			{
 				// This word fits on the current line
@@ -545,7 +549,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		// Now check if all lines fit vertically
 		$totalHeight = $this->calculateTotalTextHeight($lines, $template, $lineSpacing);
-		
+
 		if ($totalHeight > $maxHeight)
 		{
 			// We need to remove lines and add ellipsis
@@ -576,7 +580,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		// Set gravity for alignment
-		$gravity = match($template['text-align'])
+		$gravity = match ($template['text-align'])
 		{
 			'left' => Imagick::GRAVITY_NORTHWEST,
 			'right' => Imagick::GRAVITY_NORTHEAST,
@@ -594,17 +598,17 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		$tempImage->destroy();
 
 		return [
-			'width' => (int) ceil($metrics['textWidth']),
-			'height' => (int) ceil($metrics['textHeight'])
+			'width'  => (int) ceil($metrics['textWidth']),
+			'height' => (int) ceil($metrics['textHeight']),
 		];
 	}
 
 	/**
 	 * Calculate the total height needed for all lines with line spacing.
 	 *
-	 * @param   array   $lines       Array of text lines
-	 * @param   array   $template    Template configuration
-	 * @param   float   $lineSpacing Line spacing factor
+	 * @param   array  $lines        Array of text lines
+	 * @param   array  $template     Template configuration
+	 * @param   float  $lineSpacing  Line spacing factor
 	 *
 	 * @return  int     Total height in pixels
 	 *
@@ -618,12 +622,12 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		$firstLineHeight = $this->measureText($lines[0], $template)['height'];
-		$totalHeight = $firstLineHeight;
+		$totalHeight     = $firstLineHeight;
 
 		// Add height for additional lines with spacing
 		for ($i = 1; $i < count($lines); $i++)
 		{
-			$lineHeight = $this->measureText($lines[$i], $template)['height'];
+			$lineHeight  = $this->measureText($lines[$i], $template)['height'];
 			$totalHeight += $lineHeight * $lineSpacing;
 		}
 
@@ -633,10 +637,10 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Truncate lines to fit within the maximum height and add ellipsis to the last line.
 	 *
-	 * @param   array   $lines      Array of text lines
-	 * @param   array   $template   Template configuration
-	 * @param   int     $maxHeight  Maximum height in pixels
-	 * @param   float   $lineSpacing Line spacing factor
+	 * @param   array  $lines        Array of text lines
+	 * @param   array  $template     Template configuration
+	 * @param   int    $maxHeight    Maximum height in pixels
+	 * @param   float  $lineSpacing  Line spacing factor
 	 *
 	 * @return  array   Truncated array of lines with ellipsis on the last line
 	 *
@@ -644,15 +648,15 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 */
 	private function truncateLinesToFitHeight(array $lines, array $template, int $maxHeight, float $lineSpacing): array
 	{
-		$fittedLines = [];
+		$fittedLines   = [];
 		$currentHeight = 0;
-		$maxWidth = $template['text-width'];
+		$maxWidth      = $template['text-width'];
 
 		foreach ($lines as $line)
 		{
 			$lineMetrics = $this->measureText($line, $template);
-			$lineHeight = $lineMetrics['height'];
-			
+			$lineHeight  = $lineMetrics['height'];
+
 			if (count($fittedLines) > 0)
 			{
 				$lineHeight *= $lineSpacing;
@@ -668,8 +672,8 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 				// This line won't fit, so we need to add ellipsis to the previous line
 				if (!empty($fittedLines))
 				{
-					$lastLine = array_pop($fittedLines);
-					$ellipsisLine = $this->addEllipsisToLine($lastLine, $template, $maxWidth);
+					$lastLine      = array_pop($fittedLines);
+					$ellipsisLine  = $this->addEllipsisToLine($lastLine, $template, $maxWidth);
 					$fittedLines[] = $ellipsisLine;
 				}
 				break;
@@ -693,7 +697,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	private function addEllipsisToLine(string $line, array $template, int $maxWidth): string
 	{
 		// First try adding ellipsis to the full line
-		$testLine = $line . '…';
+		$testLine    = $line . '…';
 		$testMetrics = $this->measureText($testLine, $template);
 
 		if ($testMetrics['width'] <= $maxWidth)
@@ -703,13 +707,13 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		// If it doesn't fit, remove words until it does
 		$words = explode(' ', $line);
-		
+
 		while (count($words) > 1)
 		{
 			array_pop($words);
-			$testLine = implode(' ', $words) . '…';
+			$testLine    = implode(' ', $words) . '…';
 			$testMetrics = $this->measureText($testLine, $template);
-			
+
 			if ($testMetrics['width'] <= $maxWidth)
 			{
 				return $testLine;
@@ -719,15 +723,15 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		// If we still don't fit with just one word, truncate character by character
 		if (!empty($words))
 		{
-			$word = $words[0];
+			$word  = $words[0];
 			$chars = mb_str_split($word);
-			
+
 			while (count($chars) > 1)
 			{
 				array_pop($chars);
-				$testLine = implode('', $chars) . '…';
+				$testLine    = implode('', $chars) . '…';
 				$testMetrics = $this->measureText($testLine, $template);
-				
+
 				if ($testMetrics['width'] <= $maxWidth)
 				{
 					return $testLine;
@@ -739,13 +743,13 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		return '…';
 	}
 
-	
+
 	/**
 	 * Apply various image effects to the base image.
 	 *
 	 * @param   Imagick  $image     The image to apply effects to
 	 * @param   array    $template  The template configuration
-	 * @param   string  $prefix  Prefix for the template array keys
+	 * @param   string   $prefix    Prefix for the template array keys
 	 *
 	 * @return  void
 	 *

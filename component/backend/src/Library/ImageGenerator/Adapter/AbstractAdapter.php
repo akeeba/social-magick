@@ -20,15 +20,12 @@ abstract class AbstractAdapter implements AdapterInterface
 	protected bool $debugText = false;
 
 	/**
-	 * Generated image quality, 0-100
-	 *
-	 * This is used verbatim for WebP and JPEG. It's converted to a compression scale of 0-9 (100 maps to 0) for PNG.
-	 * Completely ignored for GIF and other formats.
+	 * Generated image quality, 0 (maximum compression) to 100 (uncompressed / lossless compression).
 	 *
 	 * @var   int
 	 * @since 1.0.0
 	 */
-	protected int $quality = 80;
+	protected int $quality = 75;
 
 	/** @inheritDoc */
 	public function __construct(int $quality = 80, bool $debugText = false)

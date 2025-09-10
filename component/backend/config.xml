@@ -166,14 +166,27 @@
     <fieldset name="advanced"
               label="COM_SOCIALMAGICK_CONFIG_FIELDSET_ADVANCED_LABEL">
         <field
+                name="imagetype"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_IMAGETYPE_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_IMAGETYPE_DESC"
+                validate="options"
+                default="jpg"
+        >
+            <option value="png">COM_SOCIALMAGICK_CONFIG_IMAGETYPE_OPT_PNG</option>
+            <option value="jpg">COM_SOCIALMAGICK_CONFIG_IMAGETYPE_OPT_JPG</option>
+            <option value="webp">COM_SOCIALMAGICK_CONFIG_IMAGETYPE_OPT_WEBP</option>
+        </field>
+
+        <field
                 name="quality"
-                type="range"
+                type="integer"
                 label="COM_SOCIALMAGICK_CONFIG_QUALITY_LABEL"
                 description="COM_SOCIALMAGICK_CONFIG_QUALITY_DESC"
-                min="1"
-                max="99"
-                default="95"
-                step="1"
+                first="0"
+                last="100"
+                step="5"
+                default="85"
         />
 
         <field

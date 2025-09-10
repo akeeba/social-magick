@@ -7,6 +7,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer"/>
       <sourceFolder url="file://$MODULE_DIR$/component/backend/src" packagePrefix="Akeeba\Component\SocialMagick\Administrator\" isTestSource="false"/>
       <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/articles/src" packagePrefix="Akeeba\Plugin\SocialMagick\Articles\" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/categories/src" packagePrefix="Akeeba\Plugin\SocialMagick\Categories\" isTestSource="false"/>
       <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/menus/src" packagePrefix="Akeeba\Plugin\SocialMagick\Menus\" isTestSource="false"/>
       <sourceFolder url="file://$MODULE_DIR$/plugins/system/socialmagick/src" packagePrefix="Akeeba\Plugin\System\SocialMagick\" isTestSource="false"/>
     </content>

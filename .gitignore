@@ -38,5 +38,8 @@
 /component/backend/socialmagick.xml
 /pkg_socialmagick.xml
 
+# Generated images
+/component/media/generated/**
+
 ### Junk
 /documentation/*~

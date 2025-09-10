@@ -86,21 +86,6 @@ final class ImageGenerator implements DatabaseAwareInterface
 	private int $folderLevels = 0;
 
 	/**
-	 * Old image threshold, in days
-	 *
-	 * @var   int
-	 * @since 1.0.0
-	 */
-	private int $oldImageThreshold = 0;
-
-	/**
-	 * Should I delete old images if the image I am asked to generate already exists?
-	 *
-	 * @since 1.0.0
-	 */
-	private bool $autoDeleteOldImages = false;
-
-	/**
 	 * ImageGenerator constructor.
 	 *
 	 * @param   Registry  $cParams  The component parameters. Used to set up internal properties.
@@ -111,10 +96,14 @@ final class ImageGenerator implements DatabaseAwareInterface
 	{
 		$this->setDatabase($db);
 		$this->devMode             = $cParams->get('devmode', 0) == 1;
-		$this->outputFolder        = $cParams->get('output_folder', 'images/og-generated') ?: 'images/og-generated';
-		$this->folderLevels        = $cParams->get('folder_levels', 0);
-		$this->oldImageThreshold   = $cParams->get('old_images_after', 180);
-		$this->autoDeleteOldImages = $cParams->get('pseudo_cron', '1') == 1;
+		$this->outputFolder        = JPATH_PUBLIC . '/media/com_socialmagick/generated';
+		$this->folderLevels        = 1;
+
+		// Make sure the output folder exists
+		if (!@is_dir($this->outputFolder))
+		{
+			Folder::create($this->outputFolder);
+		}
 
 		$rendererType = $cParams->get('library', 'auto');
 		$textDebug    = $cParams->get('textdebug', '0') == 1;

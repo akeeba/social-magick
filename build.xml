@@ -13,6 +13,7 @@
 
         <exclude name="media/css/*.scss" />
         <exclude name="media/css/*.map" />
+        <exclude name="media/generated/**" />
     </fileset>
 
     <fileset dir="${dirs.release}" id="package">

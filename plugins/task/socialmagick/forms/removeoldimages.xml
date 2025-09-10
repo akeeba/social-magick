@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <fields name="params">
+        <fieldset name="task_params">
+
+            <field name="olderthan"
+                   type="list"
+                   label="PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_LABEL"
+                   description="PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_DESC"
+                   default="P1W"
+                   layout="joomla.form.field.list-fancy-select"
+            >
+                <option value="PT1M">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_1MIN</option>
+                <option value="PT15M">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_15MIN</option>
+                <option value="PT30M">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_30MIN</option>
+                <option value="PT1H">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_1HOUR</option>
+                <option value="PT3H">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_3HOURS</option>
+                <option value="PT6H">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_6HOURS</option>
+                <option value="PT12H">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_12HOURS</option>
+                <option value="P1D">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_1DAY</option>
+                <option value="P3D">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_3DAYS</option>
+                <option value="P1W">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_1WEEK</option>
+                <option value="P2W">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_2WEEKS</option>
+                <option value="P1M">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_1MONTH</option>
+                <option value="P3M">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_3MONTHS</option>
+                <option value="P6M">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_6MONTHS</option>
+                <option value="P1Y">PLG_TASK_SOCIALMAGICK_OLDIMAGES_PARAM_OLDERTHAN_OPT_1YEAR</option>
+            </field>
+        </fieldset>
+    </fields>
+</form>

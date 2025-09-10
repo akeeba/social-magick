@@ -28,6 +28,8 @@
         <file type="plugin" group="socialmagick" id="articles">plg_socialmagick_.zip</file>
         <file type="plugin" group="socialmagick" id="categories">plg_socialmagick_categories.zip</file>
         <file type="plugin" group="socialmagick" id="menus">plg_socialmagick_menus.zip</file>
+
+        <file type="plugin" group="task" id="socialmagick">plg_task_socialmagick.zip</file>
     </files>
 
     <languages folder="language">

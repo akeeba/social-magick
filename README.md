@@ -50,11 +50,3 @@ This is meant as a quick brain-dump. Things here may or may not be implemented a
 * [ ] Support SVGs [gh-47]
 * [ ] Extra image crop focus: face [gh-10]
 * [ ] Auto-generating article intro and/or full text images [gh-6] (Check that the cache ID / sum matches the one used for the current intro image; we may have to store extra info in the article.)
-
-#### Notes
-
-Refactor cleaning old images:
-* Move code from \Akeeba\Plugin\System\SocialMagick\Extension\Feature\Ajax into its own model
-* Create an AJAX handler in the component's frontend
-* Create a CLI plugin
-* Create a Joomla Scheduled Tasks plugin

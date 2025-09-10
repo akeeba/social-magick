@@ -37,7 +37,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	use ImageGeneratorHelperTrait;
 	use ParametersRetrieverTrait;
 	use Feature\FormTabs;
-	use Feature\Ajax;
 
 	/**
 	 * Does the system meet the requirements for using this plugin?
@@ -54,7 +53,6 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	{
 		return [
 			'onAfterRender'        => 'onAfterRender',
-			'onAjaxSocialmagick'   => 'onAjaxSocialmagick',
 			'onBeforeRender'       => 'onBeforeRender',
 			'onContentBeforeSave'  => 'onContentBeforeSave',
 			'onContentPrepareData' => 'onContentPrepareData',

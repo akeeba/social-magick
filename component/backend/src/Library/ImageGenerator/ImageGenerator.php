@@ -83,7 +83,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 	 * @var   int
 	 * @since 1.0.0
 	 */
-	private int $folderLevels = 0;
+	private int $folderLevels = 1;
 
 	/**
 	 * ImageGenerator constructor.
@@ -97,7 +97,6 @@ final class ImageGenerator implements DatabaseAwareInterface
 		$this->setDatabase($db);
 		$this->devMode             = $cParams->get('devmode', 0) == 1;
 		$this->outputFolder        = JPATH_PUBLIC . '/media/com_socialmagick/generated';
-		$this->folderLevels        = 1;
 
 		// Make sure the output folder exists
 		if (!@is_dir($this->outputFolder))
@@ -304,12 +303,23 @@ final class ImageGenerator implements DatabaseAwareInterface
 		$realRelativePath = ltrim(substr($filename, strlen(JPATH_ROOT)), '/');
 		$imageUrl         = Uri::root() . $realRelativePath;
 
-		// Update the image's last access date
-		$this->hitImage(basename($filename, '.png'));
-
 		// If the file exists return early
 		if (@file_exists($filename) && !$this->devMode)
 		{
+			/**
+			 * Update the image file's modification and last access time.
+			 *
+			 * Why not just modify the just access time? On many production servers, especially those using solid state
+			 * drives, the server administrators mount filesystems with the `noatime` or `relatime` flag. This does not
+			 * update the last access time of the file either at all (`noatime`), or if the last access time is within
+			 * the last 24 hours to reduce disk I/O.
+			 *
+			 * While `relatime` would work for our caching purposes, the fact that there are still servers out there
+			 * using the legacy `noatime` means that we cannot rely on last access time. Thus, we have to update the
+			 * last modification time even though it's technically wrong.
+			 */
+			touch($filename);
+
 			$mediaVersion = ApplicationHelper::getHash(@filemtime($filename));
 
 			return [
@@ -347,158 +357,6 @@ final class ImageGenerator implements DatabaseAwareInterface
 			'width'    => $templateWidth,
 			'height'   => $templateHeight,
 		];
-	}
-
-	/**
-	 * Update the last access date/time stamp for an image.
-	 *
-	 * This only works when we are asked to apply the OpenGraph image. If you have Joomla caching turned on, this will
-	 * only be called once every caching period.
-	 *
-	 * @param   string  $hash
-	 *
-	 * @since   1.0.0
-	 */
-	public function hitImage(string $hash): void
-	{
-		try
-		{
-			$db    = $this->getDatabase();
-			$jNow  = new Date();
-			$query = $db->getQuery(true)
-				->insert($db->qn('#__socialmagick_images'))
-				->columns([$db->qn('hash'), $db->qn('last_access')])
-				->values(implode(',', [
-					$db->q($hash), $db->q($jNow->toSql()),
-				]));
-		}
-		catch (Exception $e)
-		{
-			// Something broke in Joomla. Nevermind.
-			return;
-		}
-
-		try
-		{
-			$db->setQuery($query)->execute();
-
-			return;
-		}
-		catch (Exception $e)
-		{
-			// We probably need to just run an update. Let's try that.
-		}
-
-		$query = $db->getQuery(true)
-			->update($db->qn('#__socialmagick_images'))
-			->set($db->qn('last_access') . ' = ' . $db->q($jNow->toSql()))
-			->where($db->qn('hash') . ' = ' . $db->q($hash));
-
-		try
-		{
-			$db->setQuery($query)->execute();
-		}
-		catch (Exception $e)
-		{
-			// DB error? No problem. Just go ahead.
-		}
-	}
-
-	/**
-	 * Deletes generated OpenGraph images older than this many days
-	 *
-	 * @param   int  $days     Minimum time since the last access time to warrant image deletion.
-	 * @param   int  $maxTime  Maximum execution time, in seconds
-	 *
-	 *
-	 * @throws  Exception
-	 * @since   1.0.0
-	 */
-	public function deleteOldImages(int $days, int $maxTime = 5): void
-	{
-		if ($days === 0)
-		{
-			return;
-		}
-
-		$deleted      = [];
-		$start        = microtime(true);
-		$outputFolder = str_replace('\\', '/', trim($this->outputFolder, '/\\'));
-		$maxTime      = min($maxTime, 1);
-
-		while (true)
-		{
-			// Get a batch of old images
-			$oldImages = $this->getOldImages($days, 50);
-
-			// No images? We are done.
-			if (empty($oldImages))
-			{
-				break;
-			}
-
-			// Process each old image record
-			foreach ($oldImages as $hash)
-			{
-				// If we have already deleted 50 images return. Prevents the delete SQL query from becoming unwieldy.
-				if (count($deleted) >= 50)
-				{
-					break 2;
-				}
-
-				// We ran out of time. Return now.
-				if (microtime(true) - $start >= $maxTime)
-				{
-					break 2;
-				}
-
-				// Get the correct path for the image file to delete
-				$filename = FileDistributor::ensureDistributed($outputFolder, $hash . '.png', $this->folderLevels);
-
-				// No such file. Mark it as already deleted and move on.
-				if (!@file_exists($filename))
-				{
-					$deleted[] = $hash;
-
-					continue;
-				}
-
-				// Try (very hard) to delete the old iamge file
-				$unlinked = true;
-
-				if (!@unlink($filename))
-				{
-					$unlinked = @unlink($filename);
-				}
-
-				// Add positively deleted images to the list of image records to delete.
-				if (!$unlinked)
-				{
-					continue;
-				}
-
-				$deleted[] = $hash;
-			}
-		}
-
-		// Delete records or removed images, if necessary
-		if (empty($deleted))
-		{
-			return;
-		}
-
-		try
-		{
-			$db    = $this->getDatabase();
-			$query = $db->getQuery(true)
-				->delete('#__socialmagick_images')
-				->where($db->qn('hash') . ' IN(' . implode(',', array_map([$db, 'q'], $deleted)) . ')');
-			$db->setQuery($query)->execute();
-		}
-		catch (Exception $e)
-		{
-			// Shouldn't happen but I know better than to be an optimist when it comes to building software.
-		}
 	}
 
 	/**

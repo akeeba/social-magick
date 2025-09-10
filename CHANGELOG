@@ -11,5 +11,6 @@ SocialMagick 3.0.0
 + Text stroke
 + Text opacity
 + Crop anchor and crop point nudging
++ Scheduled Task plugin to clean up old images
 # [LOW] ImageMagick: The text was vertically anchored in the centre instead of the top
 # [LOW] GD: The ellipses when clipping a long sentence were unreliable

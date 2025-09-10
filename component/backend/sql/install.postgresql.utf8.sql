@@ -29,9 +29,4 @@ VALUES
     (4, 'Logo', 1, '2025-09-08 21:14:06', 70, null, 0, 0, null, 0, '{"template-w":1200,"template-h":630,"base-color":"#339092","base-color-alpha":"100","base-image":"","use-article-image":"1","image_source":"static","image_field":"ogimage","static_image":"media\\/com_socialmagick\\/images\\/logo-white-256.png#joomlaImage:\\/\\/local-media\\/com_socialmagick\\/images\\/logo-white-256.png?width=256&height=256","image-opacity":50,"image-z":"over","image-cover":"0","image-width":96,"image-height":96,"image-x":1088,"image-y":518,"overlay_text":"1","text-font":"OpenSans-Bold.ttf","font-size":86,"text-color":"#ffffff","text-height":502,"text-width":1000,"text-align":"left","text-y-center":"1","text-y-adjust":0,"text-y-absolute":64,"text-x-center":"1","text-x-adjust":0,"text-x-absolute":0}')
 ON CONFLICT (id) DO NOTHING;
 
-CREATE TABLE IF NOT EXISTS `#__socialmagick_images`
-(
-    "hash" CHAR(32) NOT NULL,
-    "last_access" TIMESTAMP NOT NULL,
-    PRIMARY KEY ("hash")
-);
+DROP TABLE IF EXISTS "#__socialmagick_images";

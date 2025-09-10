@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/categories/src" packagePrefix="Akeeba\Plugin\SocialMagick\Categories\" isTestSource="false"/>
       <sourceFolder url="file://$MODULE_DIR$/plugins/socialmagick/menus/src" packagePrefix="Akeeba\Plugin\SocialMagick\Menus\" isTestSource="false"/>
       <sourceFolder url="file://$MODULE_DIR$/plugins/system/socialmagick/src" packagePrefix="Akeeba\Plugin\System\SocialMagick\" isTestSource="false"/>
+      <sourceFolder url="file://$MODULE_DIR$/plugins/task/socialmagick/src" packagePrefix="Akeeba\Plugin\Task\SocialMagick\" isTestSource="false"/>
     </content>
     <orderEntry type="inheritedJdk"/>
     <orderEntry type="sourceFolder" forTests="false"/>

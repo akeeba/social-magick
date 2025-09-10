@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--~
+  ~ @package   socialmagick
+  ~ @copyright Copyright (c)2025 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<extension type="plugin" group="task" method="upgrade">
+    <name>PLG_TASK_SOCIALMAGICK</name>
+    <version>3.0.0</version>
+    <creationDate>2025-09-07</creationDate>
+    <author>Akeeba Ltd</author>
+    <authorEmail>no-reply@akeeba.com</authorEmail>
+    <authorUrl>https://www.akeeba.com</authorUrl>
+    <copyright>Copyright (c)2025 Akeeba Ltd</copyright>
+    <license>GPL-3.0-or-later</license>
+    <description>PLG_TASK_SOCIALMAGICK_XML_DESC</description>
+    <namespace path="src">Akeeba\Plugin\Task\SocialMagick</namespace>
+
+    <files>
+        <folder>forms</folder>
+        <folder plugin="socialmagick">services</folder>
+        <folder>src</folder>
+
+        <filename>.htaccess</filename>
+        <filename>web.config</filename>
+    </files>
+
+    <languages folder="language">
+        <language tag="en-GB">en-GB/plg_task_socialmagick.sys.ini</language>
+        <language tag="en-GB">en-GB/plg_task_socialmagick.ini</language>
+    </languages>
+</extension>

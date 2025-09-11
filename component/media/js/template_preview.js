@@ -40,6 +40,11 @@
         // Store preview values in localStorage
         window.localStorage.setItem("socialmagick_preview_image", formData.get("preview[sampleImage]"));
         window.localStorage.setItem("socialmagick_preview_text", formData.get("preview[text]"));
+        window.localStorage.setItem(
+            "socialmagick_preview_textdebug",
+            document.getElementById("socialMagickPreviewTextDebug").checked ? "1" : "0"
+        );
+
 
         const response = await fetch(
             "index.php?option=com_socialmagick&view=templates&task=regeneratePreview&format=json",
@@ -94,6 +99,7 @@
     // Load stored preview values
     const storedImage = window.localStorage.getItem("socialmagick_preview_image");
     const storedText  = window.localStorage.getItem("socialmagick_preview_text");
+    const storedTextDebug  = window.localStorage.getItem("socialmagick_preview_textdebug");
 
     if (storedImage)
     {
@@ -106,6 +112,11 @@
     if (storedText && storedText !== '')
     {
         document.getElementById('socialMagickPreviewText').value = storedText;
+    }
+
+    if (storedTextDebug === '1' || storedTextDebug === '0')
+    {
+        document.getElementById('socialMagickPreviewTextDebug').checked = (storedTextDebug === '1');
     }
 
     // Apply the preview

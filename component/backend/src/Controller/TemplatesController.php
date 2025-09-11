@@ -48,12 +48,13 @@ class TemplatesController extends AdminController
 		$templateOptions = $this->input->get('jform', [], 'array');
 		$text            = $previewData['text'] ?? null;
 		$sampleImage     = $previewData['sampleImage'] ?? null;
+		$textDebug       = $previewData['textdebug'] ?? false;
 
 		/** @var TemplateModel $model */
 		$model = $this->getModel();
 		try
 		{
-			$image = json_encode($model->getPreviewImage($templateOptions, $text, $sampleImage));
+			$image = json_encode($model->getPreviewImage($templateOptions, $text, $sampleImage, $textDebug));
 		}
 		catch (\Exception)
 		{

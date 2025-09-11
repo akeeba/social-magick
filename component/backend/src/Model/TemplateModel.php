@@ -147,15 +147,17 @@ class TemplateModel extends AdminModel
 	 * @return  string|null  The URL to the preview image.
 	 * @since   3.0.0
 	 */
-	public function getPreviewImage(array $templateParams = [], ?string $text = null, string $sampleImage = 'erensever'): ?string
+	public function getPreviewImage(array $templateParams = [], ?string $text = null, string $sampleImage = 'erensever', bool $textDebug = false): ?string
 	{
 		if (empty($templateParams))
 		{
 			return null;
 		}
 
-		$cParams        = ComponentHelper::getParams('com_socialmagick');
+		$cParams        = clone ComponentHelper::getParams('com_socialmagick');
 		$db             = $this->getDatabase();
+		$cParams->set('textdebug', $textDebug ? '1' : '0');
+
 		$imageGenerator = new ImageGenerator($cParams, $db);
 
 		$text           ??= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_PREVIEW_TEXT');
@@ -193,7 +195,7 @@ class TemplateModel extends AdminModel
 	 * @return  string|null  The URL of the preview image, or null on failure.
 	 * @since   3.0.0
 	 */
-	public function getPreviewImageById(int $templateId, ?string $text = null, string $sampleImage = 'erensever'): ?string
+	public function getPreviewImageById(int $templateId, ?string $text = null, string $sampleImage = 'erensever', bool $textDebug = false): ?string
 	{
 		try
 		{
@@ -209,7 +211,7 @@ class TemplateModel extends AdminModel
 			return null;
 		}
 
-		return $this->getPreviewImage($template->params, $text, $sampleImage);
+		return $this->getPreviewImage($template->params, $text, $sampleImage, $textDebug);
 	}
 
 	/**

@@ -60,6 +60,11 @@ $i = 0;
 
 ?>
 
+<div class="alert alert-info d-none" id="socialMagickTotalImageSizeNotice">
+	<?= Text::_('COM_SOCIALMAGICK_TEMPLATE_LBL_IMAGESIZE'); ?>
+	<span id="socialMagickTotalImageSize" class="text-info-emphasis fw-semibold"></span>
+</div>
+
 <form action="<?= Route::_('index.php?option=com_socialmagick&view=templates'); ?>"
 	  method="post" name="adminForm" id="adminForm">
 	<div class="row">

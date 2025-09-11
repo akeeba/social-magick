@@ -13,8 +13,13 @@ use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerCopyTrait;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerEvents;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerRegisterTasksTrait;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ControllerReusableModelsTrait;
+use Akeeba\Component\SocialMagick\Administrator\Model\ImagesModel;
 use Akeeba\Component\SocialMagick\Administrator\Model\TemplateModel;
+use Exception;
+use Joomla\CMS\Access\Exception\NotAllowed;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\AdminController;
+use Joomla\CMS\Router\Route;
 
 /**
  * MVC Controller for the Templates list view.
@@ -39,11 +44,13 @@ class TemplatesController extends AdminController
 	 * Regenerates a preview image for a SocialMagick template
 	 *
 	 * @return  void
-	 * @throws  \Exception
+	 * @throws  Exception
 	 * @since   3.0.0
 	 */
 	public function regeneratePreview()
 	{
+		$this->checkToken();
+
 		$previewData     = $this->input->get('preview', [], 'array');
 		$templateOptions = $this->input->get('jform', [], 'array');
 		$text            = $previewData['text'] ?? null;
@@ -56,7 +63,7 @@ class TemplatesController extends AdminController
 		{
 			$image = json_encode($model->getPreviewImage($templateOptions, $text, $sampleImage, $textDebug));
 		}
-		catch (\Exception)
+		catch (Exception)
 		{
 			$image = 'NULL';
 		}
@@ -67,4 +74,65 @@ JSON;
 
 	}
 
+	/**
+	 * Removes all generated OpenGraph images from the cache
+	 *
+	 * @return  void
+	 * @throws  Exception
+	 * @since   3.0.0
+	 */
+	public function purge()
+	{
+		$this->checkToken();
+
+		if (!$this->app?->getIdentity()?->authorise('core.admin'))
+		{
+			throw new NotAllowed(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		/** @var ImagesModel $model */
+		$model  = $this->getModel('Images');
+		$purged = $model->removeAllImages();
+
+		$type    = $purged ? 'success' : 'error';
+		$message = $purged
+			? 'COM_SOCIALMAGICK_TEMPLATE_LBL_PURGED'
+			: 'COM_SOCIALMAGICK_TEMPLATE_LBL_NOT_PURGED';
+
+		$this->setRedirect(
+			Route::_(
+				'index.php?option=' . $this->option . '&view=' . $this->view_list
+				. $this->getRedirectToListAppend(),
+				false
+			),
+			Text::_($message),
+			$type
+		);
+	}
+
+	/**
+	 * Returns the total size of the generated images folder in bytes, formatted as JSON.
+	 *
+	 * @return  void
+	 * @throws  Exception
+	 * @since   3.0.0
+	 */
+	public function imagestotalsize(): void
+	{
+		$this->checkToken();
+
+		if (!$this->app?->getIdentity()?->authorise('core.admin'))
+		{
+			throw new NotAllowed(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
+
+		/** @var ImagesModel $model */
+		$model = $this->getModel('Images');
+		$total = $model->getTotalSize();
+
+		echo <<< JSON
+{"total": $total}
+JSON;
+
+	}
 }

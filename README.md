@@ -42,8 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented and may end up becoming issues to handle later...
 
-* [ ] User group restriction for OG image preview in the frontend. See notes on [gh-26].
-* [ ] Add a button to clear all cached images.
 * [ ] Support SVGs [gh-47]
 * [ ] Rewrite documentation as DocBook XML [gh-14]
 * [ ] Document that `imagick` or `gd` are required. Explain how you can use the PHP Information page in Joomla to determine if they are installed. Explain that if it's not enabled you can do that from the hosting control panel, or ask your host.

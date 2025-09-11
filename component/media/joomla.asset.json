@@ -22,6 +22,18 @@
 			"attributes": {
 				"defer": true
 			}
+		},
+		{
+			"name": "com_socialmagick.templates",
+			"description": "JS for the OpenGraph templates list view",
+			"type": "script",
+			"uri": "com_socialmagick/templates.min.js",
+			"dependencies": [
+				"core"
+			],
+			"attributes": {
+				"defer": true
+			}
 		}
 	]
 }

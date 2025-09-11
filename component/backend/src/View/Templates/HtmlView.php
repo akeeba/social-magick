@@ -18,7 +18,6 @@ use Akeeba\Component\SocialMagick\Administrator\Mixin\ViewTaskBasedEventsTrait;
 use Akeeba\Component\SocialMagick\Administrator\Mixin\ViewToolbarTrait;
 use Akeeba\Component\SocialMagick\Administrator\Model\TemplatesModel;
 use Exception;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\GenericDataException;
@@ -124,6 +123,13 @@ class HtmlView extends BaseHtmlView
 
 		$this->addToolbar();
 
+		if ($this->getCurrentUser()?->authorise('core.admin'))
+		{
+			Text::script('COM_SOCIALMAGICK_TEMPLATE_ERR_IMAGESIZE_NETWORK');
+			Text::script('COM_SOCIALMAGICK_TEMPLATE_ERR_IMAGESIZE_JSON');
+			$this->getDocument()->getWebAssetManager()->useScript('com_socialmagick.templates');
+		}
+
 		parent::display($tpl);
 	}
 
@@ -136,7 +142,7 @@ class HtmlView extends BaseHtmlView
 	 */
 	private function addToolbar(): void
 	{
-		$user = Factory::getApplication()->getIdentity();
+		$user = $this->getCurrentUser();
 
 		// Get the toolbar object instance
 		$toolbar = $this->getToolbarCompat();
@@ -178,6 +184,12 @@ class HtmlView extends BaseHtmlView
 					->message('JGLOBAL_CONFIRM_DELETE')
 					->listCheck(true);
 			}
+		}
+
+		if ($user->authorise('core.admin'))
+		{
+			$toolbar->basicButton('purge', 'JTOOLBAR_PURGE_CACHE', 'templates.purge')
+				->listCheck(false);
 		}
 
 		ToolbarHelper::preferences('com_socialmagick');

@@ -18,6 +18,11 @@ use Joomla\CMS\HTML\HTMLHelper;
 
 defined('_JEXEC') || die();
 
+/**
+ * An OpenGraph image renderer using the ImageMagic library and the `imagick` PHP extension..
+ *
+ * @since  1.0.0
+ */
 class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 {
 	public function makeImage(string $text, array $template, string $outFile, ?string $extraImage): void
@@ -236,6 +241,20 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	private function resize(string $src, $new_w, $new_h, string $focus = 'center', int $clipTransformX = 0, int $clipTransformY = 0): Imagick
 	{
 		$image = new Imagick($src);
+
+		/**
+		 * Set a transparent background for SVG files.
+		 *
+		 * The `ImageMagick` library in PHP preserves the transparency of SVG images by default when reading them into
+		 * an instance. However, if your SVG has a transparent background, and you need to ensure it stays that way
+		 * during processing or conversion, explicitly setting the image's background color as transparent is
+		 * recommended.
+		 */
+		if (str_ends_with($src, '.svg'))
+		{
+			$image->setImageBackgroundColor(new ImagickPixel('transparent'));
+			$image->setImageAlphaChannel(Imagick::CHANNEL_ALPHA);
+		}
 
 		$w = $image->getImageWidth();
 		$h = $image->getImageHeight();

@@ -14,7 +14,7 @@ defined('_JEXEC') || die();
 use Joomla\CMS\HTML\HTMLHelper;
 
 /**
- * An image renderer using the GD library
+ * An OpenGraph image renderer using the GD library
  *
  * @since       1.0.0
  */

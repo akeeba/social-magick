@@ -9,6 +9,11 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Ada
 
 defined('_JEXEC') || die();
 
+/**
+ * Abstract implementation of the OpenGraph image renderer.
+ *
+ * @since  1.0.0
+ */
 abstract class AbstractAdapter implements AdapterInterface
 {
 	/**

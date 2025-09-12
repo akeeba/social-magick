@@ -216,6 +216,12 @@ final class ParametersRetriever implements DatabaseAwareInterface
 	 */
 	private function getMenuParameters(?MenuItem $menuItem = null): array
 	{
+		// This only applies if plg_socialmagick_menus is enabled.
+		if (!PluginHelper::isEnabled('socialmagick', 'menus'))
+		{
+			return [];
+		}
+
 		// The effective menu item ID.
 		$id = $menuItem?->id ?? 0;
 

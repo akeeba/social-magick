@@ -1,0 +1,2896 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book version="5.0" xmlns="http://docbook.org/ns/docbook">
+  <info>
+    <title>Akeeba SocialMagick User's Guide</title>
+
+    <author>
+      <personname><firstname>Nicholas</firstname><othername>K.</othername><surname>Dionysopoulos</surname></personname>
+
+      <affiliation>
+        <orgname>Akeeba Ltd</orgname>
+      </affiliation>
+    </author>
+
+    <copyright>
+      <year>2025</year>
+
+      <holder>Akeeba Ltd</holder>
+    </copyright>
+
+    <legalnotice>
+      <para>Permission is granted to copy, distribute and/or modify this
+      document under the terms of the GNU Free Documentation License, Version
+      1.3 or any later version published by the Free Software Foundation; with
+      no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A
+      copy of the license is included in the appendix entitled "The GNU Free
+      Documentation License".</para>
+    </legalnotice>
+  </info>
+
+  <chapter xml:id="introduction">
+    <title>Introduction</title>
+
+    <section xml:id="what-is-socialmagick">
+      <title>What is Akeeba SocialMagick?</title>
+
+      <para>Akeeba SocialMagick is an extension which automatically generates
+      OpenGraph images for your site's pages, and populates their OpenGraph
+      data. This allows for rich link previews when you share your content on
+      social media sites, instant messaging applications, web chat services /
+      applications and so on. Having an eye-catching image preview whenever
+      you, or someone else, shares a link to your site increases the number of
+      people who will click the link. On some platforms, such as Facebook,
+      including an OpenGraph image is the only way to entice the algorithm to
+      put the content sharing your link in front of people.</para>
+
+      <para>All you need to do on your side is create templates which tell
+      SocialMagick how to use any combination of a color background, the
+      article / category images, and your item / page title to generate an
+      OpenGraph image.</para>
+    </section>
+
+    <section xml:id="requirements">
+      <title>Server requirements</title>
+
+      <para>The PHP and Joomla version requirements for SocialMagick can be
+      found in our <link xlink:href="https://www.akeeba.com/compatiblity.html"
+      xmlns:xlink="http://www.w3.org/1999/xlink">Compatibility
+      page</link>.</para>
+
+      <para>Beyond that, you need to have installed and enabled either the
+      <code>imagick</code> or <code>gd</code> extension in PHP. If you are not
+      sure if this is the case, please check out <link
+      linkend="which-ext-is-installed">our instructions</link>. If you need to
+      enable one of the two extensions, we strongly recommend the
+      <code>imagick</code> extension which allows PHP to use the more powerful
+      and flexible ImageMagick library for image manipulation. You can learn
+      how to do so by reading <link linkend="enable-imagemagick">our
+      instructions on enabling <code>imagick</code></link>.</para>
+
+      <tip>
+        <para>We strongly recommend using the <code>imagick</code> extension
+        whenever you can. It renders colour much better, it is faster, and it
+        supports SVG files. </para>
+
+        <para>The <code>gd</code> extension is older, it does not render
+        colour as well (the colours look either washed out or with too much
+        contrast compared to what you see on your browser and the image source
+        file), it is slower, and it does NOT support SVG files at all.</para>
+      </tip>
+    </section>
+
+    <section xml:id="how-does-it-work">
+      <title>How does it work</title>
+
+      <para>SocialMagick's main reason of existence is to generate images
+      which will be displayed along a page's title and description when you
+      share a link to that page on social media (Facebook, Mastodon, X /
+      Twitter, BlueSky, etc), instant messaging apps (Google Messages, Apple
+      Messages, Whatsapp, Signal, Viber, etc), and other sites which allow
+      rich link preview (e.g. Discord). The information about the page of your
+      site is embedded into the HTML of your page using the <link
+      xlink:href="https://www.opengraph.xyz/"
+      xmlns:xlink="http://www.w3.org/1999/xlink">OpenGraph standard</link>.
+      For the sake of brevity, we call these generated images "OpenGraph
+      images".</para>
+
+      <para>SocialMagick generates OpenGraph images by combining one or more
+      of a solid / semi-transparent colour card, an image of your choice, an
+      image from your content (e.g. the intro, full article, or category
+      image) or a static image, and text (content title, or static text) in a
+      way defined by a <emphasis role="bold">Template</emphasis>. Whether to
+      generate OpenGraph images and data, which template to use, and (some of
+      the) template options can be overridden in the content itself, e.g. in
+      articles and categories, or at the menu item level. This gives you
+      excellent flexibility in determining which pages of your site should
+      have OpenGraph data and images, and how they will look like.</para>
+
+      <bridgehead>The extensions</bridgehead>
+
+      <para>SocialMagick is a set of extensions consisting of a component, a
+      system plugin, several plugins in the <code>socialmagick</code> group,
+      and some secondary plugins.</para>
+
+      <para>The component is used to manage the OpenGraph image Templates used
+      by SocialMagick.</para>
+
+      <para>The system plugin is the extension which does the real work:
+      display the OpenGraph tab in edit forms, create the OpenGraph images
+      when needed, and add the OpenGraph information into your HTML
+      pages.</para>
+
+      <para>The <code>socialmagick</code> plugins allow SocialMagick's system
+      plugin to integrate with core and third party components. For example,
+      the <guilabel>SocialMagick - Menus</guilabel> plugin allows SocialMagick
+      to integrate with Joomla menu items. It is necessary to display the
+      OpenGraph tab in menu items, and for SocialMagick to be able to override
+      OpenGraph options with those explicitly set in the menu item.</para>
+
+      <bridgehead>Options cascade</bridgehead>
+
+      <para>The OpenGraph options in SocialMagick are designed to <emphasis
+      role="bold">cascade</emphasis>. In other words, more specific places
+      where you can set OpenGraph options override the settings set in less
+      specific places.</para>
+
+      <para>At the least specific place, we have the options you set in the
+      component's <guilabel>Options</guilabel> page, and the options you set
+      in each Template. These define the base set of options. Everything more
+      specific than that will override them.</para>
+
+      <para>At the next level we have <emphasis
+      role="bold">Categories</emphasis>. A category can override the options
+      from the base set, as well as the options set in its parent category.
+      That is to say, if you have subcategories then the subcategory your
+      displayed content item belongs to overrides the options of its parent
+      category.</para>
+
+      <para>The next level is the <emphasis role="bold">content
+      item</emphasis> level, e.g. an Article. The content item options
+      override the options set in its category, the category's parent
+      categories, and the base set.</para>
+
+      <para>The most specific level is the <emphasis role="bold">menu
+      item</emphasis>. THe menu item options override the options set in the
+      content item, the content item's category, the category's parent
+      categories, and the base set.</para>
+
+      <para>At each of the more specific levels (category, content item, menu
+      item) you can choose whether to enable overrides at all or not. This
+      makes it easy to disable all overrides without having to click through
+      each available option. Do note that Joomla doesn't have that; it asks
+      you to click through each option individually which is arduous, and
+      error prone.</para>
+
+      <para>Moreover, each option which can be overridden either has a "Use
+      Global" option, or allows you to leave it blank. These values signal to
+      SocialMagick that it should fall back to the previous level of
+      specificity to find the option value.</para>
+
+      <note>
+        <para>The component Options and the Template do not have "Use Global"
+        as they are the <emphasis>base</emphasis> level, i.e. the least
+        specific level. There is no previous level of specificity to fall back
+        to. They are the bottom rung of the ladder already!</para>
+      </note>
+
+      <para>This scheme is very similar to how Joomla article options work
+      <emphasis>in category list or category blog views</emphasis>. If you
+      understand that, you are ready to handle SocialMagick options.</para>
+
+      <para><emphasis>Side note: Joomla's Single Article menu items give you
+      the wrong idea of how content options work</emphasis>. Joomla's Single
+      Article menu items only apply options from the menu item, and the
+      Options of the Articles (<code>com_content</code>) component. They
+      IGNORE the options set in the article itself, the article's category,
+      and the category's parent categories if any. This has led to chronic
+      confusion among people who mistakenly think that component options
+      override article or category options. <emphasis>This is not the
+      case!</emphasis> The article and category options are NOT overridden by
+      component options, they are simply completely ignored by the Single
+      Article menu item. The article and category options are only applied
+      when you use a Category Blog, Category List, Archived Articles, or
+      Featured Articles menu item i.e. <emphasis>a menu item which is meant to
+      show more than one article at a time</emphasis>. If you have been
+      confused by this in the past, you need to recalibrate your mental model
+      of how Joomla works. As to why there is this discrepancy: it's for
+      backwards compatibility reasons. Single Article menu items worked like
+      that in Joomla! 1.0 and its predecessor, Mambo. Changing how these menu
+      items work would break sites, which is why it's never changed.</para>
+    </section>
+  </chapter>
+
+  <chapter xml:id="installation-updates-upgrades">
+    <title>Installation, updates and upgrades</title>
+
+    <section xml:id="installing">
+      <title>Installing Akeeba SocialMagick</title>
+
+      <para>Installing <application>Akeeba SocialMagick</application> is no
+      different than installing any other <trademark
+      class="registered">Joomla!</trademark> extension on your site. You can
+      read the complete instructions for installing Joomla! extensions on the
+      <link xlink:href="https://docs.joomla.org/Installing_an_extension"
+      xmlns:xlink="http://www.w3.org/1999/xlink">official help page</link>.
+      Throughout this chapter we assume that you are familiar with these
+      instructions and we will try not to duplicate them.</para>
+
+      <caution>
+        <para><emphasis role="bold">DO NOT EXTRACT THE ZIP FILE YOU DOWNLOAD
+        FROM OUR SITE.</emphasis></para>
+
+        <para>Akeeba SocialMagick is shipped as a <literal>package</literal>
+        extension. This is a special type of Joomla extension which consists
+        of several extensions, linked together. If you install the contained
+        extensions individually, Joomla will not know they are meant to
+        function as a coordinated set of extensions. As a result, it will not
+        show you updates for Akeeba SocialMagick, and will tell you that it
+        has no update information when you try to update to a newer version of
+        Joomla!.</para>
+
+        <para>If you have accidentally done that download the ZIP file from
+        our site and install it, twice in a row, without uninstalling it
+        before or in between. This will tell Joomla that the extensions you
+        installed separately belong together and let it repair this link
+        between the extensions in your database's
+        <database>#__extensions</database> table, where
+        <database>#__</database> is the table name prefix used by your
+        site.</para>
+      </caution>
+
+      <section>
+        <title>Installing or manually updating the extension</title>
+
+        <para>We recommend using the Upload And Install method for installing
+        SocialMagick, just like any other Joomla extension.</para>
+
+        <para>Keep in mind that installing and updating Akeeba SocialMagick
+        (and almost all Joomla! extensions) is actually the same thing. If you
+        want to update Akeeba SocialMagick you <emphasis role="bold">MUST
+        NOT</emphasis> uninstall it before installing the new version. When
+        you uninstall Akeeba SocialMagick you will lose all your templates and
+        component-level options. This is definitely something you do not want
+        to happen! Instead, simply install the new version on top of the old
+        one. Joomla! will figure out that you are doing an update and will
+        treat it as such, automatically.</para>
+
+        <tip>
+          <para>If you find that after installing or updating Akeeba
+          SocialMagick it is missing some features or doesn't work, please try
+          installing the same version a second time, without uninstalling the
+          component. The reason is that very few times the Joomla! extensions
+          installer code gets confused and fails to copy some files or entire
+          folders. By repeating the installation you force it to copy the
+          missing files and folders, solving the problem.</para>
+        </tip>
+
+        <section xml:id="installing-upload">
+          <title>Upload and install.</title>
+
+          <para>You can download the latest installation packages our site's
+          <link xlink:href="https://www.akeeba.com/downloads.html"
+          xmlns:xlink="http://www.w3.org/1999/xlink">download page</link>. If
+          you have an older version of Joomla! or PHP please consult our <link
+          xlink:href="https://www.akeeba.com/compatibility.html"
+          xmlns:xlink="http://www.w3.org/1999/xlink">Compatibility page</link>
+          to find the version of Akeeba SocialMagick compatible with your
+          Joomla! and PHP versions. In either case click on the version you
+          want to download and install.</para>
+
+          <para>All Akeeba SocialMagick installation packages contain the
+          component and all of its associated extensions. Installing it will
+          install all of these items automatically. It can also be used to
+          upgrade Akeeba SocialMagick; just install it
+          <emphasis>without</emphasis> uninstalling the previous
+          release.</para>
+
+          <para>In any case, do not extract the ZIP files yet!</para>
+
+          <warning>
+            <para><emphasis role="bold">Attention Mac OS X users</emphasis>!
+            Safari, the default web server provided to you by Apple, is
+            automatically extracting the ZIP file into a directory and removes
+            the ZIP file. In order to install the extension through Joomla!'s
+            extensions installer you must select that directory, right-click
+            on it and select Compress to get a ZIP file of its
+            contents.</para>
+          </warning>
+
+          <para>Log in to your site's administrator section. Click on
+          <guimenu>Extensions</guimenu>, <guimenuitem>Manage</guimenuitem>
+          link on the top menu. Please click on the <guilabel>Upload Package
+          File</guilabel> tab. Drag and drop the installation ZIP file you had
+          previously downloaded to start the upload and the installation.
+          After a short while, <trademark>Joomla!</trademark> will tell you
+          that the component has been installed.</para>
+
+          <warning>
+            <para>Akeeba SocialMagick is a big extension. Some servers do not
+            allow you to upload files that big. If this is the case you can
+            follow <link
+            xlink:href="https://www.akeeba.com/documentation/brs/troubleshooting.html"
+            xmlns:xlink="http://www.w3.org/1999/xlink">our installation
+            troubleshooting instructions</link> under "You get an error about
+            the package not being uploaded to the server".</para>
+
+            <para>If you have WAMPServer (or any other prepackaged local
+            server), please note that its default configuration does not allow
+            files over 2Mb to be uploaded. To work around that you will need
+            to modify your php.ini and restart the server. On WAMPserver
+            left-click on the WAMP icon (the green W), click on
+            <guimenu>PHP</guimenu>, <guimenuitem>php.ini</guimenuitem>. Find
+            the line beginning with <code>upload_max_filesize</code>. Change
+            it so that it reads:</para>
+
+            <programlisting>upload_max_filesize = 6M</programlisting>
+
+            <para>Save this file. Now, left-click on the WAMP icon, click on
+            <guimenu>Apache</guimenu>, <guisubmenu>Service</guisubmenu>,
+            <guimenuitem>Restart Service</guimenuitem> and you can now install
+            the component. Editing the <filename>php.ini</filename> file
+            should also work on all other servers, local and live
+            alike.</para>
+          </warning>
+
+          <para>If the installation did not work, please take a look at <link
+          xlink:href="https://www.akeeba.com/documentation/brs/troubleshooting.html"
+          xmlns:xlink="http://www.w3.org/1999/xlink">our installation
+          troubleshooting instructions</link>.</para>
+        </section>
+
+        <section xml:id="installation-troubleshoot">
+          <title>Troubleshooting the installation</title>
+
+          <para>Please note that extensions installation is performed by
+          Joomla itself, not code that we have written ourselves. If you have
+          a problem installing a Joomla extension of ours the root cause is in
+          Joomla! and the way some of its functions work. While we don't offer
+          support for generic installation issues, this page is meant to serve
+          as a collection of the troubleshooting steps we'd follow on any site
+          when any extension doesn't install correctly.</para>
+
+          <bridgehead>You get an error about the package not being uploaded to
+          the server</bridgehead>
+
+          <para>The installation packages of our extensions are rather big,
+          approaching 2Mb for the Professional versions. Many server have a
+          maximum file upload size or a maximum POST request size which is too
+          small – typically around 2MB – for our software to install. The best
+          solution is to ask your host to set the following in the server's
+          php.ini:</para>
+
+          <programlisting>upload_max_filesize = 10M
+post_max_size = 10M
+</programlisting>
+
+          <para>On most hosts you can place these lines in a file called
+          <filename>.user.ini</filename> (not the leading dot) or
+          <filename>php.ini</filename> in your site's
+          <filename>administrator</filename> directory.</para>
+
+          <para>If this is not possible, there's a good chance that the
+          following lines in your <filename>.htaccess</filename> file may work
+          on most servers:</para>
+
+          <programlisting>php_value upload_max_filesize 10M
+php_value post_max_size 10M
+</programlisting>
+
+          <para>There is also another alternative, but it won't work on all
+          hosts: installation by URL. Please go to the Download section of our
+          site and select the software and version you want to download. Click
+          on View All files. Next to the "Download now" button for the
+          installation package you will see a link called "DirectLink". Right
+          click on it and select "Copy link address" (the exact phrase depends
+          on the browser, but it should have to do about copying the link or
+          its address / URL / location).</para>
+
+          <para>Now go to your site's back-end, Extensions, Extensions Manager
+          and find the Install from URL tab. Replace the contents of the
+          "Install URL" field with the contents of your clipboard (the
+          DirectLink URL you copied above) and click on the "Install" button
+          next to this textbox. As long as your server supports installing
+          extensions from URL the installation should go through.</para>
+
+          <para>If this still doesn't help please read on for further
+          troubleshooting tips</para>
+
+          <bridgehead>"Install path does not exist"</bridgehead>
+
+          <para>Joomla! requires the PHP Gzip and ZIP extensions to be
+          installed. If either is not installed or if it's blocked then
+          Joomla! will be unable to install extensions. Unfortunately, a
+          cascade of unhandled errors inside Joomla! itself will cause it to
+          come up with the unhelpful and disorienting "Install path does not
+          exist" error message.</para>
+
+          <para>Solution: ask your host to enabled the GZip and ZIP extensions
+          in PHP. Furthermore, ask them to make sure that they are not
+          blocking the functionality of these extensions e.g. by using
+          <code>disable_functions</code> or <code>disable_classes</code> in
+          their <filename>php.ini</filename> file.</para>
+
+          <para>Please note that we routinely see hosts disabling functions
+          <code>zip_open</code>, <code>gzuncompress</code>,
+          <code>gzdeflate</code> and <code>gzdecode</code> for ostensible
+          "security reasons". First of all Joomla! WILL NOT work properly when
+          any of these functions is unavailable. Moreover and despite what
+          your host tells you, disabling this functions does not increase your
+          site's security in any conceivable way. If your host denies to
+          unblock these functions please take your site to a different host
+          that understands how server security really works.</para>
+
+          <bridgehead>"Unable to write entry" or "Unable to create
+          destination" error</bridgehead>
+
+          <para>This error message comes from Joomla! and it means that there
+          is a file or directory permissions issue. Unfortunately this message
+          is very non-specific and provides no useful information for
+          troubleshooting. This is something we reported to Joomla in
+          September 2017 and was fixed for the most part but internal issues
+          in the way the extensions installer work still prevent the correct
+          path from being shown.</para>
+
+          <para>In the meantime, all you can do is ask your host to make sure
+          that all folders and files on your site are writeable by the user
+          under which your site runs. This is not something you or us can do.
+          Please do ask your host.</para>
+
+          <para>If this doesn't help it might mean that you have reached the
+          file system capacity of your server. Please note that your account
+          on the server might have several limits:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Maximum total size of files and database data. This is the
+              most common limit, e.g. your host telling you that you can use
+              10G of space in total. Please remember that this includes your
+              database data. Moreover, keep in mind that "unlimited" is a
+              marketing term, not reality. Usually you get up to a certain
+              size limit and you have to ask for more, explaining why.</para>
+            </listitem>
+
+            <listitem>
+              <para>Maximum number of files. This is usually NOT advertised,
+              documented or visible anywhere. Many hosts will only allow you
+              up to a maximum number of files, e.g. 100,000. If you try to
+              exceed that count the file is not created / replaced, as if the
+              permissions were not adequate to write to it. Please note that
+              most times the host engineers will call it "inode count" because
+              that's technically what they are limiting on your hosting user
+              account. Each inode is a filesystem index entry and each file
+              and folder on your site consumes one inode (that's not very
+              accurate but it's a well enough description to understand what
+              an inode is).</para>
+            </listitem>
+
+            <listitem>
+              <para>The physical disk size. All the aforementioned limits are
+              great, but you cannot create files beyond the physical capacity
+              of the disks on your server. Most modern hosts use virtualized,
+              network attached storage to provide ever-expanding capacity on
+              demand. However, some cheaper hosts and dedicated servers still
+              have regular disks attached with finite storage limits.</para>
+            </listitem>
+
+            <listitem>
+              <para>The block count. Please remember that computer permanent
+              storage cannot be allocated with a single byte granularity. It
+              is allocated in blocks, typically 4KB to 32KB each. Think of it
+              as an apartment building where everyone gets the same size ,
+              four bedroom apartment regardless of whether they are single or
+              a family of seven with a dog and two cats. This means that small
+              files, whose size is nominally under one block, will occupy at
+              least one block. Your host counts the disk space usage by the
+              number of blocks you occupy but hosting control panels report
+              the aggregated nominal sizes of the files. It is possible for
+              the hosting control panel to report free space when you have
+              reached the block limit of your hosting account.</para>
+            </listitem>
+
+            <listitem>
+              <para>Also remember that your hosting control panel does not
+              report the limit information in real time. You may have already
+              exceeded your limits but your control panel not having been
+              updated with this information.</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>If you are not sure about these limits please ask your
+          host.</para>
+
+          <bridgehead>Upgrading from Core to Professional</bridgehead>
+
+          <para>In some cases we have seen that Joomla failed to copy all of
+          the necessary files when upgrading from a Core to a Professional
+          release or when installing a major update that spans major versions
+          (e.g. 1.x to 2.y). If you believe this has happened to you please
+          install our software twice in a row, without uninstalling it before
+          or in between the subsequent installations.</para>
+
+          <bridgehead>Check your Joomla! and PHP version</bridgehead>
+
+          <para>We publish the compatibility of our software with Joomla! and
+          PHP versions in the Compatibility page on our site. You can find a
+          link on this page at the bottom of every page of our site.</para>
+
+          <para>Please remember that the PHP version your site is using may be
+          different than the PHP version your host reports in their hosting
+          control panel. If unsure, please refer to Joomla's System
+          Information page. If you need to upgrade your PHP version please
+          consult your host. The exact method to do that varies by
+          host.</para>
+
+          <bridgehead>Checking your temporary directory</bridgehead>
+
+          <para>First, we will have to make sure that you are using a valid
+          temporary directory. Many sites are configured to use the
+          system-wide (/tmp) directory or an invalid directory, causing
+          installation problems.</para>
+
+          <para>You can change your temporary directory from your site's
+          Global Configuration page. You need to enter the full filesystem
+          path to Joomla's <filename>tmp</filename> folder. This is typically
+          something like <filename>/home/mysite/public_html/tmp</filename>. If
+          unsure please ask your host. This information is not visible from
+          within your site's administrator using any Joomla-provided feature
+          and there is no way for us to know it.</para>
+
+          <bridgehead>File ownership (Previously: Enable FTP)</bridgehead>
+
+          <para>Some shared servers run PHP as an Apache module. As a result
+          PHP runs under the same user as Apache which is a different user
+          than the one your user account is owned and the one used when
+          uploading files via FTP / SFTP. As a result you end up with mixed
+          ownership of your files, making it often impossible to install or
+          update extensions.</para>
+
+          <para>Old Joomla versions (1.x, 2.x and 3.x) included a Global
+          Configuration feature called “Enable FTP”. This feature would make
+          Joomla go through FTP to write to any file, therefore all your files
+          would be owned by the same user, your hosting account's user.
+          However, this was a security issue since Joomla needed to store your
+          FTP password in the clear. In most cases that was also the hosting
+          control panel password. In other words, any security mishap which
+          would divulge Joomla's configuration to an unauthorised user — even
+          a simple misconfiguration of your site's permissions — could cause
+          major problems to your site. This feature has, therefore, been
+          removed from Joomla 4.0 onwards.</para>
+
+          <para>If you find yourself on such a host it's a good time to move
+          to a different, better set up host.</para>
+
+          <para>To give you a better idea, the PHP developers themselves have
+          said that the PHP Apache module should not be used for shared
+          hosting scenarios. It's something only really meant to be used for
+          single site servers with the assumption that Apache is correctly
+          configured for this use case. Solutions for PHP running as a
+          different user for each site of a shared hosting server have existed
+          since the early 00's. If your host has still not gotten wind of
+          these problems and their respective solutions over a course of at
+          least two decades they are probably unqualified to host any site,
+          hence the recommendation to move to a different host.</para>
+
+          <bridgehead>Still problems?</bridgehead>
+
+          <para>If you still can't install our software and you are receiving
+          messages regarding unwritable directories, inability to move files
+          or other similar file system related error messages you can ask for
+          our support but you already read what we're going to try. At best
+          you can expect us to find out the most likely root cause and tell
+          you what you have to ask your host to do to fix it.</para>
+        </section>
+      </section>
+    </section>
+
+    <section xml:id="update">
+      <title>Automatic updates</title>
+
+      <para>Akeeba SocialMagick can be updated just like any other Joomla!
+      extension, using the Joomla! extensions update feature. Please note that
+      Joomla! is fully responsible for discovering available updates and
+      installing them on your site. Akeeba Ltd does not have any control of
+      the update process.</para>
+
+      <note>
+        <para>This Joomla! feature requires that your server supports fopen()
+        URL wrappers (<option>allow_url_fopen</option> is set to 1 in your
+        server's <filename>php.ini</filename> file) or has the PHP cURL
+        extension enabled. Moreover, if your server has a firewall, it has to
+        allow TCP connections over port 443 (HTTPS) to
+        <uri>www.akeeba.com</uri> and <uri>cdn.akeeba.com</uri>. If you don't
+        see any updates or if they fail to download please ask your host to
+        check that these conditions are met. If they are met but you still do
+        not see the updates please file a bug report in the <link
+        xlink:href="http://forum.joomla.org/"
+        xmlns:xlink="http://www.w3.org/1999/xlink">official Joomla!
+        forum</link>. In the meantime you can use the manual update methods
+        discussed further below this page.</para>
+      </note>
+
+      <warning>
+        <para>Akeeba SocialMagick needs you to set up the Download ID before
+        you can install the updates. Please consult the <link
+        linkend="update-dlid">Entering your Download ID</link> documentation
+        section for more information.</para>
+      </warning>
+
+      <para>You can access the extensions update feature in different
+      ways:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>From the icon your Joomla! administrator control panel page.
+          By default you will find the icon in the right-hand modules area,
+          under the <guilabel>Update Checks</guilabel> header. When there are
+          updates found for any of your extensions you will see the
+          <guilabel>Updates are available</guilabel> message. Clicking on it
+          will get you to the Update page of Joomla! Extensions
+          Manager.</para>
+        </listitem>
+
+        <listitem>
+          <para>From the sidebar of your Joomla! Administrator click on
+          <guimenu>System</guimenu>. On the new page find the
+          <guilabel>Update</guilabel> area towards the bottom of the middle
+          column and click the <guimenuitem>Extensions</guimenuitem> link.
+          This takes you to the Update page of Joomla! Extensions
+          Manager.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>If you do not see the updates try clicking on the <guibutton>Find
+      Updates</guibutton> button in the toolbar of the Joomla! Extensions:
+      Update page. If you do not see the updates still you may want to wait up
+      to 24 hours before retrying. This has to do with the way the update CDN
+      works and how Joomla! caches the update information.</para>
+
+      <para>If there is an update available for Akeeba SocialMagick tick the
+      box to the left of its row and then click on the
+      <guibutton>Update</guibutton> button in the toolbar. Joomla will now
+      download and install the update.</para>
+
+      <para>If Joomla can't download the package, please use one of the manual
+      update methods described below.</para>
+
+      <para>If you get a white page while installing the update please try
+      either the Built-in method (described above) or the manual update method
+      (described below).</para>
+
+      <bridgehead>Updating manually</bridgehead>
+
+      <para>As noted in the <link linkend="installing">installation
+      section</link>, installing and updating Akeeba SocialMagick is actually
+      the same thing. If the automatic update using Joomla!'s extensions
+      update feature does not work, please install the update manually
+      following the instructions in the <link
+      linkend="installing">installation section of this
+      documentation</link>.</para>
+
+      <important>
+        <para>When installing an update manually you MUST NOT uninstall your
+        existing version of Akeeba SocialMagick. Uninstalling Akeeba
+        SocialMagick will always remove all your settings. You definitely do
+        not want that to happen!</para>
+      </important>
+
+      <para>Sometimes Joomla! may forget to copy some files when updating
+      extensions. If you find Akeeba SocialMagick suddenly not working or if
+      you get a warning that your installation is corrupt you need to download
+      the latest version's ZIP file and install it <emphasis>twice</emphasis>
+      on your site, <emphasis>without</emphasis> uninstalling it before or
+      in-between these installations. This will most certainly fix this
+      issue.</para>
+
+      <para>If the error occurs again after a while, without you updating our
+      software, please contact your host. Some hosts will delete or rename
+      files automatically and without any confirmation as part of a (broken
+      and unfit for purpose) "malware scanner / antivirus". Unfortunately,
+      these scanners return a lot of false positives -innocent files
+      mistakenly marked as malicious- but rename / delete them nonetheless,
+      breaking software installed on the server. If you are on such a host we
+      very strongly recommend that you move to a decent host, run by people
+      who actually know what they are doing. It will be far less headache for
+      you and would actually improve your site's security.</para>
+
+      <section xml:id="update-troubleshooting">
+        <title>Troubleshooting the update</title>
+
+        <para>Like most Joomla extensions, our software relies on Joomla's
+        built-in extensions updater. In simple terms, code written by the
+        Joomla project, shipped with Joomla itself and running on your site is
+        responsible for retrieving information about the latest available
+        versions, determining whether an update is available, downloading the
+        update package and installing it on your site. Akeeba Ltd has no
+        control over that code.</para>
+
+        <para>Despite this not being our code, we do understand that our
+        clients do come across problems with updates and need our help. The
+        way the Joomla built-in extensions updater is written makes it prone
+        to some easily preventable, common errors. Its error reporting ranges
+        from unhelpful to non-existent. In an effort to help you, we've
+        compiled and condensed all the troubleshooting we've done for years on
+        our sites and our clients' sites.</para>
+
+        <para>Please note that we do not have a choice on whether to use
+        Joomla's built-in extensions updater or our own code. The Joomla
+        Extensions Direction requires us to use Joomla's own extensions
+        updater as a requirement for our software being listed there.</para>
+
+        <section xml:id="update-troubleshooting-server-issues">
+          <title>Addressing server issues</title>
+
+          <para>In some cases you will see that Joomla cannot retrieve the
+          latest version information or update package for our software,
+          reporting it cannot connect to cdn.akeeba.com. Related to that,
+          Joomla may report that it's unable to download the Professional
+          edition's update package, saying it's unable to connect to our site
+          www.akeeba.com. This can mean a few different things which all have
+          to do with how your host is set up.</para>
+
+          <para>Our CDN and our site are accessible over HTTPS and use a
+          valid, signed TLS certificate. At the time of this writing the TLS
+          certificates are issued by Let's Encrypt and Amazon Web Services.
+          The TLS certificates used for HTTPS on our CDN and site use the
+          recommended SHA-256 hashing algorithm and the servers only support
+          modern versions of the TLS protocol (at the time of this writing
+          it's TLS 1.2 and later). If your host has an out of date
+          Certification Authority cache or compiled PHP against an old TLS
+          library which does not support modern versions of TLS your site will
+          be unable to connect to our servers.</para>
+
+          <para>If this is not the case, please be aware that some hosts run a
+          proxy server or a firewall which can either prevent or cache
+          <emphasis>outgoing</emphasis> connections in front of their servers.
+          Depending on how this is implemented it can cause two distinct types
+          of problems.</para>
+
+          <para>The first problem is that your site might be unable to connect
+          to our CDN and our server to retrieve the latest version information
+          and the update package itself respectively. If this happens you need
+          to ask your host to allow connections to TCP/IP port 443 (HTTPS) for
+          www.akeeba.com and cdn.akeeba.com. If they ask you for an IP address
+          please ask them to resolve these domain names from their server. The
+          latter is a Content Delivery network (CDN) with hundreds of servers,
+          powered by Amazon CloudFront, meaning that its IP address depends on
+          where you are accessing it from.</para>
+
+          <para>The second problem is that when Joomla tries to retrieve the
+          latest version information or an update file from our servers your
+          host's proxy gets in the way and returns information it has cached.
+          We explicitly ask for that information not to be cached, using
+          standard HTTP headers, but some hosts choose to ignore web standards
+          and do their own thing. Also worth noting is that your host should
+          not interfering with HTTPS (encrypted) traffic, so all the more
+          reason to be worried about their implementation in this case.
+          Unfortunately, we have caught a few hosts doing that over the
+          years.</para>
+
+          <para>None of these issues can be addressed by you or us. You will
+          need to contact your host about them. Before you assume any of these
+          issues are in play and if you are using the Professional edition of
+          our software please do <link
+          linkend="update-troubleshooting-dlid">check that your Download ID is
+          valid</link> first.</para>
+        </section>
+
+        <section xml:id="update-troubleshooting-dlid">
+          <title>Check the validity of your Download ID</title>
+
+          <note>
+            <para>The information in this section only applies to the
+            Professional edition. If you are using the Core edition you can
+            skip over it.</para>
+          </note>
+
+          <para>If you are using the Professional version of our software we
+          need to verify that you have an active subscription that gives you
+          access to downloads of the software you are trying to update. We do
+          that by means of a Download ID which has the format
+          0123456789abcdef0123456789abcdef (Main Download ID) or
+          12345:0123456789abcdef0123456789abcdef (Add-on Download ID). In and
+          by itself the Download ID does not carry any information about your
+          subscription status. It is an identifier linked to your account on
+          our site.</para>
+
+          <para>First, you need to check that you are using a valid Download
+          ID. <emphasis role="bold">Do not assume that your Download
+          ID</emphasis> is entered at all, or that it is valid. This kind of
+          false assumption accounts for half of the update issues we are asked
+          to help our clients with. Always check on our site. Log into our
+          site and go to Add-on Download IDs from the top menu. Copy the
+          Download ID and paste it to our extension's Options page in the
+          Download ID box, under the Update tab.</para>
+
+          <para>If you had to enter or change the Download ID but Joomla was
+          already reporting an updated version you will need to wait for 1-2
+          days OR install the update manually. This has to do with how Joomla
+          update information caching works — even if you tell it to clear the
+          update cache.</para>
+
+          <section xml:id="dlid-check-subscription">
+            <title>Check your subscription status</title>
+
+            <note>
+              <para>The information in this section only applies to the
+              Professional edition. If you are using the Core edition you can
+              skip over it.</para>
+            </note>
+
+            <para>As noted above, the Download ID itself does not carry any
+            information about whether you are allowed to download an update.
+            This check is done on our server when it receives the Download ID
+            along with Joomla's request to download an update. The check
+            performed is simple: do you have an <emphasis>active</emphasis>
+            subscription which gives you access to the software you are trying
+            to download?</para>
+
+            <para>Do not assume that your subscription is active. It is
+            possible that you missed an email warning you about the
+            subscription expiring and a manual action to renew it being
+            required on your part. Do note that we send two emails before your
+            subscription reaches it validity limit and you lose access to
+            downloads, 30 and 15 days in advance.</para>
+
+            <para>Always log into our site and go to the My Subscriptions page
+            to check your subscription status. If your subscription has
+            expired you can renew it. Once the payment is complete and
+            accepted by our reseller you will be able to download the updates
+            within the next 20' or less (typically: within seconds).</para>
+          </section>
+
+          <section xml:id="dlid-multiple-pro-versions">
+            <title>Multiple Professional edition Akeeba extensions with
+            different Download IDs</title>
+
+            <para>It's possible that you have more than one of our
+            Professional extensions but you want to use different Download IDs
+            for each one of them. For example, if each extension was bought by
+            a different company working on your site or if you are trying to
+            migrate to a new user account on our site.</para>
+
+            <para>That is to say, one extension might use a Download ID that
+            is valid and corresponds to an active subscription for that
+            software, another extension might have an invalid Download ID or
+            use a Download ID which refers to a user account on our site which
+            does NOT have a valid subscription for that software.</para>
+
+            <para>Do remember to check the Download IDs for each and every of
+            our extensions. Do remember to check that you have active
+            subscriptions for all the products you are trying to
+            update.</para>
+          </section>
+
+          <section xml:id="dlid-change-after-update">
+            <title>Entering or changing your Download ID after an update is
+            available</title>
+
+            <para>On March 9th, 2021 we publicly and officially notified
+            Joomla about known issues with their extensions updater when the
+            Download Key is changed after an updated version has been
+            detected. We had previously notified Joomla of these issues
+            repeatedly, but privately, over the course of eight years. These
+            issues are still not addressed.</para>
+
+            <para>If you enter or change your Download ID after Joomla has
+            already determined an update is available the new Download ID will
+            NOT take effect on many sites. This has to do with the way Joomla
+            is caching not only the update availability information but also
+            the raw information about Update Sites and Download Keys it uses
+            to determine if updates are available and how to download
+            them.</para>
+
+            <para>If you find yourself in this case we strongly recommend
+            installing the update manually (download the new version and
+            install it using Upload and Install over the old one) OR wait 1-2
+            days before retrying. Kindly note that retrying after 1-2 days MAY
+            STILL NOT WORK.</para>
+
+            <para>We understand that this is especially disruptive if you are
+            managing dozens or hundreds of sites. This is why we have been
+            trying to convince Joomla to fix these issues since 2014. We have
+            even gone as far as to point out exactly why these issues occur
+            and how to fix them. That's the full extent of what we can do. It
+            is ultimately Joomla's responsibility to take your needs seriously
+            enough and include the <emphasis>three lines of code to fix these
+            issues</emphasis>.</para>
+          </section>
+        </section>
+
+        <section xml:id="update-stuck-showing">
+          <title>Updates are showing after installing the latest
+          version</title>
+
+          <para>Sometimes you might see that Joomla reports that the version
+          you have installed or even a previous version is available as an
+          update. This can mean three things:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Joomla's update cache is stuck. Please file a bug report
+              to Joomla. We have already been reporting this privately since
+              2014 and made an official, public issue report on March 9th,
+              2021.</para>
+            </listitem>
+
+            <listitem>
+              <para>You have a server issue connecting to our CDN. See the
+              information on <link
+              linkend="update-troubleshooting-server-issues">addressing server
+              issues</link>.</para>
+            </listitem>
+
+            <listitem>
+              <para>You have found a bug in Joomla's built-in extensions
+              updater. You need to contact <link
+              xlink:href="https://forum.joomla.org"
+              xmlns:xlink="http://www.w3.org/1999/xlink">the Joomla!
+              forum</link>. Unfortunately there is nothing we can do about
+              Joomla core bugs.</para>
+            </listitem>
+          </itemizedlist>
+        </section>
+
+        <section xml:id="update-stuck">
+          <title>Updates not showing despite having an older version</title>
+
+          <para>Sometimes you may see that Joomla refuses to report the
+          availability of a new version of our software. This can mean four
+          things:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>The update site for our software is disabled. See the
+              information on <link linkend="update-check-update-site">checking
+              the update site</link>.</para>
+            </listitem>
+
+            <listitem>
+              <para>Joomla's update cache is stuck. Please file a bug report
+              to Joomla. We have already been reporting this privately since
+              2014 and made an official, public issue report on March 9th,
+              2021.</para>
+            </listitem>
+
+            <listitem>
+              <para>You have a server issue connecting to our CDN. See the
+              information on <link
+              linkend="update-troubleshooting-server-issues">addressing server
+              issues</link>.</para>
+            </listitem>
+
+            <listitem>
+              <para>You have found a bug in Joomla's built-in extensions
+              updater. You need to contact <link
+              xlink:href="https://forum.joomla.org"
+              xmlns:xlink="http://www.w3.org/1999/xlink">the Joomla!
+              forum</link>. Unfortunately there is nothing we can do about
+              Joomla core bugs.</para>
+            </listitem>
+          </itemizedlist>
+
+          <section xml:id="update-check-update-site">
+            <title>Check the update site</title>
+
+            <para>First we are going to check if the Update Site is disabled.
+            Go to the System menu item, find the Update area and click on the
+            Update Sites link.</para>
+
+            <para>On that page you will see a list of the update sites for the
+            extensions you have installed on your site. If you see our
+            software in that list – you may have to search for it – make sure
+            it's published, i.e. there's a green checkmark in the Status
+            column. If it's not already published publish it now. If you had
+            to publish the Update Site you will have to install the latest
+            version manually, on top of the old one. This is due to Joomla's
+            caching of the information required to retrieve update
+            information. In other words, for a period of a few hours to a few
+            days Joomla might be unable to automatically detect the new
+            version of our software.</para>
+
+            <para>If our software does not appear on that list you will need
+            to click on Rebuild. Watch out, though! Joomla has a bug. When
+            using Rebuild <emphasis role="bold">removes</emphasis> all
+            Download IDs and Download Keys from all installed extensions on
+            your site and will cause extension installation to fail. You will
+            also need to follow the instructions under <link
+            linkend="update-troubleshooting-dlid">Check the validity of your
+            Download ID</link> for your updates to work.</para>
+          </section>
+        </section>
+
+        <section xml:id="update-misc">
+          <title>Miscellaneous troubleshooting and information</title>
+
+          <section xml:id="update-fail-download">
+            <title>The update fails to download</title>
+
+            <para>If you are trying to update a Professional edition please
+            <link linkend="update-troubleshooting-dlid">check your Download
+            ID</link>. Typically you will get an error message telling you
+            that an error 403 or 500 was received when trying to download the
+            update package. Whether you see that message or a generic download
+            failure message depends on the version of Joomla you have
+            installed on your site.</para>
+
+            <para>If this doesn't help you need to check <link
+            linkend="update-troubleshooting-server-issues">if you have a
+            server issue</link>.</para>
+          </section>
+
+          <section xml:id="update-3pd-fail">
+            <title>Updating with a third party service fails</title>
+
+            <para>Typically, third party site management services ask Joomla
+            to provide the update information and install update on your
+            behalf. Therefore the troubleshooting information in this section
+            would solve both in-site and remote (via a service) extension
+            updates.</para>
+
+            <para>If you can install an update by logging into your site's
+            backend but NOT through a service you need to contact the third
+            party site management service and report this issue. Unfortunately
+            we cannot help with it. Third party services DO NOT ask us for
+            permission to implement an updater for our software.</para>
+          </section>
+
+          <section xml:id="update-manual">
+            <title>Manual update</title>
+
+            <para>As noted earlier in the documentation, a manual update is
+            the same as installing the extension. Download the latest version
+            from our site and install it on your site <emphasis
+            role="bold">without</emphasis> uninstalling our extension.</para>
+          </section>
+
+          <section xml:id="update-installation-fail">
+            <title>Update installation problems</title>
+
+            <para>If your update does download but fails to install try the
+            manual update method (installing the new version on top of the old
+            one). If that fails, too, you should follow the instructions on
+            the installation troubleshooting section you can read earlier in
+            this documentation.</para>
+          </section>
+        </section>
+      </section>
+
+      <section xml:id="update-dlid">
+        <title>Entering your Download ID</title>
+
+        <para>Akeeba SocialMagick is distributed for-a-fee. Downloading it,
+        either for installation from scratch or as an update to an already
+        installed but older version on your site, requires confirming that you
+        have an active subscription which gives you access to Akeeba
+        SocialMagick downloads. When you download the installation ZIP file
+        from our site this means that you need to log in to our site first.
+        However, when downloading updates through Joomla you really don't want
+        to and usually cannot be asked to log in to our site. The Download ID
+        is used in this case to identify you to our download servers.
+        Furthermore, a Download ID linked with an active subscription is also
+        required to use some remote file storage services such as Dropbox and
+        OneDrive (specifically: any remote storage service which uses OAuth2
+        or a variation thereof, therefore requiring a special “mediator”
+        script which runs on our servers).</para>
+
+        <para><bridgehead>Using your Download IDs on your clients'
+        sites</bridgehead></para>
+
+        <para>Our software license allows you to use your Download IDs on the
+        sites of your clients. However, you must tell your clients
+        that:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Downloads and support for the software covered by the
+            Download ID is provided by you, not Akeeba Ltd.</para>
+          </listitem>
+
+          <listitem>
+            <para>If they want to receive support and / or downloads directly
+            from Akeeba Ltd they need to purchase a qualifying subscription on
+            our site. In this case they do not qualify for the renewal
+            discount.</para>
+          </listitem>
+
+          <listitem>
+            <para>They are not allowed to use the Download ID on any other
+            site or use the Download ID to download the software for any
+            reason other than updating or reinstalling the covered software on
+            the same site the Download ID was entered in. In other words, they
+            cannot use the Download ID to install or update our software on
+            any other site.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>If you are no longer administering a site where you have entered
+        a Download ID you must revoke or regenerate that Download ID. You need
+        to do the same if you believe that your Download ID is being used by
+        third parties in an unauthorized manner. Please note that unauthorized
+        use of Download IDs could have consequences with regards to your
+        subscription with us.</para>
+
+        <bridgehead>Finding your Download ID</bridgehead>
+
+        <para>Download IDs come in two flavors, your main Download ID and
+        Add-on Download IDs.</para>
+
+        <para>You can find your main Download ID in the <link
+        xlink:href="https://www.akeeba.com/my-subscriptions.html"
+        xmlns:xlink="http://www.w3.org/1999/xlink">My Subscriptions</link>
+        page of our site. We recommend using this Download ID only on your own
+        site(s). This Download ID cannot be revoked, it can only be
+        regenerated. If it's regenerated you will need to enter the new
+        Download ID on all of your sites which can be a significant
+        hassle.</para>
+
+        <para>You can generate an unlimited number of Add-on Download IDs
+        without additional charge in the <link
+        xlink:href="https://www.akeeba.com/download/add-on-dlid.html"
+        xmlns:xlink="http://www.w3.org/1999/xlink">Add-on Download IDs</link>
+        page. Unlike the main Download ID you can revoke (disable) any Add-on
+        Download ID at any time. As long as you only use one Add-on Download
+        ID per site revoking or regenerating it will not affect the other
+        sites' ability to download and install updates.</para>
+
+        <para><bridgehead>Enter or view your Download ID</bridgehead></para>
+
+        <para>From the main administrator page of your site click on System on
+        the sidebar.</para>
+
+        <para>Click on the Update Sites link towards the bottom of the middle
+        column on the System page.</para>
+
+        <para>Find the <guilabel>Akeeba SocialMagick package</guilabel> entry
+        on the list and click on it to open the edit page.</para>
+
+        <para>Enter your main or Add-on Download ID in the Download Key area.
+        Click on the Save &amp; Close button on the toolbar to apply the
+        Download ID.</para>
+
+        <para>If Akeeba SocialMagick or Joomla! was already showing you that
+        an update for Akeeba SocialMagick is available you will need to
+        install the update manually.</para>
+
+        <bridgehead>Troubleshooting updates to the Professional
+        release</bridgehead>
+
+        <para>If you still cannot install our software please check that the
+        Download ID is entered correctly. If it's not entered correctly enter
+        the correct Download ID and follow all of these instructions
+        again.</para>
+
+        <para>If the Download ID is entered correctly but it's not active in
+        the Add-on Download IDs page you will need to enable it. After
+        enabling it you will be able to download and install the update
+        <emphasis>without</emphasis> having to follow these instructions
+        again.</para>
+
+        <para>If the Download ID is correct please make sure that you have an
+        <emphasis>active</emphasis> qualifying subscription on our site. If
+        your subscription has expired you need to purchase a renewal on our
+        site. Once the renewal is active you will be able to download and
+        install the update <emphasis>without</emphasis> having to follow these
+        instructions again, as long as you have not changed your Download
+        ID.</para>
+
+        <para>If you still cannot download updates despite having the correct
+        Download ID and an active subscription try waiting for 24 to 48 hours.
+        In very rare cases Joomla's update cache gets stuck despite following
+        the instructions above and you just need to wait until Joomla decides
+        it has to reload it.</para>
+
+        <para>If the updates are still not downloading please make sure that
+        you are using a version of Joomla and PHP that is supported by the new
+        version of our software. If you are not sure please consult <link
+        xlink:href="https://www.akeeba.com/compatibility.html"
+        xmlns:xlink="http://www.w3.org/1999/xlink">our Compatibility
+        page</link>.</para>
+
+        <para>If you've followed all these troubleshooting steps and the
+        update is not downloading at all you need to contact your host and ask
+        them to allow traffic to <uri>www.akeeba.com</uri> and
+        <uri>cdn.akeeba.com</uri> over port TCP 443 (HTTPS), make sure that
+        the PHP cURL module is installed and activated on the version of PHP
+        your site is using and that finally the libcurl and libssl system
+        libraries the cURL module is compiled against are up-to-date versions.
+        If your host cannot help you with any of these requests (despite this
+        being literally what you are paying them to do) you can install
+        updates manually. Kindly note that Akeeba Ltd is not responsible for
+        your hosting environment and that the requirements for downloading
+        updates from our site are met by server software released roughly 5
+        years ago. If your host cannot provide 5 year old software and open
+        ports in their firewall you should probably be migrating your site to
+        a more up-to-date, competent host.</para>
+      </section>
+    </section>
+
+    <section xml:id="downgrade">
+      <title>Downgrades</title>
+
+      <para>Downgrades <emphasis role="bold">ARE NOT
+      SUPPORTED</emphasis>.</para>
+
+      <para>If you downgrade Akeeba SocialMagick to a previous version we
+      cannot guarantee it will work correctly. If you need to downgrade Akeeba
+      SocialMagick you need to <link linkend="uninstalling">uninstall
+      it</link> first.</para>
+    </section>
+
+    <section xml:id="uninstalling">
+      <title>Uninstalling Akeeba SocialMagick</title>
+
+      <para>Akeeba SocialMagick can be uninstalled just like any other Joomla
+      extension.</para>
+
+      <warning>
+        <para>Uninstalling Akeeba SocialMagick will delete your templates, any
+        any generated OpenGraph images. There is no further confirmation. This
+        process is <emphasis role="bold">IRREVERSIBLE</emphasis>. If you lose
+        your settings and images by uninstalling Akeeba SocialMagick we cannot
+        help you retrieve them, they are gone forever.</para>
+      </warning>
+
+      <para>First, go the extensions manager page. From the sidebar of your
+      Joomla! Administrator click on <guimenu>System</guimenu>. On the new
+      page find the <guilabel>Manage</guilabel> area towards the top of the
+      middle column and click the <guimenuitem>Extensions</guimenuitem>
+      link.</para>
+
+      <para>In the Search box type <guilabel>Akeeba SocialMagick
+      package</guilabel>. It will show you a single item called "Akeeba
+      SocialMagick package" whose Type is Package.</para>
+
+      <important>
+        <para>Only ever try to uninstall the Package type extension. DO NOT
+        try to uninstall the component, its plugins or module individually. It
+        will leave stuff behind.</para>
+      </important>
+
+      <para>Select the item's checkbox and click on the
+      <guibutton>Uninstall</guibutton> button in the toolbar. The extension
+      and all its dependencies will be automatically uninstalled.</para>
+    </section>
+
+    <section xml:id="requesting-support">
+      <title>Requesting support and reporting bugs</title>
+
+      <para>Support can be provided only to subscribers and only through our
+      site's Support section. If you already have an active subscription which
+      gives you access to the support for Akeeba SocialMagick you can request
+      support for it through our site. You will need to log in to our site and
+      go to Support, Akeeba SocialMagick and click on the <guibutton>New
+      Ticket</guibutton> button. If you can't see the button please make sure
+      you have an active subscription that gives you access to Akeeba
+      SocialMagick support. If you do and still don't see the button please
+      use the Contact Us page to let us know of the ticket system problem and
+      remember to tell us your username.</para>
+
+      <para>If you want to report a bug, please use the Contact Us page of our
+      site. You don't need to be a subscriber to report a bug. Please note
+      that unsolicited support requests sent through the Contact Us page will
+      not be addressed. An issue is not a bug unless it can be reliably
+      reproduced <emphasis>on multiple sites and servers</emphasis>. Please
+      make sure you include clear instructions on reproducing the issue. If
+      the issue cannot be reproduced it's not a bug report, it's a support
+      request.</para>
+
+      <important>
+        <para>Support cannot be provided over Twitter, Facebook, email,
+        telephone, the official Joomla! forum, our Contact Us page or any
+        other method except the Support section on our site. We also cannot
+        take bug reports over any other medium except the Contact Us page and
+        the Support section on our site. Support is not provided to
+        non-subscribers. We have to impose those restrictions in support to
+        ensure a high level of service and quality. Thank you for your
+        understanding.</para>
+      </important>
+    </section>
+  </chapter>
+
+  <chapter xml:id="templates">
+    <title>The templates</title>
+
+    <para>SocialMagick generates OpenGraph images by combining one or more of
+    a solid / semi-transparent colour card, an image of your choice, an image
+    from your content (e.g. the intro, full article, or category image) or a
+    static image, and text (content title, or static text). Which of these
+    items are applied, how they are applied, and in which order is defined in
+    a Template.</para>
+
+    <section xml:id="composition">
+      <title>Image composition</title>
+
+      <para/>
+    </section>
+  </chapter>
+
+  <chapter xml:id="in-depth-information">
+    <title>In-depth information</title>
+
+    <section xml:id="managing-php-image-exts">
+      <title>Managing the PHP image extensions</title>
+
+      <para>SocialMagick works by manipulating image data to generate
+      OpenGraph images. PHP is a language which is primarily made to
+      manipulate text and numbers. For PHP to manipulate image data it needs
+      an extension designed for that installed and enabled.</para>
+
+      <para>The two extensions PHP can use to manipulate image date are
+      <code>imagick</code> and <code>gd</code>.</para>
+
+      <para>The <code>gd</code> extension integrates the venerable GD library
+      with PHP. This is one of the oldest continuously developed image data
+      manipulation libraries, first created in 1987. However, it is also the
+      most limited of the two. It's slower. It does not support colour
+      profiles, leading to images rendered with colors which appear to be
+      either washed out or with too much contrast compared to what your
+      browser renders, especially when your image source is digital photos. It
+      does not support SVG files; it can only manage raster (bitmap) files. It
+      also produces much more pronounced compression artifacts, while
+      generating larger files.</para>
+
+      <para>The <code>imagick</code> extension integrates the ImageMagick
+      library with PHP. ImageMagick is a slightly newer library, starting
+      development in 1990. It is fast. It supports colour profiles, resulting
+      in colour-accurate results. It supports SVG files just fine; it
+      automatically converts them to a bitmap format <emphasis>using the image
+      size encoded in the SVG file</emphasis>. It produces smaller files, with
+      less visible compression artifacts.</para>
+
+      <para>In this section you will find out how to tell which extension you
+      have enabled, and how you can get <code>imagick</code> enabled if you
+      currently have neither extension enabled.</para>
+
+      <section xml:id="which-ext-is-installed">
+        <title>Which extension do I have installed?</title>
+
+        <para>It is very important for you to remember that there is not one
+        PHP installation or configuration on your server.</para>
+
+        <para>Your host may have multiple PHP versions made available to you.
+        It is possible to have a different PHP version enabled for the
+        <uri>administrator</uri> backend of your site than you have in your
+        frontend. For this reason, you are going to check the PHP version, and
+        its configuration, on both the frontend and the backend of the site.
+        In both cases, we're going to get the detailed PHP information – what
+        to look for is explained further below.</para>
+
+        <bridgehead>The backend of your site</bridgehead>
+
+        <orderedlist>
+          <listitem>
+            <para>Log into your site's <uri>administrator</uri> as a Super
+            User.</para>
+          </listitem>
+
+          <listitem>
+            <para>From the sidebar, go to <guimenu>System</guimenu>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Under the <guilabel>Information</guilabel> heading click on
+            <guilabel>System Information</guilabel>. </para>
+          </listitem>
+
+          <listitem>
+            <para>Click on the <guilabel>PHP Information</guilabel>
+            tab.</para>
+          </listitem>
+        </orderedlist>
+
+        <para>If you have <code>imagick</code> installed and enabled you will
+        see an <guilabel>imagick</guilabel> section like the following
+        screenshot.</para>
+
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/backend-phpinfo.jpg" scalefit="1"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <para>Likewise, if you have <code>gd</code> installed and enabled you
+        will see a <guilabel>gd</guilabel> section like the following
+        screenshot.</para>
+
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/backend-phpinfo-gd.jpg" scalefit="1"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <bridgehead>The frontend of your site.</bridgehead>
+
+        <para>Create a new file on your computer named
+        <filename>phpinfo.php</filename>. Edit it with a plain text editor
+        such as Notepad and set its contents to:</para>
+
+        <programlisting>&lt;?php phpinfo();</programlisting>
+
+        <para>Upload it to your site's root, next to Joomla's
+        <filename>index.php</filename> file. You can use your hosting control
+        panel's file manager, FTP, SFTP, or whichever option you
+        prefer.</para>
+
+        <note>
+          <para>If you are using Admin Tools Professional's .htaccess Maker
+          you will have to go to your site's backend, Components, Admin Tools
+          for Joomla, .htaccess Maker and add a new row under <guilabel>Allow
+          direct access to these files</guilabel>. Set its value to
+          <filename>phpinfo.php</filename> and click on <guibutton>Save and
+          create .htaccess</guibutton>.</para>
+        </note>
+
+        <para>Now visit the <uri>/phpinfo.php</uri> URL of your site. For
+        example, if your site lives in <uri>https://www.example.com</uri> you
+        need to visit <uri>https://www.example.com/phpinfo.php</uri>.
+        Likewise, if your site lives in <uri>http://localhost/mysite</uri> you
+        need to visit <uri>http://localhost/mysite/phpinfo.php</uri>.</para>
+
+        <para>Look for the same <code>imagick</code> or <code>gd</code>
+        sections.</para>
+
+        <bridgehead>When you need to do something</bridgehead>
+
+        <para>You need to do something in any of the following cases:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>There is no image extension in either the backend or the
+            frontend.</para>
+          </listitem>
+
+          <listitem>
+            <para>The image extension available in the backend and frontend
+            are different.</para>
+          </listitem>
+
+          <listitem>
+            <para>A different PHP version is listed at the very top of the
+            backend and frontend pages.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>In those cases, please look at the next section.</para>
+      </section>
+
+      <section xml:id="enable-imagemagick">
+        <title>Enabling ImageMagick</title>
+
+        <para>Before you begin, make sure that your backend and frontend use
+        the same PHP version. This is <emphasis>very important</emphasis>!
+        Different versions of PHP will be using different versions of the
+        <code>imagick</code> extension and, possibly, the ImageMagick library
+        itself. This discrepancy can very likely mean that what you see in the
+        template preview in the backend of your site IS NOT what you get in
+        the frontend where it matters the most. Having the same PHP version
+        throughout your site is an excellent idea anyway, as it reduces this
+        kind of weird issues which will catch you off-guard – not just in our
+        extension, but other third party extensions and even Joomla itself. If
+        you're not sure how to do that, or even check for it, do ask your
+        host.</para>
+
+        <para>Once you have confirmed that you are using the same PHP version
+        throughout your site, you can proceed to configuring PHP to enable the
+        <code>imagick</code> extension.</para>
+
+        <bridgehead>I don't want to do any of this by myself!</bridgehead>
+
+        <para><emphasis role="bold">YOU DON'T HAVE TO</emphasis>!</para>
+
+        <para>Most people want to manage a site, not a server. That's probably
+        why you use a commercial host. Ask your host to enable the
+        <code>imagick</code> PHP extension on your site. That's it!</para>
+
+        <para>As for why this page exists, the reason is simple: there are
+        people who want to learn how to do basic server management themselves
+        because it tends to be faster. This page is here to help them, not
+        force you to do something you don't want to.</para>
+
+        <para><bridgehead>On commercial hosting</bridgehead></para>
+
+        <para>Most commercial hosts have a place where you can change your PHP
+        configuration, and select the extensions which are enabled on your
+        site. </para>
+
+        <para>For example, most cPanel hosts have a Select PHP Version option.
+        In it, you just need to check the <code>imagick</code> option. The
+        screenshot below is from the cPanel hosting control panel, as
+        configured by the hosting company Rochen.</para>
+
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/cpanel_imagick.png" scalefit="1"/>
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <para>Other hosting companies may use a slightly different method. If
+        unsure, please ask your host.</para>
+
+        <para><bridgehead>Local hosting (MAMP, XAMPP, WAMPServer,
+        etc)</bridgehead></para>
+
+        <para>Local server packages such as MAMP, XAMP, WAMPServer etc
+        typically do not come with the <code>imagick</code> extension
+        preinstalled. You will need to either copy its DLL files (Windows), or
+        compile it (macOS, Linux).</para>
+
+        <para>We recommend asking ChatGPT or a similar AI assistant a question
+        such as "how do I install and enable the PHP imagick extension on MAMP
+        7.2.0 running under macOS Tahoe". Remember to replace the hosting
+        package, its version, your operating system, and your operating
+        system's version in this prompt. Just blindly follow the instructions
+        it provides. This is always fairly accurate, on account of this being
+        a <emphasis>very</emphasis> common question with very straightforward
+        steps which have been invariant for the better part of two
+        decades.</para>
+
+        <tip>
+          <para>If you are using macOS you will most likely have to also
+          install <link xlink:href="https://brew.sh/"
+          xmlns:xlink="http://www.w3.org/1999/xlink">HomeBrew</link>. This is
+          a safe piece of software we use ourselves, too.</para>
+        </tip>
+
+        <para><bridgehead>Self-hosting (Linux, *BSD)</bridgehead></para>
+
+        <para>Many people choose to run their own Linux or *BSD server or
+        desktop, for development and / or production. We do too! Several, in
+        fact.</para>
+
+        <para>Before you begin, you will need to install the
+        <code>imagick</code> extension package on your system. Assuming you're
+        using the default PHP version that comes with your distribution, this
+        is usually as follows:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Debian, Ubuntu and their derivatives: <command>sudo
+            apt-install -y php-imagick</command></para>
+          </listitem>
+
+          <listitem>
+            <para>Arch Linux and its derivatives: <command>sudo pacman -Syu
+            php-imagick</command></para>
+          </listitem>
+
+          <listitem>
+            <para>RedHat, CentOS, Alma Linux, and their derivatives:
+            <command>sudo dnf install -y php-pecl-imagick</command></para>
+          </listitem>
+
+          <listitem>
+            <para>FreeBSD and its derivatives (replace
+            <replaceable>php82</replaceable> with your PHP version):
+            <command>sudo pkg install -y imagemagick &amp;&amp; sudo pkg
+            install -y php82-pecl-imagick</command> </para>
+          </listitem>
+
+          <listitem>
+            <para>NetBSD, OpenBSD, and their derivatives: you need to compile
+            the extension yourself.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>After installing the extension, make sure it's enabled by
+        running <command>php -m | grep imagick</command>. If
+        <code>imagick</code> is enabled, you will see the result
+        <code>imagick</code> coming back.</para>
+
+        <screen>$ php -m | grep imagick
+imagick</screen>
+
+        <para>If this is not the case, you probably have to edit your
+        <filename>php.ini</filename> file. First, find out where it lives with
+        <command>php --ini</command>.</para>
+
+        <screen>$ php --ini
+Configuration File (php.ini) Path: /etc/php
+Loaded Configuration File:         <emphasis role="bold">/etc/php/php.ini</emphasis>
+Scan for additional .ini files in: /etc/php/conf.d
+Additional .ini files parsed:      /etc/php/conf.d/99-nicholas.ini,
+/etc/php/conf.d/igbinary.ini,
+/etc/php/conf.d/imagick.ini,
+/etc/php/conf.d/memcached.ini,
+/etc/php/conf.d/redis.ini,
+/etc/php/conf.d/xdebug.ini</screen>
+
+        <para>The "Loaded Configuration File" is your main
+        <filename>php.ini</filename> file. You can try to edit it with
+        <command>sudo sed -i '/;extension=imagick.so/s/^;//'
+        /etc/php/php.ini</command> This command uncomments the line which
+        loads the <code>imagick</code> extension, assuming it was present in
+        your <filename>php.ini</filename>file (that's the default).</para>
+
+        <para>Alternatively, you can create a new INI file in the "Scan for
+        additional .ini files in" directory. In our example above you can see
+        that this is what we have done; we created the file
+        <filename>/etc/php/conf.d/imagick.ini</filename> with these
+        contents:</para>
+
+        <programlisting>extension = imagick</programlisting>
+
+        <para>Sometimes, your distribution's package manager
+        <emphasis>may</emphasis> create such an additional INI file, but have
+        the <code>extension</code> line commented out. For example, this is
+        the default behaviour in Arch Linux. Edit the file, and remove the
+        comment marker (<code>;</code>) from the start of the line.</para>
+
+        <note>
+          <para>You may have noticed that in one instance we have
+          <code>extension=imagick.so</code> and in the other we have
+          <code>extension=imagick</code>. They are equivalent and work the
+          same on Linux and *BSD. You can use either; it's a matter of
+          preference. The latter form is easier to read, which is why some
+          distributions –like Arch Linux– default to it.</para>
+        </note>
+
+        <para>After you are done editing your <filename>php.ini</filename>
+        file, please remember to restart your web server AND PHP-FPM (if you
+        are using PHP-FPM). How to do that depends on your distribution and
+        installed PHP version. For example, on Debian and Ubuntu you need to
+        do <command>systemctl restart php8.2-fpm &amp;&amp; systemctl restart
+        apache2</command> whereas on Arch Linux you need to do
+        <command>systemctl restart php83-fpm &amp;&amp; systemctl restart
+        httpd</command>.</para>
+      </section>
+    </section>
+  </chapter>
+
+  <appendix xml:id="gpl">
+    <title><acronym>GNU</acronym> General Public License version 3</title>
+
+    <para>Version 3, 29 June 2007</para>
+
+    <para>Copyright © 2007 Free Software Foundation, Inc. <link
+    xlink:href="http://fsf.org/"
+    xmlns:xlink="http://www.w3.org/1999/xlink">http://fsf.org/</link></para>
+
+    <para>Everyone is permitted to copy and distribute verbatim copies of this
+    license document, but changing it is not allowed.</para>
+
+    <bridgehead renderas="sect1" xml:id="Preamble">Preamble</bridgehead>
+
+    <para>The <acronym>GNU</acronym> General Public License is a free,
+    copyleft license for software and other kinds of works.</para>
+
+    <para>The licenses for most software and other practical works are
+    designed to take away your freedom to share and change the works. By
+    contrast, the <acronym>GNU</acronym> General Public License is intended to
+    guarantee your freedom to share and change all versions of a program—to
+    make sure it remains free software for all its users. We, the Free
+    Software Foundation, use the <acronym>GNU</acronym> General Public License
+    for most of our software; it applies also to any other work released this
+    way by its authors. You can apply it to your programs, too.</para>
+
+    <para>When we speak of free software, we are referring to freedom, not
+    price. Our General Public Licenses are designed to make sure that you have
+    the freedom to distribute copies of free software (and charge for them if
+    you wish), that you receive source code or can get it if you want it, that
+    you can change the software or use pieces of it in new free programs, and
+    that you know you can do these things.</para>
+
+    <para>To protect your rights, we need to prevent others from denying you
+    these rights or asking you to surrender the rights. Therefore, you have
+    certain responsibilities if you distribute copies of the software, or if
+    you modify it: responsibilities to respect the freedom of others.</para>
+
+    <para>For example, if you distribute copies of such a program, whether
+    gratis or for a fee, you must pass on to the recipients the same freedoms
+    that you received. You must make sure that they, too, receive or can get
+    the source code. And you must show them these terms so they know their
+    rights.</para>
+
+    <para>Developers that use the <acronym>GNU</acronym>
+    <acronym>GPL</acronym> protect your rights with two steps: (1) assert
+    copyright on the software, and (2) offer you this License giving you legal
+    permission to copy, distribute and/or modify it.</para>
+
+    <para>For the developers' and authors' protection, the
+    <acronym>GPL</acronym> clearly explains that there is no warranty for this
+    free software. For both users' and authors' sake, the
+    <acronym>GPL</acronym> requires that modified versions be marked as
+    changed, so that their problems will not be attributed erroneously to
+    authors of previous versions.</para>
+
+    <para>Some devices are designed to deny users access to install or run
+    modified versions of the software inside them, although the manufacturer
+    can do so. This is fundamentally incompatible with the aim of protecting
+    users' freedom to change the software. The systematic pattern of such
+    abuse occurs in the area of products for individuals to use, which is
+    precisely where it is most unacceptable. Therefore, we have designed this
+    version of the <acronym>GPL</acronym> to prohibit the practice for those
+    products. If such problems arise substantially in other domains, we stand
+    ready to extend this provision to those domains in future versions of the
+    <acronym>GPL</acronym>, as needed to protect the freedom of users.</para>
+
+    <para>Finally, every program is threatened constantly by software patents.
+    States should not allow patents to restrict development and use of
+    software on general-purpose computers, but in those that do, we wish to
+    avoid the special danger that patents applied to a free program could make
+    it effectively proprietary. To prevent this, the <acronym>GPL</acronym>
+    assures that patents cannot be used to render the program non-free.</para>
+
+    <para>The precise terms and conditions for copying, distribution and
+    modification follow.</para>
+
+    <bridgehead>TERMS AND CONDITIONS</bridgehead>
+
+    <bridgehead renderas="sect1" xml:id="Definitions">0.
+    Definitions.</bridgehead>
+
+    <para>“This License” refers to version 3 of the <acronym>GNU</acronym>
+    General Public License.</para>
+
+    <para>“Copyright” also means copyright-like laws that apply to other kinds
+    of works, such as semiconductor masks.</para>
+
+    <para>“The Program” refers to any copyrightable work licensed under this
+    License. Each licensee is addressed as “you”. “Licensees” and “recipients”
+    may be individuals or organizations.</para>
+
+    <para>To “modify” a work means to copy from or adapt all or part of the
+    work in a fashion requiring copyright permission, other than the making of
+    an exact copy. The resulting work is called a “modified version” of the
+    earlier work or a work “based on” the earlier work.</para>
+
+    <para>A “covered work” means either the unmodified Program or a work based
+    on the Program.</para>
+
+    <para>To “propagate” a work means to do anything with it that, without
+    permission, would make you directly or secondarily liable for infringement
+    under applicable copyright law, except executing it on a computer or
+    modifying a private copy. Propagation includes copying, distribution (with
+    or without modification), making available to the public, and in some
+    countries other activities as well.</para>
+
+    <para>To “convey” a work means any kind of propagation that enables other
+    parties to make or receive copies. Mere interaction with a user through a
+    computer network, with no transfer of a copy, is not conveying.</para>
+
+    <para>An interactive user interface displays “Appropriate Legal Notices”
+    to the extent that it includes a convenient and prominently visible
+    feature that (1) displays an appropriate copyright notice, and (2) tells
+    the user that there is no warranty for the work (except to the extent that
+    warranties are provided), that licensees may convey the work under this
+    License, and how to view a copy of this License. If the interface presents
+    a list of user commands or options, such as a menu, a prominent item in
+    the list meets this criterion.</para>
+
+    <bridgehead renderas="sect1" xml:id="SourceCode">1. Source
+    Code.</bridgehead>
+
+    <para>The “source code” for a work means the preferred form of the work
+    for making modifications to it. “Object code” means any non-source form of
+    a work.</para>
+
+    <para>A “Standard Interface” means an interface that either is an official
+    standard defined by a recognized standards body, or, in the case of
+    interfaces specified for a particular programming language, one that is
+    widely used among developers working in that language.</para>
+
+    <para>The “System Libraries” of an executable work include anything, other
+    than the work as a whole, that (a) is included in the normal form of
+    packaging a Major Component, but which is not part of that Major
+    Component, and (b) serves only to enable use of the work with that Major
+    Component, or to implement a Standard Interface for which an
+    implementation is available to the public in source code form. A “Major
+    Component”, in this context, means a major essential component (kernel,
+    window system, and so on) of the specific operating system (if any) on
+    which the executable work runs, or a compiler used to produce the work, or
+    an object code interpreter used to run it.</para>
+
+    <para>The “Corresponding Source” for a work in object code form means all
+    the source code needed to generate, install, and (for an executable work)
+    run the object code and to modify the work, including scripts to control
+    those activities. However, it does not include the work's System
+    Libraries, or general-purpose tools or generally available free programs
+    which are used unmodified in performing those activities but which are not
+    part of the work. For example, Corresponding Source includes interface
+    definition files associated with source files for the work, and the source
+    code for shared libraries and dynamically linked subprograms that the work
+    is specifically designed to require, such as by intimate data
+    communication or control flow between those subprograms and other parts of
+    the work.</para>
+
+    <para>The Corresponding Source need not include anything that users can
+    regenerate automatically from other parts of the Corresponding
+    Source.</para>
+
+    <para>The Corresponding Source for a work in source code form is that same
+    work.</para>
+
+    <bridgehead renderas="sect1" xml:id="BasicPermissions">2. Basic
+    Permissions.</bridgehead>
+
+    <para>All rights granted under this License are granted for the term of
+    copyright on the Program, and are irrevocable provided the stated
+    conditions are met. This License explicitly affirms your unlimited
+    permission to run the unmodified Program. The output from running a
+    covered work is covered by this License only if the output, given its
+    content, constitutes a covered work. This License acknowledges your rights
+    of fair use or other equivalent, as provided by copyright law.</para>
+
+    <para>You may make, run and propagate covered works that you do not
+    convey, without conditions so long as your license otherwise remains in
+    force. You may convey covered works to others for the sole purpose of
+    having them make modifications exclusively for you, or provide you with
+    facilities for running those works, provided that you comply with the
+    terms of this License in conveying all material for which you do not
+    control copyright. Those thus making or running the covered works for you
+    must do so exclusively on your behalf, under your direction and control,
+    on terms that prohibit them from making any copies of your copyrighted
+    material outside their relationship with you.</para>
+
+    <para>Conveying under any other circumstances is permitted solely under
+    the conditions stated below. Sublicensing is not allowed; section 10 makes
+    it unnecessary.</para>
+
+    <bridgehead renderas="sect1" xml:id="Protecting">3. Protecting Users'
+    Legal Rights From Anti-Circumvention Law.</bridgehead>
+
+    <para>No covered work shall be deemed part of an effective technological
+    measure under any applicable law fulfilling obligations under article 11
+    of the WIPO copyright treaty adopted on 20 December 1996, or similar laws
+    prohibiting or restricting circumvention of such measures.</para>
+
+    <para>When you convey a covered work, you waive any legal power to forbid
+    circumvention of technological measures to the extent such circumvention
+    is effected by exercising rights under this License with respect to the
+    covered work, and you disclaim any intention to limit operation or
+    modification of the work as a means of enforcing, against the work's
+    users, your or third parties' legal rights to forbid circumvention of
+    technological measures.</para>
+
+    <bridgehead renderas="sect1" xml:id="ConveyingVerbatim">4. Conveying
+    Verbatim Copies.</bridgehead>
+
+    <para>You may convey verbatim copies of the Program's source code as you
+    receive it, in any medium, provided that you conspicuously and
+    appropriately publish on each copy an appropriate copyright notice; keep
+    intact all notices stating that this License and any non-permissive terms
+    added in accord with section 7 apply to the code; keep intact all notices
+    of the absence of any warranty; and give all recipients a copy of this
+    License along with the Program.</para>
+
+    <para>You may charge any price or no price for each copy that you convey,
+    and you may offer support or warranty protection for a fee.</para>
+
+    <bridgehead renderas="sect1" xml:id="ConveyingModified">5. Conveying
+    Modified Source Versions.</bridgehead>
+
+    <para>You may convey a work based on the Program, or the modifications to
+    produce it from the Program, in the form of source code under the terms of
+    section 4, provided that you also meet all of these conditions:</para>
+
+    <orderedlist numeration="loweralpha">
+      <listitem>
+        <para>The work must carry prominent notices stating that you modified
+        it, and giving a relevant date.</para>
+      </listitem>
+
+      <listitem>
+        <para>The work must carry prominent notices stating that it is
+        released under this License and any conditions added under section 7.
+        This requirement modifies the requirement in section 4 to “keep intact
+        all notices”.</para>
+      </listitem>
+
+      <listitem>
+        <para>You must license the entire work, as a whole, under this License
+        to anyone who comes into possession of a copy. This License will
+        therefore apply, along with any applicable section 7 additional terms,
+        to the whole of the work, and all its parts, regardless of how they
+        are packaged. This License gives no permission to license the work in
+        any other way, but it does not invalidate such permission if you have
+        separately received it.</para>
+      </listitem>
+
+      <listitem>
+        <para>If the work has interactive user interfaces, each must display
+        Appropriate Legal Notices; however, if the Program has interactive
+        interfaces that do not display Appropriate Legal Notices, your work
+        need not make them do so.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>A compilation of a covered work with other separate and independent
+    works, which are not by their nature extensions of the covered work, and
+    which are not combined with it such as to form a larger program, in or on
+    a volume of a storage or distribution medium, is called an “aggregate” if
+    the compilation and its resulting copyright are not used to limit the
+    access or legal rights of the compilation's users beyond what the
+    individual works permit. Inclusion of a covered work in an aggregate does
+    not cause this License to apply to the other parts of the
+    aggregate.</para>
+
+    <bridgehead renderas="sect1" xml:id="ConveyingNonSource">6. Conveying
+    Non-Source Forms.</bridgehead>
+
+    <para>You may convey a covered work in object code form under the terms of
+    sections 4 and 5, provided that you also convey the machine-readable
+    Corresponding Source under the terms of this License, in one of these
+    ways:</para>
+
+    <orderedlist numeration="loweralpha">
+      <listitem>
+        <para>Convey the object code in, or embodied in, a physical product
+        (including a physical distribution medium), accompanied by the
+        Corresponding Source fixed on a durable physical medium customarily
+        used for software interchange.</para>
+      </listitem>
+
+      <listitem>
+        <para>Convey the object code in, or embodied in, a physical product
+        (including a physical distribution medium), accompanied by a written
+        offer, valid for at least three years and valid for as long as you
+        offer spare parts or customer support for that product model, to give
+        anyone who possesses the object code either (1) a copy of the
+        Corresponding Source for all the software in the product that is
+        covered by this License, on a durable physical medium customarily used
+        for software interchange, for a price no more than your reasonable
+        cost of physically performing this conveying of source, or (2) access
+        to copy the Corresponding Source from a network server at no
+        charge.</para>
+      </listitem>
+
+      <listitem>
+        <para>Convey individual copies of the object code with a copy of the
+        written offer to provide the Corresponding Source. This alternative is
+        allowed only occasionally and noncommercially, and only if you
+        received the object code with such an offer, in accord with subsection
+        6b.</para>
+      </listitem>
+
+      <listitem>
+        <para>Convey the object code by offering access from a designated
+        place (gratis or for a charge), and offer equivalent access to the
+        Corresponding Source in the same way through the same place at no
+        further charge. You need not require recipients to copy the
+        Corresponding Source along with the object code. If the place to copy
+        the object code is a network server, the Corresponding Source may be
+        on a different server (operated by you or a third party) that supports
+        equivalent copying facilities, provided you maintain clear directions
+        next to the object code saying where to find the Corresponding Source.
+        Regardless of what server hosts the Corresponding Source, you remain
+        obligated to ensure that it is available for as long as needed to
+        satisfy these requirements.</para>
+      </listitem>
+
+      <listitem>
+        <para>Convey the object code using peer-to-peer transmission, provided
+        you inform other peers where the object code and Corresponding Source
+        of the work are being offered to the general public at no charge under
+        subsection 6d.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>A separable portion of the object code, whose source code is
+    excluded from the Corresponding Source as a System Library, need not be
+    included in conveying the object code work.</para>
+
+    <para>A “User Product” is either (1) a “consumer product”, which means any
+    tangible personal property which is normally used for personal, family, or
+    household purposes, or (2) anything designed or sold for incorporation
+    into a dwelling. In determining whether a product is a consumer product,
+    doubtful cases shall be resolved in favor of coverage. For a particular
+    product received by a particular user, “normally used” refers to a typical
+    or common use of that class of product, regardless of the status of the
+    particular user or of the way in which the particular user actually uses,
+    or expects or is expected to use, the product. A product is a consumer
+    product regardless of whether the product has substantial commercial,
+    industrial or non-consumer uses, unless such uses represent the only
+    significant mode of use of the product.</para>
+
+    <para>“Installation Information” for a User Product means any methods,
+    procedures, authorization keys, or other information required to install
+    and execute modified versions of a covered work in that User Product from
+    a modified version of its Corresponding Source. The information must
+    suffice to ensure that the continued functioning of the modified object
+    code is in no case prevented or interfered with solely because
+    modification has been made.</para>
+
+    <para>If you convey an object code work under this section in, or with, or
+    specifically for use in, a User Product, and the conveying occurs as part
+    of a transaction in which the right of possession and use of the User
+    Product is transferred to the recipient in perpetuity or for a fixed term
+    (regardless of how the transaction is characterized), the Corresponding
+    Source conveyed under this section must be accompanied by the Installation
+    Information. But this requirement does not apply if neither you nor any
+    third party retains the ability to install modified object code on the
+    User Product (for example, the work has been installed in
+    <acronym>ROM</acronym>).</para>
+
+    <para>The requirement to provide Installation Information does not include
+    a requirement to continue to provide support service, warranty, or updates
+    for a work that has been modified or installed by the recipient, or for
+    the User Product in which it has been modified or installed. Access to a
+    network may be denied when the modification itself materially and
+    adversely affects the operation of the network or violates the rules and
+    protocols for communication across the network.</para>
+
+    <para>Corresponding Source conveyed, and Installation Information
+    provided, in accord with this section must be in a format that is publicly
+    documented (and with an implementation available to the public in source
+    code form), and must require no special password or key for unpacking,
+    reading or copying.</para>
+
+    <bridgehead renderas="sect1" xml:id="AdditionalTerms">7. Additional
+    Terms.</bridgehead>
+
+    <para>“Additional permissions” are terms that supplement the terms of this
+    License by making exceptions from one or more of its conditions.
+    Additional permissions that are applicable to the entire Program shall be
+    treated as though they were included in this License, to the extent that
+    they are valid under applicable law. If additional permissions apply only
+    to part of the Program, that part may be used separately under those
+    permissions, but the entire Program remains governed by this License
+    without regard to the additional permissions.</para>
+
+    <para>When you convey a copy of a covered work, you may at your option
+    remove any additional permissions from that copy, or from any part of it.
+    (Additional permissions may be written to require their own removal in
+    certain cases when you modify the work.) You may place additional
+    permissions on material, added by you to a covered work, for which you
+    have or can give appropriate copyright permission.</para>
+
+    <para>Notwithstanding any other provision of this License, for material
+    you add to a covered work, you may (if authorized by the copyright holders
+    of that material) supplement the terms of this License with terms:</para>
+
+    <orderedlist numeration="loweralpha">
+      <listitem>
+        <para>Disclaiming warranty or limiting liability differently from the
+        terms of sections 15 and 16 of this License; or</para>
+      </listitem>
+
+      <listitem>
+        <para>Requiring preservation of specified reasonable legal notices or
+        author attributions in that material or in the Appropriate Legal
+        Notices displayed by works containing it; or</para>
+      </listitem>
+
+      <listitem>
+        <para>Prohibiting misrepresentation of the origin of that material, or
+        requiring that modified versions of such material be marked in
+        reasonable ways as different from the original version; or</para>
+      </listitem>
+
+      <listitem>
+        <para>Limiting the use for publicity purposes of names of licensors or
+        authors of the material; or</para>
+      </listitem>
+
+      <listitem>
+        <para>Declining to grant rights under trademark law for use of some
+        trade names, trademarks, or service marks; or</para>
+      </listitem>
+
+      <listitem>
+        <para>Requiring indemnification of licensors and authors of that
+        material by anyone who conveys the material (or modified versions of
+        it) with contractual assumptions of liability to the recipient, for
+        any liability that these contractual assumptions directly impose on
+        those licensors and authors.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>All other non-permissive additional terms are considered “further
+    restrictions” within the meaning of section 10. If the Program as you
+    received it, or any part of it, contains a notice stating that it is
+    governed by this License along with a term that is a further restriction,
+    you may remove that term. If a license document contains a further
+    restriction but permits relicensing or conveying under this License, you
+    may add to a covered work material governed by the terms of that license
+    document, provided that the further restriction does not survive such
+    relicensing or conveying.</para>
+
+    <para>If you add terms to a covered work in accord with this section, you
+    must place, in the relevant source files, a statement of the additional
+    terms that apply to those files, or a notice indicating where to find the
+    applicable terms.</para>
+
+    <para>Additional terms, permissive or non-permissive, may be stated in the
+    form of a separately written license, or stated as exceptions; the above
+    requirements apply either way.</para>
+
+    <bridgehead renderas="sect1" xml:id="Termination">8.
+    Termination.</bridgehead>
+
+    <para>You may not propagate or modify a covered work except as expressly
+    provided under this License. Any attempt otherwise to propagate or modify
+    it is void, and will automatically terminate your rights under this
+    License (including any patent licenses granted under the third paragraph
+    of section 11).</para>
+
+    <para>However, if you cease all violation of this License, then your
+    license from a particular copyright holder is reinstated (a)
+    provisionally, unless and until the copyright holder explicitly and
+    finally terminates your license, and (b) permanently, if the copyright
+    holder fails to notify you of the violation by some reasonable means prior
+    to 60 days after the cessation.</para>
+
+    <para>Moreover, your license from a particular copyright holder is
+    reinstated permanently if the copyright holder notifies you of the
+    violation by some reasonable means, this is the first time you have
+    received notice of violation of this License (for any work) from that
+    copyright holder, and you cure the violation prior to 30 days after your
+    receipt of the notice.</para>
+
+    <para>Termination of your rights under this section does not terminate the
+    licenses of parties who have received copies or rights from you under this
+    License. If your rights have been terminated and not permanently
+    reinstated, you do not qualify to receive new licenses for the same
+    material under section 10.</para>
+
+    <bridgehead renderas="sect1" xml:id="AcceptanceNotRequired">9. Acceptance
+    Not Required for Having Copies.</bridgehead>
+
+    <para>You are not required to accept this License in order to receive or
+    run a copy of the Program. Ancillary propagation of a covered work
+    occurring solely as a consequence of using peer-to-peer transmission to
+    receive a copy likewise does not require acceptance. However, nothing
+    other than this License grants you permission to propagate or modify any
+    covered work. These actions infringe copyright if you do not accept this
+    License. Therefore, by modifying or propagating a covered work, you
+    indicate your acceptance of this License to do so.</para>
+
+    <bridgehead renderas="sect1" xml:id="AutomaticDownstream">10. Automatic
+    Licensing of Downstream Recipients.</bridgehead>
+
+    <para>Each time you convey a covered work, the recipient automatically
+    receives a license from the original licensors, to run, modify and
+    propagate that work, subject to this License. You are not responsible for
+    enforcing compliance by third parties with this License.</para>
+
+    <para>An “entity transaction” is a transaction transferring control of an
+    organization, or substantially all assets of one, or subdividing an
+    organization, or merging organizations. If propagation of a covered work
+    results from an entity transaction, each party to that transaction who
+    receives a copy of the work also receives whatever licenses to the work
+    the party's predecessor in interest had or could give under the previous
+    paragraph, plus a right to possession of the Corresponding Source of the
+    work from the predecessor in interest, if the predecessor has it or can
+    get it with reasonable efforts.</para>
+
+    <para>You may not impose any further restrictions on the exercise of the
+    rights granted or affirmed under this License. For example, you may not
+    impose a license fee, royalty, or other charge for exercise of rights
+    granted under this License, and you may not initiate litigation (including
+    a cross-claim or counterclaim in a lawsuit) alleging that any patent claim
+    is infringed by making, using, selling, offering for sale, or importing
+    the Program or any portion of it.</para>
+
+    <bridgehead renderas="sect1" xml:id="Patents">11. Patents.</bridgehead>
+
+    <para>A “contributor” is a copyright holder who authorizes use under this
+    License of the Program or a work on which the Program is based. The work
+    thus licensed is called the contributor's “contributor version”.</para>
+
+    <para>A contributor's “essential patent claims” are all patent claims
+    owned or controlled by the contributor, whether already acquired or
+    hereafter acquired, that would be infringed by some manner, permitted by
+    this License, of making, using, or selling its contributor version, but do
+    not include claims that would be infringed only as a consequence of
+    further modification of the contributor version. For purposes of this
+    definition, “control” includes the right to grant patent sublicenses in a
+    manner consistent with the requirements of this License.</para>
+
+    <para>Each contributor grants you a non-exclusive, worldwide, royalty-free
+    patent license under the contributor's essential patent claims, to make,
+    use, sell, offer for sale, import and otherwise run, modify and propagate
+    the contents of its contributor version.</para>
+
+    <para>In the following three paragraphs, a “patent license” is any express
+    agreement or commitment, however denominated, not to enforce a patent
+    (such as an express permission to practice a patent or covenant not to sue
+    for patent infringement). To “grant” such a patent license to a party
+    means to make such an agreement or commitment not to enforce a patent
+    against the party.</para>
+
+    <para>If you convey a covered work, knowingly relying on a patent license,
+    and the Corresponding Source of the work is not available for anyone to
+    copy, free of charge and under the terms of this License, through a
+    publicly available network server or other readily accessible means, then
+    you must either (1) cause the Corresponding Source to be so available, or
+    (2) arrange to deprive yourself of the benefit of the patent license for
+    this particular work, or (3) arrange, in a manner consistent with the
+    requirements of this License, to extend the patent license to downstream
+    recipients. “Knowingly relying” means you have actual knowledge that, but
+    for the patent license, your conveying the covered work in a country, or
+    your recipient's use of the covered work in a country, would infringe one
+    or more identifiable patents in that country that you have reason to
+    believe are valid.</para>
+
+    <para>If, pursuant to or in connection with a single transaction or
+    arrangement, you convey, or propagate by procuring conveyance of, a
+    covered work, and grant a patent license to some of the parties receiving
+    the covered work authorizing them to use, propagate, modify or convey a
+    specific copy of the covered work, then the patent license you grant is
+    automatically extended to all recipients of the covered work and works
+    based on it.</para>
+
+    <para>A patent license is “discriminatory” if it does not include within
+    the scope of its coverage, prohibits the exercise of, or is conditioned on
+    the non-exercise of one or more of the rights that are specifically
+    granted under this License. You may not convey a covered work if you are a
+    party to an arrangement with a third party that is in the business of
+    distributing software, under which you make payment to the third party
+    based on the extent of your activity of conveying the work, and under
+    which the third party grants, to any of the parties who would receive the
+    covered work from you, a discriminatory patent license (a) in connection
+    with copies of the covered work conveyed by you (or copies made from those
+    copies), or (b) primarily for and in connection with specific products or
+    compilations that contain the covered work, unless you entered into that
+    arrangement, or that patent license was granted, prior to 28 March
+    2007.</para>
+
+    <para>Nothing in this License shall be construed as excluding or limiting
+    any implied license or other defenses to infringement that may otherwise
+    be available to you under applicable patent law.</para>
+
+    <bridgehead renderas="sect1" xml:id="NoSurrender">12. No Surrender of
+    Others' Freedom.</bridgehead>
+
+    <para>If conditions are imposed on you (whether by court order, agreement
+    or otherwise) that contradict the conditions of this License, they do not
+    excuse you from the conditions of this License. If you cannot convey a
+    covered work so as to satisfy simultaneously your obligations under this
+    License and any other pertinent obligations, then as a consequence you may
+    not convey it at all. For example, if you agree to terms that obligate you
+    to collect a royalty for further conveying from those to whom you convey
+    the Program, the only way you could satisfy both those terms and this
+    License would be to refrain entirely from conveying the Program.</para>
+
+    <bridgehead renderas="sect1" xml:id="UsedWithAGPL">13. Use with the
+    <acronym>GNU</acronym> Affero General Public License.</bridgehead>
+
+    <para>Notwithstanding any other provision of this License, you have
+    permission to link or combine any covered work with a work licensed under
+    version 3 of the <acronym>GNU</acronym> Affero General Public License into
+    a single combined work, and to convey the resulting work. The terms of
+    this License will continue to apply to the part which is the covered work,
+    but the special requirements of the <acronym>GNU</acronym> Affero General
+    Public License, section 13, concerning interaction through a network will
+    apply to the combination as such.</para>
+
+    <bridgehead renderas="sect1" xml:id="RevisedVersions">14. Revised Versions
+    of this License.</bridgehead>
+
+    <para>The Free Software Foundation may publish revised and/or new versions
+    of the <acronym>GNU</acronym> General Public License from time to time.
+    Such new versions will be similar in spirit to the present version, but
+    may differ in detail to address new problems or concerns.</para>
+
+    <para>Each version is given a distinguishing version number. If the
+    Program specifies that a certain numbered version of the
+    <acronym>GNU</acronym> General Public License “or any later version”
+    applies to it, you have the option of following the terms and conditions
+    either of that numbered version or of any later version published by the
+    Free Software Foundation. If the Program does not specify a version number
+    of the <acronym>GNU</acronym> General Public License, you may choose any
+    version ever published by the Free Software Foundation.</para>
+
+    <para>If the Program specifies that a proxy can decide which future
+    versions of the <acronym>GNU</acronym> General Public License can be used,
+    that proxy's public statement of acceptance of a version permanently
+    authorizes you to choose that version for the Program.</para>
+
+    <para>Later license versions may give you additional or different
+    permissions. However, no additional obligations are imposed on any author
+    or copyright holder as a result of your choosing to follow a later
+    version.</para>
+
+    <bridgehead renderas="sect1" xml:id="WarrantyDisclaimer">15. Disclaimer of
+    Warranty.</bridgehead>
+
+    <para>THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+    APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+    HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM “AS IS” WITHOUT WARRANTY
+    OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+    PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+    IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+    ALL NECESSARY SERVICING, REPAIR OR CORRECTION.</para>
+
+    <bridgehead renderas="sect1" xml:id="LiabilityLimitation">16. Limitation
+    of Liability.</bridgehead>
+
+    <para>IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN
+    WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR
+    CONVEYS THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
+    INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES
+    ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT
+    LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES
+    SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE
+    WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN
+    ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</para>
+
+    <bridgehead renderas="sect1" xml:id="InterpretationSecs1516">17.
+    Interpretation of Sections 15 and 16.</bridgehead>
+
+    <para>If the disclaimer of warranty and limitation of liability provided
+    above cannot be given local legal effect according to their terms,
+    reviewing courts shall apply local law that most closely approximates an
+    absolute waiver of all civil liability in connection with the Program,
+    unless a warranty or assumption of liability accompanies a copy of the
+    Program in return for a fee.</para>
+
+    <bridgehead>END OF TERMS AND CONDITIONS</bridgehead>
+
+    <bridgehead renderas="sect1" xml:id="HowToApply">How to Apply These Terms
+    to Your New Programs</bridgehead>
+
+    <para>If you develop a new program, and you want it to be of the greatest
+    possible use to the public, the best way to achieve this is to make it
+    free software which everyone can redistribute and change under these
+    terms.</para>
+
+    <para>To do so, attach the following notices to the program. It is safest
+    to attach them to the start of each source file to most effectively state
+    the exclusion of warranty; and each file should have at least the
+    “copyright” line and a pointer to where the full notice is found.</para>
+
+    <screen>
+            <replaceable>one line to give the program's name and a brief idea of what it does.</replaceable>
+            Copyright (C) <replaceable>year</replaceable> <replaceable>name of author</replaceable>
+
+            This program is free software: you can redistribute it and/or modify
+            it under the terms of the <acronym>GNU</acronym> General Public License as published by
+            the Free Software Foundation, either version 3 of the License, or
+            (at your option) any later version.
+
+            This program is distributed in the hope that it will be useful,
+            but WITHOUT ANY WARRANTY; without even the implied warranty of
+            MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+            <acronym>GNU</acronym> General Public License for more details.
+
+            You should have received a copy of the <acronym>GNU</acronym> General Public License
+            along with this program.  If not, see <link
+        xlink:href="http://www.gnu.org/licenses/"
+        xmlns:xlink="http://www.w3.org/1999/xlink">http://www.gnu.org/licenses/</link>.
+        </screen>
+
+    <para>Also add information on how to contact you by electronic and paper
+    mail.</para>
+
+    <para>If the program does terminal interaction, make it output a short
+    notice like this when it starts in an interactive mode:</para>
+
+    <screen>
+            <replaceable>program</replaceable> Copyright (C) <replaceable>year</replaceable> <replaceable>name of author</replaceable>
+            This program comes with ABSOLUTELY NO WARRANTY; for details type '<literal>show w</literal>'.
+            This is free software, and you are welcome to redistribute it
+            under certain conditions; type '<literal>show c</literal>' for details.
+        </screen>
+
+    <para>The hypothetical commands '<literal>show w</literal>' and
+    '<literal>show c</literal>' should show the appropriate parts of the
+    General Public License. Of course, your program's commands might be
+    different; for a GUI interface, you would use an “about box”.</para>
+
+    <para>You should also get your employer (if you work as a programmer) or
+    school, if any, to sign a “copyright disclaimer” for the program, if
+    necessary. For more information on this, and how to apply and follow the
+    <acronym>GNU</acronym> <acronym>GPL</acronym>, see <link
+    xlink:href="http://www.gnu.org/licenses/"
+    xmlns:xlink="http://www.w3.org/1999/xlink">http://www.gnu.org/licenses/</link>.</para>
+
+    <para>The <acronym>GNU</acronym> General Public License does not permit
+    incorporating your program into proprietary programs. If your program is a
+    subroutine library, you may consider it more useful to permit linking
+    proprietary applications with the library. If this is what you want to do,
+    use the <acronym>GNU</acronym> Lesser General Public License instead of
+    this License. But first, please read <link
+    xlink:href="http://www.gnu.org/philosophy/why-not-lgpl.html"
+    xmlns:xlink="http://www.w3.org/1999/xlink">http://www.gnu.org/philosophy/why-not-lgpl.html</link>.</para>
+  </appendix>
+
+  <appendix xml:id="fdl">
+    <title>GNU Free Documentation License</title>
+
+    <simpara>Version 1.3, 3 November 2008</simpara>
+
+    <simpara>Copyright © 2000, 2001, 2002, 2007, 2008 <link
+    xlink:href="http://www.fsf.org/"
+    xmlns:xlink="http://www.w3.org/1999/xlink">Free Software Foundation,
+    Inc.</link></simpara>
+
+    <simpara>Everyone is permitted to copy and distribute verbatim copies of
+    this license document, but changing it is not allowed.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section0">0. PREAMBLE</bridgehead>
+
+    <simpara>The purpose of this License is to make a manual, textbook, or
+    other functional and useful document “free” in the sense of freedom: to
+    assure everyone the effective freedom to copy and redistribute it, with or
+    without modifying it, either commercially or noncommercially. Secondarily,
+    this License preserves for the author and publisher a way to get credit
+    for their work, while not being considered responsible for modifications
+    made by others.</simpara>
+
+    <simpara>This License is a kind of “copyleft”, which means that derivative
+    works of the document must themselves be free in the same sense. It
+    complements the GNU General Public License, which is a copyleft license
+    designed for free software.</simpara>
+
+    <simpara>We have designed this License in order to use it for manuals for
+    free software, because free software needs free documentation: a free
+    program should come with manuals providing the same freedoms that the
+    software does. But this License is not limited to software manuals; it can
+    be used for any textual work, regardless of subject matter or whether it
+    is published as a printed book. We recommend this License principally for
+    works whose purpose is instruction or reference.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section1">1. APPLICABILITY AND
+    DEFINITIONS</bridgehead>
+
+    <simpara>This License applies to any manual or other work, in any medium,
+    that contains a notice placed by the copyright holder saying it can be
+    distributed under the terms of this License. Such a notice grants a
+    world-wide, royalty-free license, unlimited in duration, to use that work
+    under the conditions stated herein. The “Document”, below, refers to any
+    such manual or work. Any member of the public is a licensee, and is
+    addressed as “you”. You accept the license if you copy, modify or
+    distribute the work in a way requiring permission under copyright
+    law.</simpara>
+
+    <simpara>A “Modified Version” of the Document means any work containing
+    the Document or a portion of it, either copied verbatim, or with
+    modifications and/or translated into another language.</simpara>
+
+    <simpara>A “Secondary Section” is a named appendix or a front-matter
+    section of the Document that deals exclusively with the relationship of
+    the publishers or authors of the Document to the Document’s overall
+    subject (or to related matters) and contains nothing that could fall
+    directly within that overall subject. (Thus, if the Document is in part a
+    textbook of mathematics, a Secondary Section may not explain any
+    mathematics.) The relationship could be a matter of historical connection
+    with the subject or with related matters, or of legal, commercial,
+    philosophical, ethical or political position regarding them.</simpara>
+
+    <simpara>The “Invariant Sections” are certain Secondary Sections whose
+    titles are designated, as being those of Invariant Sections, in the notice
+    that says that the Document is released under this License. If a section
+    does not fit the above definition of Secondary then it is not allowed to
+    be designated as Invariant. The Document may contain zero Invariant
+    Sections. If the Document does not identify any Invariant Sections then
+    there are none.</simpara>
+
+    <simpara>The “Cover Texts” are certain short passages of text that are
+    listed, as Front-Cover Texts or Back-Cover Texts, in the notice that says
+    that the Document is released under this License. A Front-Cover Text may
+    be at most 5 words, and a Back-Cover Text may be at most 25
+    words.</simpara>
+
+    <simpara>A “Transparent” copy of the Document means a machine-readable
+    copy, represented in a format whose specification is available to the
+    general public, that is suitable for revising the document
+    straightforwardly with generic text editors or (for images composed of
+    pixels) generic paint programs or (for drawings) some widely available
+    drawing editor, and that is suitable for input to text formatters or for
+    automatic translation to a variety of formats suitable for input to text
+    formatters. A copy made in an otherwise Transparent file format whose
+    markup, or absence of markup, has been arranged to thwart or discourage
+    subsequent modification by readers is not Transparent. An image format is
+    not Transparent if used for any substantial amount of text. A copy that is
+    not “Transparent” is called “Opaque”.</simpara>
+
+    <simpara>Examples of suitable formats for Transparent copies include plain
+    ASCII without markup, Texinfo input format, LaTeX input format, SGML or
+    XML using a publicly available DTD, and standard-conforming simple HTML,
+    PostScript or PDF designed for human modification. Examples of transparent
+    image formats include PNG, XCF and JPG. Opaque formats include proprietary
+    formats that can be read and edited only by proprietary word processors,
+    SGML or XML for which the DTD and/or processing tools are not generally
+    available, and the machine-generated HTML, PostScript or PDF produced by
+    some word processors for output purposes only.</simpara>
+
+    <simpara>The “Title Page” means, for a printed book, the title page
+    itself, plus such following pages as are needed to hold, legibly, the
+    material this License requires to appear in the title page. For works in
+    formats which do not have any title page as such, “Title Page” means the
+    text near the most prominent appearance of the work’s title, preceding the
+    beginning of the body of the text.</simpara>
+
+    <simpara>The “publisher” means any person or entity that distributes
+    copies of the Document to the public.</simpara>
+
+    <simpara>A section “Entitled XYZ” means a named subunit of the Document
+    whose title either is precisely XYZ or contains XYZ in parentheses
+    following text that translates XYZ in another language. (Here XYZ stands
+    for a specific section name mentioned below, such as “Acknowledgements”,
+    “Dedications”, “Endorsements”, or “History”.) To “Preserve the Title” of
+    such a section when you modify the Document means that it remains a
+    section “Entitled XYZ” according to this definition.</simpara>
+
+    <simpara>The Document may include Warranty Disclaimers next to the notice
+    which states that this License applies to the Document. These Warranty
+    Disclaimers are considered to be included by reference in this License,
+    but only as regards disclaiming warranties: any other implication that
+    these Warranty Disclaimers may have is void and has no effect on the
+    meaning of this License.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section2">2. VERBATIM
+    COPYING</bridgehead>
+
+    <simpara>You may copy and distribute the Document in any medium, either
+    commercially or noncommercially, provided that this License, the copyright
+    notices, and the license notice saying this License applies to the
+    Document are reproduced in all copies, and that you add no other
+    conditions whatsoever to those of this License. You may not use technical
+    measures to obstruct or control the reading or further copying of the
+    copies you make or distribute. However, you may accept compensation in
+    exchange for copies. If you distribute a large enough number of copies you
+    must also follow the conditions in section 3.</simpara>
+
+    <simpara>You may also lend copies, under the same conditions stated above,
+    and you may publicly display copies.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section3">3. COPYING IN
+    QUANTITY</bridgehead>
+
+    <simpara>If you publish printed copies (or copies in media that commonly
+    have printed covers) of the Document, numbering more than 100, and the
+    Document’s license notice requires Cover Texts, you must enclose the
+    copies in covers that carry, clearly and legibly, all these Cover Texts:
+    Front-Cover Texts on the front cover, and Back-Cover Texts on the back
+    cover. Both covers must also clearly and legibly identify you as the
+    publisher of these copies. The front cover must present the full title
+    with all words of the title equally prominent and visible. You may add
+    other material on the covers in addition. Copying with changes limited to
+    the covers, as long as they preserve the title of the Document and satisfy
+    these conditions, can be treated as verbatim copying in other
+    respects.</simpara>
+
+    <simpara>If the required texts for either cover are too voluminous to fit
+    legibly, you should put the first ones listed (as many as fit reasonably)
+    on the actual cover, and continue the rest onto adjacent pages.</simpara>
+
+    <simpara>If you publish or distribute Opaque copies of the Document
+    numbering more than 100, you must either include a machine-readable
+    Transparent copy along with each Opaque copy, or state in or with each
+    Opaque copy a computer-network location from which the general
+    network-using public has access to download using public-standard network
+    protocols a complete Transparent copy of the Document, free of added
+    material. If you use the latter option, you must take reasonably prudent
+    steps, when you begin distribution of Opaque copies in quantity, to ensure
+    that this Transparent copy will remain thus accessible at the stated
+    location until at least one year after the last time you distribute an
+    Opaque copy (directly or through your agents or retailers) of that edition
+    to the public.</simpara>
+
+    <simpara>It is requested, but not required, that you contact the authors
+    of the Document well before redistributing any large number of copies, to
+    give them a chance to provide you with an updated version of the
+    Document.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section4">4.
+    MODIFICATIONS</bridgehead>
+
+    <simpara>You may copy and distribute a Modified Version of the Document
+    under the conditions of sections 2 and 3 above, provided that you release
+    the Modified Version under precisely this License, with the Modified
+    Version filling the role of the Document, thus licensing distribution and
+    modification of the Modified Version to whoever possesses a copy of it. In
+    addition, you must do these things in the Modified Version:</simpara>
+
+    <orderedlist numeration="upperalpha">
+      <listitem>
+        <simpara>Use in the Title Page (and on the covers, if any) a title
+        distinct from that of the Document, and from those of previous
+        versions (which should, if there were any, be listed in the History
+        section of the Document). You may use the same title as a previous
+        version if the original publisher of that version gives
+        permission.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>List on the Title Page, as authors, one or more persons or
+        entities responsible for authorship of the modifications in the
+        Modified Version, together with at least five of the principal authors
+        of the Document (all of its principal authors, if it has fewer than
+        five), unless they release you from this requirement.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>State on the Title page the name of the publisher of the
+        Modified Version, as the publisher.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Preserve all the copyright notices of the Document.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Add an appropriate copyright notice for your modifications
+        adjacent to the other copyright notices.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Include, immediately after the copyright notices, a license
+        notice giving the public permission to use the Modified Version under
+        the terms of this License, in the form shown in the Addendum
+        below.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Preserve in that license notice the full lists of Invariant
+        Sections and required Cover Texts given in the Document’s license
+        notice.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Include an unaltered copy of this License.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Preserve the section Entitled “History”, Preserve its Title,
+        and add to it an item stating at least the title, year, new authors,
+        and publisher of the Modified Version as given on the Title Page. If
+        there is no section Entitled “History” in the Document, create one
+        stating the title, year, authors, and publisher of the Document as
+        given on its Title Page, then add an item describing the Modified
+        Version as stated in the previous sentence.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Preserve the network location, if any, given in the Document
+        for public access to a Transparent copy of the Document, and likewise
+        the network locations given in the Document for previous versions it
+        was based on. These may be placed in the “History” section. You may
+        omit a network location for a work that was published at least four
+        years before the Document itself, or if the original publisher of the
+        version it refers to gives permission.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>For any section Entitled “Acknowledgements” or “Dedications”,
+        Preserve the Title of the section, and preserve in the section all the
+        substance and tone of each of the contributor acknowledgements and/or
+        dedications given therein.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Preserve all the Invariant Sections of the Document,
+        unaltered in their text and in their titles. Section numbers or the
+        equivalent are not considered part of the section titles.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Delete any section Entitled “Endorsements”. Such a section
+        may not be included in the Modified Version.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Do not retitle any existing section to be Entitled
+        “Endorsements” or to conflict in title with any Invariant
+        Section.</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>Preserve any Warranty Disclaimers.</simpara>
+      </listitem>
+    </orderedlist>
+
+    <simpara>If the Modified Version includes new front-matter sections or
+    appendices that qualify as Secondary Sections and contain no material
+    copied from the Document, you may at your option designate some or all of
+    these sections as invariant. To do this, add their titles to the list of
+    Invariant Sections in the Modified Version’s license notice. These titles
+    must be distinct from any other section titles.</simpara>
+
+    <simpara>You may add a section Entitled “Endorsements”, provided it
+    contains nothing but endorsements of your Modified Version by various
+    parties — for example, statements of peer review or that the text has been
+    approved by an organization as the authoritative definition of a
+    standard.</simpara>
+
+    <simpara>You may add a passage of up to five words as a Front-Cover Text,
+    and a passage of up to 25 words as a Back-Cover Text, to the end of the
+    list of Cover Texts in the Modified Version. Only one passage of
+    Front-Cover Text and one of Back-Cover Text may be added by (or through
+    arrangements made by) any one entity. If the Document already includes a
+    cover text for the same cover, previously added by you or by arrangement
+    made by the same entity you are acting on behalf of, you may not add
+    another; but you may replace the old one, on explicit permission from the
+    previous publisher that added the old one.</simpara>
+
+    <simpara>The author(s) and publisher(s) of the Document do not by this
+    License give permission to use their names for publicity for or to assert
+    or imply endorsement of any Modified Version.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section5">5. COMBINING
+    DOCUMENTS</bridgehead>
+
+    <simpara>You may combine the Document with other documents released under
+    this License, under the terms defined in section 4 above for modified
+    versions, provided that you include in the combination all of the
+    Invariant Sections of all of the original documents, unmodified, and list
+    them all as Invariant Sections of your combined work in its license
+    notice, and that you preserve all their Warranty Disclaimers.</simpara>
+
+    <simpara>The combined work need only contain one copy of this License, and
+    multiple identical Invariant Sections may be replaced with a single copy.
+    If there are multiple Invariant Sections with the same name but different
+    contents, make the title of each such section unique by adding at the end
+    of it, in parentheses, the name of the original author or publisher of
+    that section if known, or else a unique number. Make the same adjustment
+    to the section titles in the list of Invariant Sections in the license
+    notice of the combined work.</simpara>
+
+    <simpara>In the combination, you must combine any sections Entitled
+    “History” in the various original documents, forming one section Entitled
+    “History”; likewise combine any sections Entitled “Acknowledgements”, and
+    any sections Entitled “Dedications”. You must delete all sections Entitled
+    “Endorsements”.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section6">6. COLLECTIONS OF
+    DOCUMENTS</bridgehead>
+
+    <simpara>You may make a collection consisting of the Document and other
+    documents released under this License, and replace the individual copies
+    of this License in the various documents with a single copy that is
+    included in the collection, provided that you follow the rules of this
+    License for verbatim copying of each of the documents in all other
+    respects.</simpara>
+
+    <simpara>You may extract a single document from such a collection, and
+    distribute it individually under this License, provided you insert a copy
+    of this License into the extracted document, and follow this License in
+    all other respects regarding verbatim copying of that document.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section7">7. AGGREGATION WITH
+    INDEPENDENT WORKS</bridgehead>
+
+    <simpara>A compilation of the Document or its derivatives with other
+    separate and independent documents or works, in or on a volume of a
+    storage or distribution medium, is called an “aggregate” if the copyright
+    resulting from the compilation is not used to limit the legal rights of
+    the compilation’s users beyond what the individual works permit. When the
+    Document is included in an aggregate, this License does not apply to the
+    other works in the aggregate which are not themselves derivative works of
+    the Document.</simpara>
+
+    <simpara>If the Cover Text requirement of section 3 is applicable to these
+    copies of the Document, then if the Document is less than one half of the
+    entire aggregate, the Document’s Cover Texts may be placed on covers that
+    bracket the Document within the aggregate, or the electronic equivalent of
+    covers if the Document is in electronic form. Otherwise they must appear
+    on printed covers that bracket the whole aggregate.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section8">8. TRANSLATION</bridgehead>
+
+    <simpara>Translation is considered a kind of modification, so you may
+    distribute translations of the Document under the terms of section 4.
+    Replacing Invariant Sections with translations requires special permission
+    from their copyright holders, but you may include translations of some or
+    all Invariant Sections in addition to the original versions of these
+    Invariant Sections. You may include a translation of this License, and all
+    the license notices in the Document, and any Warranty Disclaimers,
+    provided that you also include the original English version of this
+    License and the original versions of those notices and disclaimers. In
+    case of a disagreement between the translation and the original version of
+    this License or a notice or disclaimer, the original version will
+    prevail.</simpara>
+
+    <simpara>If a section in the Document is Entitled “Acknowledgements”,
+    “Dedications”, or “History”, the requirement (section 4) to Preserve its
+    Title (section 1) will typically require changing the actual
+    title.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section9">9. TERMINATION</bridgehead>
+
+    <simpara>You may not copy, modify, sublicense, or distribute the Document
+    except as expressly provided under this License. Any attempt otherwise to
+    copy, modify, sublicense, or distribute it is void, and will automatically
+    terminate your rights under this License.</simpara>
+
+    <simpara>However, if you cease all violation of this License, then your
+    license from a particular copyright holder is reinstated (a)
+    provisionally, unless and until the copyright holder explicitly and
+    finally terminates your license, and (b) permanently, if the copyright
+    holder fails to notify you of the violation by some reasonable means prior
+    to 60 days after the cessation.</simpara>
+
+    <simpara>Moreover, your license from a particular copyright holder is
+    reinstated permanently if the copyright holder notifies you of the
+    violation by some reasonable means, this is the first time you have
+    received notice of violation of this License (for any work) from that
+    copyright holder, and you cure the violation prior to 30 days after your
+    receipt of the notice.</simpara>
+
+    <simpara>Termination of your rights under this section does not terminate
+    the licenses of parties who have received copies or rights from you under
+    this License. If your rights have been terminated and not permanently
+    reinstated, receipt of a copy of some or all of the same material does not
+    give you any rights to use it.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section10">10. FUTURE REVISIONS OF
+    THIS LICENSE</bridgehead>
+
+    <simpara>The Free Software Foundation may publish new, revised versions of
+    the GNU Free Documentation License from time to time. Such new versions
+    will be similar in spirit to the present version, but may differ in detail
+    to address new problems or concerns. See <link
+    xlink:href="http://www.gnu.org/copyleft/"
+    xmlns:xlink="http://www.w3.org/1999/xlink">Copyleft</link>.</simpara>
+
+    <simpara>Each version of the License is given a distinguishing version
+    number. If the Document specifies that a particular numbered version of
+    this License “or any later version” applies to it, you have the option of
+    following the terms and conditions either of that specified version or of
+    any later version that has been published (not as a draft) by the Free
+    Software Foundation. If the Document does not specify a version number of
+    this License, you may choose any version ever published (not as a draft)
+    by the Free Software Foundation. If the Document specifies that a proxy
+    can decide which future versions of this License can be used, that proxy’s
+    public statement of acceptance of a version permanently authorizes you to
+    choose that version for the Document.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="section11">11.
+    RELICENSING</bridgehead>
+
+    <simpara>“Massive Multiauthor Collaboration Site” (or “MMC Site”) means
+    any World Wide Web server that publishes copyrightable works and also
+    provides prominent facilities for anybody to edit those works. A public
+    wiki that anybody can edit is an example of such a server. A “Massive
+    Multiauthor Collaboration” (or “MMC”) contained in the site means any set
+    of copyrightable works thus published on the MMC site.</simpara>
+
+    <simpara>“CC-BY-SA” means the Creative Commons Attribution-Share Alike 3.0
+    license published by Creative Commons Corporation, a not-for-profit
+    corporation with a principal place of business in San Francisco,
+    California, as well as future copyleft versions of that license published
+    by that same organization.</simpara>
+
+    <simpara>“Incorporate” means to publish or republish a Document, in whole
+    or in part, as part of another Document.</simpara>
+
+    <simpara>An MMC is “eligible for relicensing” if it is licensed under this
+    License, and if all works that were first published under this License
+    somewhere other than this MMC, and subsequently incorporated in whole or
+    in part into the MMC, (1) had no cover texts or invariant sections, and
+    (2) were thus incorporated prior to November 1, 2008.</simpara>
+
+    <simpara>The operator of an MMC Site may republish an MMC contained in the
+    site under CC-BY-SA on the same site at any time before August 1, 2009,
+    provided the MMC is eligible for relicensing.</simpara>
+
+    <bridgehead renderas="sect2" xml:id="addendum">ADDENDUM: How to use this
+    License for your documents</bridgehead>
+
+    <simpara>To use this License in a document you have written, include a
+    copy of the License in the document and put the following copyright and
+    license notices just after the title page:</simpara>
+
+    <screen>Copyright © YEAR YOUR NAME
+
+            Permission is granted to copy, distribute and/or modify this document under the
+            terms of the GNU Free Documentation License, Version 1.3 or any later version
+            published by the Free Software Foundation; with no Invariant Sections, no
+            Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included in
+            the section entitled “GNU Free Documentation License”.</screen>
+
+    <simpara>If you have Invariant Sections, Front-Cover Texts and Back-Cover
+    Texts, replace the “with… Texts.” line with this:</simpara>
+
+    <screen>with the Invariant Sections being LIST THEIR TITLES, with the Front-Cover Texts
+            being LIST, and with the Back-Cover Texts being LIST.</screen>
+
+    <simpara>If you have Invariant Sections without Cover Texts, or some other
+    combination of the three, merge those two alternatives to suit the
+    situation.</simpara>
+
+    <simpara>If your document contains nontrivial examples of program code, we
+    recommend releasing these examples in parallel under your choice of free
+    software license, such as the GNU General Public License, to permit their
+    use in free software.</simpara>
+  </appendix>
+</book>

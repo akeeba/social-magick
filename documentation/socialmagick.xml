@@ -70,7 +70,7 @@
       <tip>
         <para>We strongly recommend using the <code>imagick</code> extension
         whenever you can. It renders colour much better, it is faster, and it
-        supports SVG files. </para>
+        supports SVG files.</para>
 
         <para>The <code>gd</code> extension is older, it does not render
         colour as well (the colours look either washed out or with too much
@@ -1298,8 +1298,690 @@ php_value post_max_size 10M
     items are applied, how they are applied, and in which order is defined in
     a Template.</para>
 
-    <section xml:id="composition">
+    <section xml:id="template-size">
+      <title>Size</title>
+
+      <para>At its core, an OpenGraph image is defined by its dimensions,
+      <guilabel>Width</guilabel> and <guilabel>Height</guilabel>. They are
+      measured in pixels.</para>
+
+      <para>The recommended size for each platform is different depending on
+      where the image is used. That said, a size of 1200 by 640 pixels is a
+      good size and the correct aspect ration for most if not all use cases.
+      That's why it is set as the default for built-in and new
+      templates.</para>
+    </section>
+
+    <section xml:id="template-composition">
       <title>Image composition</title>
+
+      <para>SocialMagick composites the image by combining items on top of
+      each other. The available items used in compositing are:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Colour</emphasis>. The entire layer is
+          filled with a solid or semi-transparent colour. You can select its
+          opacity, from 0 (fully transparent, i.e. does not show up) to 100
+          (fully opaque). This colour can only be defined in the template; it
+          cannot be overridden.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Base Image</emphasis>. An optional
+          static image. You can use it to apply frames and branding to your
+          template. This image can only be defined in the template; it cannot
+          be overridden.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Extra Image</emphasis>. An optional
+          image which may come from the content (intro image, full article
+          image, category image, …), a <link
+          xlink:href="https://docs.joomla.org/J5.x:Adding_custom_fields"
+          xmlns:xlink="http://www.w3.org/1999/xlink">Joomla Field</link>
+          (a.k.a. Custom Field), or a static image you select. This image can
+          be overridden in more specific option levels.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Text</emphasis>. Optional text which may
+          come from the content (article title, category title, …), or static
+          text you enter. This text can be overridden in more specific option
+          levels.</para>
+        </listitem>
+      </itemizedlist>
+
+      <note>
+        <para>The Base Image and Extra Image can be any graphics format
+        supported by your PHP image library. Typically, files in the PNG, JPG,
+        GIF, and BMP formats are safe to use. Most servers do support WebP
+        images, as well as some other lesser known formats you are unlikely to
+        be using on your site such as TIFF, XCF, and so on.</para>
+
+        <para>Do not use animated images. In most cases only the first frame
+        will be used. In some extreme cases, you might get an error, thus no
+        image generated.</para>
+
+        <para>SVG files are supported only by the <code>imagick</code>
+        extension; the <code>gd</code> extension does not support them at all.
+        Moreover, SVGs are rendered in the image size they claim to be; they
+        are not scaled up or down to the template size. This can cause a lot
+        of display artifacts. As a result, we recommend converting your SVGs
+        to PNG or WebP images at a size suitable for your template
+        size.</para>
+      </note>
+
+      <para>The items are layered on top of each other. If you have ever used
+      a graphics application, you will immediately recognise that it is
+      exactly how all non-trivial graphics applications work. If you are new
+      to this concept, you can think of it like printing on transparency film,
+      and layering the transparencies on top of each other, then looking
+      through from the bottom to the top of the transparencies stack. The
+      layers stack looks like this:</para>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/layering.png" scalefit="1"/>
+        </imageobject>
+      </mediaobject>
+
+      <para>The bottommost layer (1) is the <emphasis
+      role="bold">Underlay</emphasis> layer. The Extra Image will be placed
+      here the <guilabel>Display Layer</guilabel> option is set to
+      <option>Underlay</option>.</para>
+
+      <para>The second layer from the bottom (2) is the <emphasis
+      role="bold">Colour</emphasis> layer. This is where the Colour is applied
+      to. If you do not want to use this layer, set the <guilabel>Background
+      Colour Opacity</guilabel> option to <option>0</option> (all the way to
+      the left).</para>
+
+      <para>The middle layer (3) is the <emphasis role="bold">Base
+      Image</emphasis> layer. This is where the Base Image is placed.</para>
+
+      <para>The fourth layer (4) is the <emphasis
+      role="bold">Overlay</emphasis> layer. The Extra Image will be placed
+      here the <guilabel>Display Layer</guilabel> option is set to
+      <option>Overlay</option>.</para>
+
+      <para>The topmost layer (5) is the <emphasis role="bold">Text</emphasis>
+      layer. This is where the Text will be rendered.</para>
+
+      <section xml:id="template-composition-examples">
+        <title>Practical examples of composition</title>
+
+        <para>SocialMagick comes with a number of predefined templates which
+        show you a lot of practical use cases. Feel free to copy and customise
+        them. Use the Template Preview feature to understand the effects of
+        your changes.</para>
+
+        <para>Beyond that, here are some further examples we have used on
+        production sites.</para>
+
+        <para><bridgehead>Colourise The Extra Image</bridgehead></para>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/composition-colourised.png"
+                       scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+
+        <para>Concept: The brand uses colourful images for its posts. For
+        social sharing they wanted to mute the palette to the main brand
+        colour to draw attention to the page title. Please note that what you
+        see in the example image is not the brand's font, the correct font
+        size, and text positioning used on the live site. We deliberately
+        altered it to make the colourisation effect more pronounced.</para>
+
+        <para>Implementation: To colourise the extra image we need to convert
+        it to grayscale, and layer a semi-transparent colour layer on top of
+        it.</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Base background colour: #5cb0c9</para>
+          </listitem>
+
+          <listitem>
+            <para>Background colour opacity: 27</para>
+          </listitem>
+
+          <listitem>
+            <para>Extra Image, Grayscale: 100</para>
+          </listitem>
+        </itemizedlist>
+
+        <para><bridgehead>Framing / Branding Without A Colour
+        Background</bridgehead></para>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/composition-framed.png" scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+
+        <para>Concept: This blog site is using big, colourful images for each
+        post. For social sharing we want to surround them with a branded frame
+        which has a "banner" area where we overlay the article's title.</para>
+
+        <para>Implementation: Put the Extra Image in the background,
+        overlaying a Base Image.</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Background colour opacity: 0</para>
+          </listitem>
+
+          <listitem>
+            <para>Base image: we used a PNG image which has the frame
+            elements</para>
+          </listitem>
+
+          <listitem>
+            <para>Extra Image, Display Layer: Underlay</para>
+          </listitem>
+        </itemizedlist>
+      </section>
+    </section>
+
+    <section xml:id="template-colour">
+      <title>Colour</title>
+
+      <para>As noted in the previous section, the colour layer is just that:
+      an entire layer filled with a specific color defined by the
+      <guilabel>Base Background Colour</guilabel> option and the
+      <guilabel>Background Colour Opacity</guilabel>.</para>
+
+      <para>If you do not wish to use a background colour layer, set the
+      <guilabel>Background Colour Opacity</guilabel> to 0. This makes the
+      layer completely transparent, visually removing it from the composition
+      of the image.</para>
+
+      <para>The transparency is there to create visually interesting effects
+      together with an Extra Image whose layer is set to Underlay (layer 1,
+      behind the colour which is layer 2). If you do not use an underlay Extra
+      Image and have an opacity lower than 100% the background of your image
+      will be semitransparent. This may be problematic, as you cannot control
+      which background color it will be rendered on. Most sites render images
+      over a white background, but some may do that against a darker
+      colour.</para>
+    </section>
+
+    <section xml:id="template-base-image">
+      <title>Base Image</title>
+
+      <para>The Base Image lets you optionally define an image which is placed
+      between the colour layer and the overlay layer. Typically, a Base Image
+      is used to provide a frame around the image, branding elements, visually
+      interesting text areas, etc. The image will be best fit to the template
+      size.</para>
+
+      <note>
+        <para>"Best fit" is a combined resized and crop. If the image is
+        smaller than both the width and height of the template it's left as
+        is. Otherwise, it is resized to keep its aspect ratio whereas one of
+        its dimensions fits the respective dimension of the template. The rest
+        of the image not fitting in the template is cropped. This
+        <emphasis>can</emphasis> lead to artifacts, therefore we strongly
+        suggest that the image is created so that it has the same dimensions
+        as your template.</para>
+      </note>
+
+      <para>Transparent and semitransparent areas of the image will let the
+      layers below it (colour and underlay) to show through. You can use this
+      to your advantage to create visually interesting effects. If you do not
+      plan on using an underlay image or colour you should use a fully opaque
+      image.</para>
+
+      <para>You can apply effect on the image as well:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Grayscale. Removes the colour from the image without affecting
+          its contrast and brightness. It can be from 0 (no effect) to 100
+          (all colour removed). You can use intermediate values to mute
+          colours towards a neutral black and white palette without removing
+          all colour.</para>
+        </listitem>
+
+        <listitem>
+          <para>Sepia. Applies a sepia colour filter.</para>
+        </listitem>
+
+        <listitem>
+          <para>Opacity. Adjust the opacity of the image, from 0 (fully
+          transparent) to 100 (fully opaque). Do note that semi-transparent
+          areas of the image are kept at their current alpha (transparency)
+          value at 100, and are made more transparent for lower values. This
+          may result in some semi-transparent areas becoming fully transparent
+          as you are decreasing this value.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>In practice, you should avoid applying effects to the base image
+      unless you are interested in watermarking extra images placed in the
+      underlay layer. In this case you can use 100% grayscale and a low
+      opacity (typically 8% or less) to create a watermark effect.</para>
+    </section>
+
+    <section xml:id="template-extra-image">
+      <title>Extra Image</title>
+
+      <para>The Extra Image lets you define an image which can be used with
+      (or without) the Base Image to create visually interesting compositions.
+      The Extra Image can come from the content displayed on the page, or
+      provided as a static image. The source of the Extra Image can be
+      overridden in categories, content items, and menu items.</para>
+
+      <para><guilabel>Add an Extra Image</guilabel> controls whether an Extra
+      Image will be used at all. If this is disabled in your template, any
+      further overrides to the Extra Image source in categories, content
+      items, and menu items will NOT be taken into account.</para>
+
+      <bridgehead>Extra Image Sources</bridgehead>
+
+      <para>The <guilabel>Extra Image Source</guilabel> controls where the
+      Extra Image comes from.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><option>None</option>. No Extra Image will be used. This is
+          different than setting Add An Extra Image to No in that this Extra
+          Image Source option CAN be overridden in categories, content items,
+          and menu items.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Intro Image</option>. Uses the Intro Image of the
+          content item. The exact semantics of this source depend on the
+          integration plugin. Please read the Important box below.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Full Article Image</option>. Uses the Full Article
+          Image of the content item. The exact semantics of this source depend
+          on the integration plugin. Please read the Important box
+          below.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Custom Field</option>. Uses a Joomla Custom Field
+          defined on the content item. You can define the name of the custom
+          field in the <guilabel>Extra Image Field Name</guilabel> option.
+          Support for this depends on the integration plugin. Please read the
+          Important box below.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Full Article, Or Intro Image</option>. Uses the Full
+          Article Image source. If no image is defined there, it uses the
+          Intro Image source.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Intro, Or Full Article Image</option>. Uses the Intro
+          Image source. If no image is defined there, it uses the Full Article
+          Image source.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Custom Field, Full Article, Or Intro Image</option>.
+          Uses the Custom Field source. If no image is defined there, it uses
+          the Full Article Image source. If no image is defined there, it uses
+          the Intro Image source.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Custom Field, Intro, Or Full Article Image</option>.
+          Uses the Custom Field source. If no image is defined there, it uses
+          the Intro Image source. If no image is defined there, it uses the
+          Full Article Image source.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Static Image</option>. The image source is not linked
+          to the content. It comes from an image you define in the
+          <guilabel>Static Image</guilabel> option.</para>
+        </listitem>
+      </itemizedlist>
+
+      <important>
+        <para>SocialMagic has a plugin system for integrating with Joomla core
+        and and third party extensions content. The appropriate integration
+        plugin is used depending on the content being displayed on your site
+        when the OpenGraph image is being generated. For example, if you are
+        displaying a category blog for core content (articles) the
+        SocialMagick - Content Categories plugin is used. </para>
+
+        <para>The Custom Field, Intro Image, and Full Article Image sources
+        have different meanings depending on the integration plugin being
+        used. In the example above, Custom Field refers to a category field,
+        whereas both Intro Image and Full Article Image both refer to the
+        category's Image field. Conversely, if you are click on an article
+        displayed in the category blog the SocialMagick - Articles integration
+        plugin is used, in which case the Custom Field refers to an article
+        field, and the Intro Image and Full Article Image refer to the
+        respective fields in the article.</para>
+
+        <para>The reason the template uses the generic terms "Intro Image",
+        "Full Article Image", and "Custom Field" is because the same template
+        can be used for radically different menu items corresponding to
+        different integration plugins. The semantics of these sources for each
+        integration plugins are documented in the <link
+        linkend="socialmagick-plugins">integration plugins
+        documentation</link> page.</para>
+      </important>
+
+      <para>The <guilabel>Extra Image Field Name</guilabel> option defines the
+      Name of the Joomla custom field which holds the image filename. The
+      field must be of type Media (or third party equivalent) or Text and it
+      must point to <emphasis role="bold">an image file stored on your web
+      server</emphasis>. If the field points to an image stored outside of
+      your server (e.g. by using a third party plugin in the
+      <code>filesystem</code> group) or a URL / URI <emphasis
+      role="bold">SocialMagick cannot use it</emphasis>. That's for
+      performance and reliability reasons. We have found that having an image
+      on a slow remote storage provider (such as Amazon S3), a slow server,
+      with an invalid URL, or experiencing network issues can make page loads
+      take several seconds or even fail — both of which are detrimental to SEO
+      and site reliability.</para>
+
+      <tip>
+        <para>The best approach to performance is to host your images on your
+        web server and put your site behind a CDN, such as CloudFlare, to
+        serve the static media efficiently. This greatly simplifies site
+        management, allows you to use SocialMagick very efficiently, and helps
+        your site load <emphasis>much</emphasis> faster.</para>
+      </tip>
+
+      <para>The <guilabel>Static Image</guilabel> option allows you to define
+      an image on your site to use as the Extra Image Source. The image you
+      select must be <emphasis role="bold">an image file stored on your web
+      server</emphasis>. If the field points to an image stored outside of
+      your server (e.g. by using a third party plugin in the
+      <code>filesystem</code> group) or a URL / URI <emphasis
+      role="bold">SocialMagick cannot use it</emphasis> for the reasons
+      explained above.</para>
+
+      <bridgehead>Display layer</bridgehead>
+
+      <para>The <guilabel>Display Layer</guilabel> option lets you choose how
+      SocialMagick will composite the Extra Image on the generated OpenGraph
+      image.</para>
+
+      <para>As explained earlier, <option>Underlay</option> puts the image in
+      the underlay (bottommost) layer, under the colour background and Base
+      Image. <option>Overlay</option> puts the image in the overlay layer
+      above the Base Image and below the text (if any).</para>
+
+      <para>Typically, you will use Underlay in combination with a Base Image
+      that has a cutout (fully transparent) or semitransparent area, possibly
+      with some resizing and cropping tweaking, to display parts of your Extra
+      Image for a framing effect. Here's a typical example:</para>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/composition-framed.png" scalefit="1"/>
+        </imageobject>
+      </mediaobject>
+
+      <para>Conversely, the Overlay is used in two typical use cases. One, you
+      want to completely or partially cover the Base Image. The example below
+      is the same template as above but with the Display Layer switched from
+      Underlay to Overlay.</para>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/overlay-simple.png" scalefit="1"/>
+        </imageobject>
+      </mediaobject>
+
+      <para>Two, you know your Extra Image has transparency, so you want it
+      overlaid on the image but underneath the text for a watermark effect. In
+      the example below, the shoeprint is a semi-transparent static image. We
+      used the resizing and cropping parameters to move it to the lower right
+      corner of the text box, creating this watermark effect.</para>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/shoeprint.png" scalefit="1"/>
+        </imageobject>
+      </mediaobject>
+
+      <bridgehead>Resizing</bridgehead>
+
+      <para>When <guilabel>Auto-Resize</guilabel> is set to
+      <option>Yes</option> (default), SocialMagick uses an image fit algorithm
+      called Best Fit (or Cover, as you know it from CSS). It roughly
+      translates to these steps:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>The Extra Image is placed on the template surface depending on
+          the <guilabel>Crop Anchor Point</guilabel> setting – we'll talk
+          about it later.</para>
+        </listitem>
+
+        <listitem>
+          <para>If the width <emphasis>or</emphasis> height of the Extra Image
+          are equal or smaller than the width and height of the template, the
+          image is left as-is. No further steps are considered. For example,
+          let's consider a 300x200 template. If the image is 300x400 pixels no
+          resizing takes place since the Extra Image is already the same width
+          as the template.</para>
+        </listitem>
+
+        <listitem>
+          <para>The image is resized, with its aspect ratio kept intact, so
+          either its width or its height matches the template's corresponding
+          dimension and the resized does not become smaller than the
+          template's area. For example, let's consider a 300x200 template. If
+          the image is 600x600 pixels the choices we have is either make it a
+          300x300 image (fit the width) or 200x200 image (fit the height).
+          SocialMagick resizes to 300x300 since the 200x200 image would NOT
+          cover the entire 300x200 template area (it would leave a 100x200
+          area uncovered).</para>
+        </listitem>
+
+        <listitem>
+          <para>Any part of the resized Extra Image that's outside the
+          template surface is cropped off.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>When <guilabel>Auto-Resize</guilabel> is set to
+      <option>No</option> there are two changes.</para>
+
+      <para>Instead of using the template's width and height, SocialMagick
+      uses the dimensions you enter in <guilabel>Maximum Resize
+      Width</guilabel> and <guilabel>Maximum Resize Height</guilabel>. These
+      dimensions can be smaller or bigger than the template dimensions. You
+      want to use a smaller size to shrink an image to make it fit into a
+      cutout in the Base Image. You want to use a larger size to have a larger
+      image to crop from, focusing on a detail on the image.</para>
+
+      <para>You can also tell SocialMagick to move the <emphasis
+      role="bold">resized</emphasis> Extra Image around the template area by
+      using the <guilabel>X Position (From Left)</guilabel> and <guilabel>Y
+      Position (From Top)</guilabel>. Think about it as having the resized
+      Extra Image in the top left corner of the OpenGraph image, then dragging
+      it this many pixels to the right and bottom respectively. This allows
+      you to position the extra image in a cutout. This operation is known in
+      graphics software as <emphasis role="bold">transform</emphasis>. It is
+      important to remember that this leaves blank (transparent) space on the
+      top and left of the Extra Image. For this reason, it typically only
+      makes sense to use these transform options when there's a Base Image
+      covering that area with its own content. You can use negative values to
+      move the image towards the left or the top.</para>
+
+      <para><bridgehead>Cropping</bridgehead></para>
+
+      <para>As noted above, how the Extra Image is placed on the template
+      surface depends on your <guilabel>Crop Anchor Point</guilabel> setting.
+      The options are:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><option>Top Left</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's top left corner coincides
+          with the template's top left corner.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Top</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's top middle point
+          coincides with the template's top middle point.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Top Right</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's top right corner
+          coincides with the template's top right corner.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Left</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's left middle point
+          coincides with the template's left middle point.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Centre Point</option>. The Extra Image is placed on
+          the template surface so that the Extra Image's dead center
+          (horizontally and vertically) point coincides with the template's
+          dead center point.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Right</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's right middle point
+          coincides with the template's right middle point.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Bottom Left</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's bottom left corner
+          coincides with the template's bottom left corner.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Bottom</option>. The Extra Image is placed on the
+          template surface so that the Extra Image's bottom middle point
+          coincides with the template's bottom middle point.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Bottom Right</option>. The Extra Image is placed on
+          the template surface so that the Extra Image's bottom right corner
+          coincides with the template's bottom right corner.</para>
+        </listitem>
+      </itemizedlist>
+
+      <important>
+        <para>When <guilabel>Auto-Resize</guilabel> is set to Yes and the
+        Extra Image is bigger than the template's dimensions, the corner
+        options (top left, top right, bottom left, bottom right) are
+        functionally identical to the four sides options – which one depends
+        on the image's aspect ratio. That's because Auto-Resize uses the Best
+        Fit (Cover) resize algorithm which <emphasis>guarantees</emphasis>
+        that in this case either the width or the height of the resized image
+        will be identical to the corresponding dimension of the
+        template.</para>
+
+        <para>If you think SocialMagick is broken because the corner options
+        had no effect compared to the edge options, stop and think: "Do I have
+        a resizing situation which makes one dimension of the resized image
+        identical to the respective dimension of the template?". If the answer
+        is "yes", SocialMagick did <emphasis>exactly what you told it to
+        do</emphasis>, not what you wanted it to do. You probably want to set
+        <guilabel>Auto-Resize</guilabel> to No and work on your resizing
+        options to achieve the effect you were looking for.</para>
+
+        <para>For example, let's consider a 300x200 template and a 900x900
+        Extra Image. The resized Extra Image will be 300x300 templates, i.e.
+        the width will be the same. Using the Top Left, Top, and Top Right
+        options will produce the same effect. Since the width of the resized
+        Extra Image and the template are now the same, placing the images so
+        that their tops align also means that by definition their top left
+        corner, top middle point, <emphasis>and</emphasis> top right corner
+        coincide.</para>
+      </important>
+
+      <para>There are another two options called <guilabel>Crop Origin Nudge
+      Towards Right</guilabel> and <guilabel>Crop Origin Nudge Towards
+      Bottom</guilabel>. They may look similar to the <guilabel>X Position
+      (From Left)</guilabel> and <guilabel>Y Position (From Top)</guilabel>
+      but there is a major difference: the Crop Origin Nudge settings apply to
+      the Extra Image <emphasis role="bold">before</emphasis> it is resized.
+      While the Position options let you move the resized image around the
+      template so it can fit your composition with the Base Image, the Crop
+      Origin Nudge options allow you to scroll the original image around so
+      that the resize and crop can focus on a different region of the image.
+      Moreover, each Crop Origin Nudge option will have no effect if that
+      would cause the image to go outside the template area, or if the width /
+      height of the image is smaller than the respective template
+      dimension.</para>
+
+      <para>You can best understand these options editing the Overlay
+      template, using the Lindsey (very tall) and Spiske (very wide) images in
+      the Template Preview.</para>
+
+      <bridgehead>Image effects</bridgehead>
+
+      <para>You can optionally apply the following image effects:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Grayscale. Removes the colour from the image without affecting
+          its contrast and brightness. It can be from 0 (no effect) to 100
+          (all colour removed). You can use intermediate values to mute
+          colours towards a neutral black and white palette without removing
+          all colour.</para>
+        </listitem>
+
+        <listitem>
+          <para>Sepia. Applies a sepia colour filter.</para>
+        </listitem>
+
+        <listitem>
+          <para>Opacity. Adjust the opacity of the image, from 0 (fully
+          transparent) to 100 (fully opaque). Do note that semi-transparent
+          areas of the image are kept at their current alpha (transparency)
+          value at 100, and are made more transparent for lower values. This
+          may result in some semi-transparent areas becoming fully transparent
+          as you are decreasing this value.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="template-text">
+      <title>Text</title>
+
+      <para/>
+    </section>
+  </chapter>
+
+  <chapter xml:id="socialmagick-plugins">
+    <title>Integration Plugins</title>
+
+    <para/>
+
+    <section xml:id="socialmagick-articles">
+      <title>SocialMagick – Articles</title>
+
+      <para/>
+    </section>
+
+    <section xml:id="socialmagick-categories">
+      <title>SocialMagick – Categories</title>
+
+      <para/>
+    </section>
+
+    <section xml:id="socialmagick-menus">
+      <title>SocialMagick – Menu Items</title>
 
       <para/>
     </section>
@@ -1370,7 +2052,7 @@ php_value post_max_size 10M
 
           <listitem>
             <para>Under the <guilabel>Information</guilabel> heading click on
-            <guilabel>System Information</guilabel>. </para>
+            <guilabel>System Information</guilabel>.</para>
           </listitem>
 
           <listitem>
@@ -1495,7 +2177,7 @@ php_value post_max_size 10M
 
         <para>Most commercial hosts have a place where you can change your PHP
         configuration, and select the extensions which are enabled on your
-        site. </para>
+        site.</para>
 
         <para>For example, most cPanel hosts have a Select PHP Version option.
         In it, you just need to check the <code>imagick</code> option. The
@@ -1569,7 +2251,7 @@ php_value post_max_size 10M
             <para>FreeBSD and its derivatives (replace
             <replaceable>php82</replaceable> with your PHP version):
             <command>sudo pkg install -y imagemagick &amp;&amp; sudo pkg
-            install -y php82-pecl-imagick</command> </para>
+            install -y php82-pecl-imagick</command></para>
           </listitem>
 
           <listitem>

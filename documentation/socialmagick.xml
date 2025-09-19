@@ -1298,6 +1298,120 @@ php_value post_max_size 10M
     items are applied, how they are applied, and in which order is defined in
     a Template.</para>
 
+    <section xml:id="template-preview">
+      <title>Preview</title>
+
+      <para>Setting up an OpenGraph image template would normally require a
+      good understanding of how compositing works, and a fair amount of
+      guesswork as to how it will all get combined together into an image.
+      This is a tall order, and users would regularly tweak the template, go
+      to the frontend to generate a new image, look at the page source code
+      for the image URL, open that URL, inspect the image, rinse and repeat
+      until the desired results are achieved. This was a gruelling
+      process.</para>
+
+      <para>But not anymore.</para>
+
+      <para>SocialMagick now comes with a template preview. It uses a
+      selection of sample images to be used as the Extra Image (assuming this
+      option is set to neither None nor Static), and custom text of your
+      choice to render an OpenGraph image using your template options
+      <emphasis>as you are editing the template</emphasis>. You don't even
+      have to save your template; it picks up the options on the template edit
+      page. You can even enable the <link linkend="debug-text-layout">debug
+      text layout</link> feature just for the preview –instead of at the
+      component Options level– to fine-tune the placement of your overlay text
+      on the template!</para>
+
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/template-preview.png" scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+
+      <para>You can collapse (hide) the template preview by clicking on the
+      Show / Hide Preview icon found on the header of the <guilabel>Template
+      Preview</guilabel> area.</para>
+
+      <para>The <guilabel>Sample Extra Image</guilabel> lets you choose one of
+      the predefined images shipped with SocialMagick as a stand-in for your
+      template's Extra Image as long as your <guilabel>Extra Image
+      Source</guilabel> is set to anything other than <option>None</option> or
+      <option>Static Image</option>. The available images are:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><option>Alipazani</option>. Portrait image, with the focus
+          towards the top-right of the image.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Erensever</option>. A square image with several
+          subjects in the foreground.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Olly</option>. A landscape image with the subject on
+          the left.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Xtrovarts</option>. A landscape image with the subject
+          on the right.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Danxavier</option>. A landscape image with the subject
+          on the centre.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Lindsey</option>. A vertical panorama (much taller
+          than wide) image.</para>
+        </listitem>
+
+        <listitem>
+          <para><option>Spiske</option>. A horizontal panorama (much wider
+          than tall) image.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The images were selected so that they cover the vast majority of
+      photographs we have seen used on real world sites. The images, and the
+      JSON file with their definition, is in
+      <filename>media/com_socialmagick/images/examples</filename>. Please note
+      that if you decide to edit those files, they will be overwritten next
+      time you update the extension.</para>
+
+      <para>The <guilabel>Sample Text</guilabel> will be used as a stand-in
+      for the overlay text source. We recommend using text that is about the
+      same length and in the same language as the text you're going to use in
+      your content and menu items.</para>
+
+      <para>The <guilabel>Debug Text Layout</guilabel> will turn on the <link
+      linkend="debug-text-layout">debug text layout</link> feature when
+      rendering the image. As you can see in the screenshot above, it renders
+      the textbox (with a recommended padding area) and the individual text
+      lines' bounding boxes so that you can understand why the text ended up
+      where it is, and why it's rendered the way it is. We have found this to
+      be one of the most time-saving features when trying to compose a
+      visually interesting OpenGraph image.</para>
+
+      <para>After making changes to your template's configuration click on
+      <guibutton>Refresh preview</guibutton> to generate a new preview image
+      <emphasis>without</emphasis> having to save the changes to the template.
+      This is very useful if you are editing a template already in use; you
+      don't want to save the template –causing all existing OpenGraph images
+      to be generated again with the new template– before you are certain your
+      changes work the way you want them to!</para>
+
+      <para>The preview image is rendered in a fairly small size. If you want
+      to inspect it in detail, click on <guibutton>Open image in new
+      tab</guibutton> to open the image file in a new browser tab.</para>
+    </section>
+
     <section xml:id="template-size">
       <title>Size</title>
 
@@ -1653,7 +1767,7 @@ php_value post_max_size 10M
         plugin is used depending on the content being displayed on your site
         when the OpenGraph image is being generated. For example, if you are
         displaying a category blog for core content (articles) the
-        SocialMagick - Content Categories plugin is used. </para>
+        SocialMagick - Content Categories plugin is used.</para>
 
         <para>The Custom Field, Intro Image, and Full Article Image sources
         have different meanings depending on the integration plugin being
@@ -1959,36 +2073,894 @@ php_value post_max_size 10M
     <section xml:id="template-text">
       <title>Text</title>
 
-      <para/>
+      <para>The final, and topmost, layer of an OpenGraph image template in
+      SocialMagick is for (optional) text.</para>
+
+      <para>If you do not want any text at all, set the <guilabel>Overlay
+      Text</guilabel> option to No. Do note that this cannot be overridden in
+      categories, content items, and menu items. It completely disables text
+      overlays with this template.</para>
+
+      <note>
+        <para>The Template does not allow you to select a source for the text.
+        This is always set at the category, content item, or menu item level.
+        The template only tells SocialMagick whether and how to render overlay
+        text. It does not tell it what to text to render. This is quite
+        different than the Extra Image tab which defines both the source, and
+        the rendering options.</para>
+      </note>
+
+      <bridgehead>Fonts and Colours</bridgehead>
+
+      <para>The <guilabel>Font For Text</guilabel> lets you select a
+      <trademark class="registered">TrueType</trademark> (<code>.ttf</code>)
+      font file to use for rendering the text. SocialMagick comes with two
+      font files for the Open Sans Bold and Open Sans Bold Italic typefaces.
+      If you would like to use different fonts, upload the corresponding
+      TrueType font files into the
+      <code>plugins/system/socialmagick/fonts</code> directory of your site.
+      Kindly note that you are solely responsible for adhering to the license
+      of the font you are using. Some fonts may be free for use on the web,
+      but not for use in images – even if automatically generated ones. The
+      Open Sans font is a thoroughly Open Source font, without any
+      restrictions.</para>
+
+      <para>The <guilabel>Font Size (in points)</guilabel> lets you select how
+      big the text will be. We are using points, not pixel, sizes because they
+      are the most common font size metric in text and graphics processing
+      software. If you want to work out the font size in pixels, it's 1.33
+      pixels to a point and 0.75 points to a pixel. We recommend font sizes
+      between 40 to 70 points as your image will be scaled down 2–3 times when
+      displayed. Text smaller than that would be unreadable in many practical
+      use cases.</para>
+
+      <note>
+        <para>There are 72 points to an inch. Graphics are rendered by
+        browsers at an average density of 96 pixels per inch. Therefore one
+        point is 1.33 pixels. Conversely, that's 0.75 points per pixel. A 16
+        pixel text size (the default used by most browsers) is 12pt.</para>
+      </note>
+
+      <para>The <guilabel>Text Colour</guilabel> and
+      <guilabel>Opacity</guilabel> control the colour (fill) of the text. You
+      may want to use an Opacity lower than 100 –therefore, semi-transparent
+      text– for artistic effect. This works best with large font sizes
+      rendered over a large area of the image.</para>
+
+      <para>Sometimes it may be hard to make out the text against a background
+      that's either busy, or a similar luminosity to the text. This is a
+      long-understood problem; it affected movie and television subtitles,
+      too! The solution is to have a contrasting contour surrounding and
+      following the letter shapes to better isolate them from the background.
+      This is called a stroke. You can use the <guilabel>Text Stroke
+      Colour</guilabel> and <guilabel>Text Stroke Width</guilabel> to select
+      the colour of the stroke, and how wide it will be <emphasis>in
+      pixels</emphasis>. If you do not want a text stroke set the
+      <guilabel>Text Stroke Width</guilabel> to 0. Please note that if you set
+      an <guilabel>Opacity</guilabel> less than 100 for the text colour, the
+      text stroke will also have the same opacity. This is intentional. The
+      text is rendered with the stroke, and the opacity is applied to the
+      whole overlay text including the stroke.</para>
+
+      <bridgehead>Text positioning</bridgehead>
+
+      <para>SocialMagick renders text inside a text box. The size (width and
+      height) of this text box is given in the <guilabel>Maximum Text Height
+      (px)</guilabel> and <guilabel>Maximum Text Width (px)</guilabel>
+      options.</para>
+
+      <para>The positioning of the text box on the horizontal and vertical
+      axis can either be centered, or positioned exactly as a number of pixels
+      measured from the edge of the image.</para>
+
+      <para>Enabling <guilabel>Centre text vertically?</guilabel> (default)
+      will position the text box on the vertical axis so that its centre point
+      is halfway between the top and bottom edge of the image. Use the
+      <guilabel>Nudge Vertically from Centre (px)</guilabel> option to move
+      the text box vertically towards the bottom (positive numbers) or the top
+      (negative numbers) of the image.</para>
+
+      <para>Disabling <guilabel>Centre text vertically?</guilabel> will
+      position the text box on the vertical axis so that its top edge
+      coincides with the image's top edge. Use the <guilabel>Pixels from the
+      Top</guilabel> option to move the text box towards the bottom of the
+      image.</para>
+
+      <para>Enabling <guilabel>Centre text horizontally?</guilabel> (default)
+      will position the text box on the horizontal axis so that its centre
+      point is halfway between the left and right edge of the image. Use the
+      <guilabel>Nudge Horizontally from Centre (px)</guilabel> option to move
+      the text box horizontally towards the right (positive numbers) or the
+      left (negative numbers) of the image.</para>
+
+      <para>Disabling <guilabel>Centre text horizontally?</guilabel> will
+      position the text box on the horizontal axis so that its left edge
+      coincides with the image's left edge. Use the <guilabel>Pixels from the
+      Left</guilabel> option to move the text box towards the right of the
+      image.</para>
+
+      <bridgehead>Text fit and truncation</bridgehead>
+
+      <para>SocialMagick uses a text rendering concept which is a lot like how
+      a browser would render text in a block container with the CSS style
+      <code>overflow: hidden; text-overflow: ellipsis;</code>.</para>
+
+      <para>Here's how it works. The text is broken down into word-like pieces
+      by finding spaces (ASCII 32) in the text. These word-like pieces are
+      distributed into "lines" so that each line contains as many (but at
+      least one!) word-like pieces keeping its length under the Maximum Text
+      Width. Then, the algorithm tries to see how many of these "lines" fit
+      fully within the Maximum Text Height and throws away the rest. If not
+      all word-like pieces were used, it will try to add ellipsis
+      (<code>…</code>) after the last word-like piece of the last line it will
+      render. If that makes the line exceed the Maximum Text Width it will
+      delete the last word-like piece of the last line, replacing it with
+      ellipsis.</para>
+
+      <para>The following edge cases cannot be handled:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>If your vertical or horizontal height are small enough that
+          not even one word-like part can be rendered fully within the
+          allocated text space, no text will be rendered. This is a deliberate
+          choice. In any other case, you'd end up with clipped, unreadable
+          text.</para>
+        </listitem>
+
+        <listitem>
+          <para>Some languages, especially Asian ones, do not use spaces
+          (ASCII 32) to separate words. Therefore, the entire text may end up
+          being considered one long word-like piece. Likewise, if your words
+          are separated by punctuation other than regular spaces –such as
+          dashes, underscores, points, etc– these will be considered a single
+          word-like piece (e.g. <code>do-not-disturb</code> is considered
+          <emphasis>one</emphasis> word-like piece). This may result in your
+          entire text being considered as a few very long word-like pieces
+          which exceed the Maximum Text Width and are clipped as a result.
+          Moreover, if you have more than one of these pieces you may end up
+          in a situation where the only text rendered is the ellipsis or (for
+          small enough text box sizes and big enough font sizes) seemingly
+          nothing at all.</para>
+        </listitem>
+
+        <listitem>
+          <para>Quotes, parentheses, braces, and other punctuation are
+          consider as part of a word-like piece. This may result in rendered
+          text such as <code>He said: “enough…</code> which is grammatically
+          incorrect. Do note that browsers rendering text with hidden overflow
+          also suffer from the same problem. In fact, there is no good way to
+          automatically handle this use case without rewriting the
+          text.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>In most cases, the default behaviour is fine. If you hit the
+      aforementioned edge cases it is best to override the rendered text at
+      the content or menu item level with something that reads and displays
+      well.</para>
     </section>
   </chapter>
 
   <chapter xml:id="socialmagick-plugins">
     <title>Integration Plugins</title>
 
-    <para/>
+    <para>SocialMagick generates OpenGraph data and images for all pages of
+    your site. To do that it needs to somehow retrieve the text to be used for
+    the OpenGraph image template (if you select to use a text overlay), and
+    the image to be used as the Extra Image for the OpenGraph image template.
+    Moreover, it needs to have different kinds of integration code to display
+    the OpenGraph options tab when editing categories, content items, and menu
+    items.</para>
+
+    <para>While older versions of SocialMagick had these integrations
+    hardcoded, SocialMagick 3 and later versions use integration plugins.
+    These are standard Joomla plugins in the <code>socialmagick</code>
+    group.</para>
 
     <section xml:id="socialmagick-articles">
       <title>SocialMagick – Articles</title>
 
-      <para/>
+      <para>This plugin allows SocialMagick to integrate with Joomla articles.
+      You must have this plugin enabled for this integration to
+      function.</para>
+
+      <para>The plugin is responsible for rendering the OpenGraph tab when you
+      are editing a Joomla article.</para>
+
+      <para>When your frontend page is displaying a Joomla article, this
+      plugin makes the following information available to SocialMagick:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The article title can be used as the OpenGraph image template
+          text when you enable <guilabel>Use Content Title</guilabel>.</para>
+        </listitem>
+
+        <listitem>
+          <para>The article's Intro Image and Full Text Image can be used as
+          the Extra Image in the OpenGraph image template.</para>
+        </listitem>
+
+        <listitem>
+          <para>A Joomla custom Field can be used as the Extra Image in the
+          OpenGraph image template.</para>
+        </listitem>
+      </itemizedlist>
+
+      <important>
+        <para>The <guilabel>Access</guilabel> for this plugin <emphasis
+        role="bold">MUST</emphasis> always be set to
+        <guilabel>Public</guilabel>. See the <guilabel>Advanced</guilabel> tab
+        for options limiting access to the OpenGraph tab to specific user
+        groups.</para>
+      </important>
+
+      <para>The configuration options in the <guilabel>Plugin</guilabel> tab
+      are:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Extra Image Source</term>
+
+          <listitem>
+            <para>The default Extra Image source for Joomla articles. This can
+            be overridden at the category, article, and menu item level. The
+            available options are:</para>
+
+            <itemizedlist>
+              <listitem>
+                <para><option>None</option>. No Extra Image will be
+                used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Intro Image</option>. The article's Intro Image
+                will be used, if present. Otherwise, no Extra Image will be
+                used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Full Article Image</option>. The article's Full
+                Article Image will be used, if present. Otherwise, no Extra
+                Image will be used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Custom Field</option>. The image provided by the
+                custom field whose name is set up below will be used, if
+                present. Otherwise, no Extra Image will be used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Full Article, or Intro Image</option>. The
+                article's Full Article Image will be used, if present. If it's
+                not present, the article's Intro Image will be used. If
+                neither image is present, no Extra Image will be used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Intro, or Full Article image</option>. The
+                article's Intro Image will be used, if present. If it's not
+                present, the article's Full Article will be used. If neither
+                image is present, no Extra Image will be used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Custom Field, Full Article, or Intro
+                Image</option>. The image provided by the custom field whose
+                name is set up below will be used, if present. If there is no
+                custom image field, or it's empty, the article's Full Article
+                Image will be used, if present. If it's not present, the
+                article's Intro Image will be used. If none of these images is
+                present, no Extra Image will be used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Custom Field, Intro, or Full Article
+                Image</option>. The image provided by the custom field whose
+                name is set up below will be used, if present. If there is no
+                custom image field, or it's empty, the article's Intro Image
+                will be used, if present. If it's not present, the article's
+                Full Article Image will be used. If none of these images is
+                present, no Extra Image will be used.</para>
+              </listitem>
+            </itemizedlist>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Extra Image Field Name </term>
+
+          <listitem>
+            <para>The <guilabel>Name</guilabel> of the Joomla Field of the
+            article which has the Extra Image to use in the OpenGraph image
+            template. This must be a Media or Text field, or an equivalent
+            third party field type. The contents of the field <emphasis
+            role="bold">MUST</emphasis> be the absolute or relative filesystem
+            path to an image hosted on your web server. You cannot use URLs,
+            or images hosted externally to your site such as a CDN, Amazon S3,
+            Dropbox, etc.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Use Article Title </term>
+
+          <listitem>
+            <para>Tells SocialMagick to use the article's title as the text
+            overlay source. If disabled, the <guilabel>Use Content
+            Title</guilabel> option will have no effect by default.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Use Article Description </term>
+
+          <listitem>
+            <para>Tells SocialMagick to use the article's Meta Description as
+            the OpenGraph description. You can override this in categories,
+            articles, and menu items. If this is disabled, SocialMagick will
+            instead use the Meta Description set up in the currently used menu
+            item. Please note that in if you have a Category List or Category
+            Blog menu item and click on an article this category view menu
+            item will be used by Joomla <emphasis>even if you have a different
+            menu item for the specific article you clicked on</emphasis>. This
+            is a deliberate choice in Joomla; it's what allows Modules to be
+            so flexible and powerful.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The <guilabel>Advanced</guilabel> tab allows you to specify who
+      for and where the OpenGraph tab will be visible when editing a Joomla
+      article.</para>
+
+      <note>
+        <para>All users who belong to the Super User group are NOT limited by
+        the options in this tab. Super User accounts can always see the
+        OpenGraph tab. The reason is that Super Users in Joomla have, by
+        definition, all privileges explicitly Allowed to them, i.e. the should
+        and can do anything and everything on the site.</para>
+      </note>
+
+      <variablelist>
+        <varlistentry>
+          <term>Allow Frontend Editing of OpenGraph Settings</term>
+
+          <listitem>
+            <para>Should the OpenGraph settings tab show up when editing an
+            article in the frontend of the site? Super Users are not limited
+            by this setting. </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Limit OpenGraph Settings To Users Of These Groups</term>
+
+          <listitem>
+            <para>If this is empty, any user who can edit an article will see
+            the OpenGraph tab. Otherwise, only users belonging to one or more
+            of the groups specified here –or one of their child groups– will
+            be see that tab. Super Users are not limited by this
+            setting.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </section>
 
     <section xml:id="socialmagick-categories">
       <title>SocialMagick – Categories</title>
 
-      <para/>
+      <para>This plugin allows SocialMagick to integrate with Joomla article
+      categories. You must have this plugin enabled for this integration to
+      function.</para>
+
+      <important>
+        <para>This integration plugin only applies to <emphasis
+        role="bold">article</emphasis> categories. It does not apply to
+        categories used by other core and third party components such as
+        Banners, Contacts, News Feeds etc.</para>
+      </important>
+
+      <para>The plugin is responsible for rendering the OpenGraph tab when you
+      are editing a Joomla article category.</para>
+
+      <para>When your frontend page is displaying a Joomla category (e.g. any
+      of the default category blog or category list view options), this plugin
+      makes the following information available to SocialMagick:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The category title can be used as the OpenGraph image template
+          text when you enable <guilabel>Use Content Title</guilabel>.</para>
+        </listitem>
+
+        <listitem>
+          <para>The category's Image can be used as the Extra Image in the
+          OpenGraph image template.</para>
+
+          <note>
+            <para>The Template shows the options Full Article Image and Intro
+            Image. <emphasis>Either</emphasis> of these settings returns the
+            category Image for category items.</para>
+          </note>
+        </listitem>
+
+        <listitem>
+          <para>A Joomla custom Field can be used as the Extra Image in the
+          OpenGraph image template.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The configuration options in the <guilabel>Plugin</guilabel> tab
+      are:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Extra Image Source</term>
+
+          <listitem>
+            <para>The default Extra Image source for Joomla article categoris.
+            This can be overridden at the category, and menu item level. The
+            available options are:</para>
+
+            <itemizedlist>
+              <listitem>
+                <para><option>None</option>. No Extra Image will be
+                used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Category</option>. The article category's Image
+                will be used, if present. Otherwise, no Extra Image will be
+                used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Custom Field</option>. The image provided by the
+                category custom field whose name is set up below will be used,
+                if present. Otherwise, no Extra Image will be used.</para>
+              </listitem>
+
+              <listitem>
+                <para><option>Custom Field, or Category</option>. The image
+                provided by the custom field whose name is set up below will
+                be used, if present. If there is no custom image field, or
+                it's empty, the article category's image will be used, if
+                present. If it's not present, no Extra Image will be
+                used.</para>
+              </listitem>
+            </itemizedlist>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Extra Image Field Name</term>
+
+          <listitem>
+            <para>The <guilabel>Name</guilabel> of the Joomla Field of the
+            article category which has the Extra Image to use in the OpenGraph
+            image template. This must be a Media or Text field, or an
+            equivalent third party field type. The contents of the field
+            <emphasis role="bold">MUST</emphasis> be the absolute or relative
+            filesystem path to an image hosted on your web server. You cannot
+            use URLs, or images hosted externally to your site such as a CDN,
+            Amazon S3, Dropbox, etc.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Use Category Title</term>
+
+          <listitem>
+            <para>Tells SocialMagick to use the article category's title as
+            the text overlay source. If disabled, the <guilabel>Use Content
+            Title</guilabel> option will have no effect by default.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Use Category Description</term>
+
+          <listitem>
+            <para>Tells SocialMagick to use the category's Meta Description as
+            the OpenGraph description. You can override this in categories and
+            menu items. If this is disabled, SocialMagick will instead use the
+            Meta Description set up in the currently used menu item.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>The <guilabel>Advanced</guilabel> tab allows you to specify who
+      for and where the OpenGraph tab will be visible when editing a Joomla
+      article category.</para>
+
+      <note>
+        <para>All users who belong to the Super User group are NOT limited by
+        the options in this tab. Super User accounts can always see the
+        OpenGraph tab. The reason is that Super Users in Joomla have, by
+        definition, all privileges explicitly Allowed to them, i.e. the should
+        and can do anything and everything on the site.</para>
+      </note>
+
+      <variablelist>
+        <varlistentry>
+          <term>Allow Frontend Editing of OpenGraph Settings</term>
+
+          <listitem>
+            <para>Should the OpenGraph settings tab show up when editing an
+            article category in the frontend of the site?</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Limit OpenGraph Settings To Users Of These Groups</term>
+
+          <listitem>
+            <para>If this is empty, any user who can edit an article category
+            will see the OpenGraph tab. Otherwise, only users belonging to one
+            or more of the groups specified here –or one of their child
+            groups– will be see that tab.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </section>
 
     <section xml:id="socialmagick-menus">
       <title>SocialMagick – Menu Items</title>
 
-      <para/>
+      <para>This integration plugin must be enabled for SocialMagick to be
+      able to show OpenGraph tabs in menu items, and use these settings to
+      override component, category, and content item OpenGraph
+      parameters.</para>
+
+      <para>If you disable this integration plugin you can expect SocialMagick
+      to behave in ways that you will perceive as wrong, weird, or outright
+      broken.</para>
+
+      <para>This is a plugin because there are very few, very specific use
+      cases which warrant this kind of weird behaviour. If you are unsure if
+      that applies to you, chances are it does not. It's one of those things
+      that you know when you need it, and shouldn't touch if you don't
+      absolutely need to do something really weird...</para>
     </section>
   </chapter>
 
   <chapter xml:id="in-depth-information">
     <title>In-depth information</title>
+
+    <section xml:id="component-options">
+      <title>Component options</title>
+
+      <para>The SocialMagic component includes a number of
+      <guilabel>Options</guilabel> which control its default behaviour. The
+      options under the <guilabel>Basic</guilabel> and <guilabel>OpenGraph
+      Tags</guilabel> tabs can be overridden at the category, content item,
+      and menu item level.</para>
+
+      <para><guilabel>Basic</guilabel></para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Generate OpenGraph Images By Default</term>
+
+          <listitem>
+            <para>OpenGraph images will be generated for all pages on your
+            site unless explicitly configured not to, for example at the menu
+            or article level. When disabled, you will have to explicitly
+            configure menu items, articles, etc to generate OpenGraph images.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Default Template</term>
+
+          <listitem>
+            <para>The OpenGraph image generation template to use. You have to
+            save the plugin before selecting a template you just created or
+            renamed. This option can be overridden in a menu item, category or
+            article.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para><guilabel>OpenGraph Tags</guilabel></para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Add OpenGraph Property Declaration</term>
+
+          <listitem>
+            <para>SocialMagick will add the OpenGraph namespace declaration to
+            the <code>&lt;html&gt;</code> element of your site's HTML output.
+            Leave enabled unless you have a custom template or a third party
+            extension which does that for you. Even in this case it is safe to
+            leave this option enabled; SocialMagick will check if the
+            namespace declaration is present to avoid creating a duplicate
+            definition. </para>
+
+            <important>
+              <para>If the OpenGraph namespace declaration is missing most
+              third party sites and services will NOT be able to read the
+              OpenGraph data of your site, even if this data is present in the
+              <code>&lt;head&gt;</code> section of the HTML page.</para>
+            </important>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>OpenGraph Title </term>
+
+          <listitem>
+            <para>Tells SocialMagic which text to use when setting the
+            <code>og:title</code> property in the HTML document. This
+            communicates the title of the current page to social media sites.
+            Setting this to No disables this feature. </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>OpenGraph Description </term>
+
+          <listitem>
+            <para>Tells SocialMagic which text to use when setting the
+            <code>og:description</code> property in the HTML document. This
+            communicates the summary (description) of the current page to
+            social media sites. Setting this to No disables this feature.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>OpenGraph URL </term>
+
+          <listitem>
+            <para>Tells SocialMagic whether to set the <code>og:url</code>
+            property in the HTML document. This communicates the URL of the
+            current page to social media sites. This property is largely
+            redundant for Joomla! sites. It only serves to satisfy OpenGraph
+            validators which might complain if it's missing. </para>
+
+            <tip>
+              <para>If you are not sure whether you need the OpenGraph URL or
+              not, it's best to enable it. Having it when the consumer site /
+              application doesn't need it doesn't hurt. Not having it when
+              it's needed, though, may lead to undesired display of the links
+              you share.</para>
+            </tip>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>OpenGraph Site Name </term>
+
+          <listitem>
+            <para>Tells SocialMagic whether to set the
+            <code>og:site_name</code> property in the HTML document. This
+            communicates the name of the site to social media sites. </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>X (formerly Twitter) Card type </term>
+
+          <listitem>
+            <para>Set the sharing card type on X (formerly Twitter). Summary
+            shows the page title, description and a small thumbnail. Summary
+            with Large Image is similar to Summary but uses a larger,
+            prominent version of your page's OpenGraph image. If you use None
+            X will show its default preview which may include a preview image.
+            Using either card type requires that your page has an og:image
+            property set either by this plugin or by a third party extension,
+            otherwise it has no effect. </para>
+
+            <para>You can use this option even if you don't care about, plan
+            to use, or support X; its properties are read by other social
+            media sites and applications as a hint on how to best display a
+            link preview.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>X Site Handle </term>
+
+          <listitem>
+            <para>The X handle used by your site, including the @ sign in
+            front. </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>X Creator Handle </term>
+
+          <listitem>
+            <para>The default X handle which will be attributed as the content
+            creator. Generally recommended to only set this in articles, not
+            in the component Options.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Facebook App ID </term>
+
+          <listitem>
+            <para>If your site is using a Facebook app, e.g. for social login,
+            you are recommended to enter the Facebook App ID here so that
+            Facebook can attribute the links of your site to that Facebook
+            app. If you have no idea what this is you can safely omit
+            it.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para><guilabel>Advanced</guilabel></para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Image Type</term>
+
+          <listitem>
+            <para>The image file type for generated OpenGraph images. PNG and
+            JPG are universally supported. PNG generates massive files which
+            preserve transparency, JPG (default) generates fairly small files
+            with some visual artifacts and does not support transparency. WebP
+            produces the smallest files with minimal visual artifacts and does
+            support transparency, but some niche services and (usually older
+            versions of) third party software may not be able to display WebP
+            files. If you know your links won't be shared in any niche
+            software / service (or don't care about them), we recommend
+            switching this option to WebP for best quality and size. </para>
+
+            <para>As of the writing of this documentation (September 2025) all
+            major third party services and applications support WebP, with a
+            question about whether Discord supports lossless WebP (what you
+            get with a quality setting of 90 or higher).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Image Quality </term>
+
+          <listitem>
+            <para>Controls the quality of the generated image by adjusting the
+            compression level.</para>
+
+            <para>0 is the worst image quality, at the best compression rate
+            and smallest image size, but is rarely usable. 100 is the best
+            image quality, using no compression and the highest image size.
+            The exact semantics of this option depend on the image format you
+            chose to use.</para>
+
+            <para>PNG: This file format only has 10 <emphasis
+            role="bold">lossless</emphasis> compression levels ranging from 0
+            (uncompressed) to 9 (maximum compression). Lossless means that
+            there is no change in image quality at all, only a small impact on
+            file size. SocialMagick maps image quality 0-10 to PNG compression
+            level 9, 11-20 to PNG compression level 8, ..., 81-90 to PNG
+            compression level 1, and 91-100 to PNG compression level 0. We
+            recommend using image quality 0 (maximum compression) on most
+            servers. On slow servers, use image quality 60 (compression level
+            4).</para>
+
+            <warning>
+              <para>PNG compression depends heavily on the capabilities of the
+              PHP graphics handling library and the content of the image. Busy
+              images will see practically no size change across the entire
+              range of Image Quality.</para>
+            </warning>
+
+            <para>JPG: The JPG format uses a lossy compression algorithm.
+            Image Quality levels below 30 are very strongly NOT recommended
+            because the visual artifacts make them unusable. Moreover, an
+            Image Quality beyond 85 makes the file significantly larger
+            without any perceived improvement in quality. We recommend an
+            image quality of 60 to 75. The default value (75) is the one
+            recommended by the JPG standard.</para>
+
+            <para>WebP: Image Quality levels 0 to 89 use lossy compression
+            which can affect image quality. Image quality 90 to 100 uses
+            lossless compression which will result in fairly small files with
+            no loss of image quality whatsoever. The default image quality
+            (75) is a good balance between quality and file size. You can get
+            significantly better quality at a small increase in file size
+            using quality level 100, but some sites may not be able to display
+            your OpenGraph image.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Regenerate Images On Every Page Load (Development Mode)
+          </term>
+
+          <listitem>
+            <para>By default, SocialMagick only regenerates an OpenGraph image
+            for a specific page when it detects that the text, Extra Image,
+            template, or template settings have changed since the last time it
+            generated an image for that page.</para>
+
+            <para>If you are troubleshooting and need to override this image
+            caching behaviour, you need to enable this option. Please note
+            that this has a very high impact on your site's performance as
+            SocialMagick will try to generate images on every page
+            load!</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Debug Text Layout </term>
+
+          <listitem>
+            <para>Enables the <link linkend="debug-text-layout">Debug Text
+            Layout</link> feature. This feature renders the text box and
+            overlay text lines bounding boxes on the generated OpenGraph
+            image. You should only enable that on development sites, always
+            together with the <guilabel>Regenerate Images On Every Page Load
+            (Development Mode) </guilabel> option.</para>
+
+            <para>Instead of using this option, we strongly recommend using
+            the Template Preview feature when editing a template, enabling the
+            Debug Text Layout checkbox for the Template Preview. Doing so will
+            NOT affect your generated OpenGraph images and does not run the
+            risk of a third party site or application showing and caching an
+            OpenGraph image with the Debug Text Layout markings on it.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Frontend Preview Button </term>
+
+          <listitem>
+            <para>SocialMagick will display a preview floating on pages it has
+            generated an OpenGraph image. Clicking on it allows you to preview
+            the OpenGraph image and properties of the page without having to
+            view source, or use a third party site / tool. You can choose
+            which Joomla User Groups will see this button below. See <link
+            linkend="frontend-preview">Frontend Preview</link>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Frontend Preview Access Level </term>
+
+          <listitem>
+            <para>Choose the Joomla Access Level which will see the Frontend
+            Preview Button. The default value is <option>Special</option>,
+            allowing only Administrator and Super User accounts to see the
+            button. </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>PHP Image Handling Extensions </term>
+
+          <listitem>
+            <para>Choose which PHP extension to use to generate OpenGraph
+            images. Use <option>Auto-detect</option> unless our support
+            explicitly asks you to do otherwise. <option>ImageMagick</option>
+            uses the <code>imagick</code> PHP extension (faster, you may have
+            to ask your host to install or enable). <option>GD</option> uses
+            the PHP <code>gd</code> extension (slower, installed on most
+            servers). If your selected library is not available no images will
+            be generated. <option>Auto-detect</option> uses ImageMagick if
+            available, falls back to GD if not.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </section>
+
+    <section xml:id="debug-text-layout">
+      <title>Debug text layout</title>
+
+      <para/>
+    </section>
+
+    <section xml:id="frontend-preview">
+      <title>Frontend preview</title>
+
+      <para/>
+    </section>
 
     <section xml:id="managing-php-image-exts">
       <title>Managing the PHP image extensions</title>
@@ -2322,6 +3294,18 @@ Additional .ini files parsed:      /etc/php/conf.d/99-nicholas.ini,
         <command>systemctl restart php83-fpm &amp;&amp; systemctl restart
         httpd</command>.</para>
       </section>
+    </section>
+
+    <section xml:id="clean-up-old-images">
+      <title>Cleaning up old images</title>
+
+      <para/>
+    </section>
+
+    <section xml:id="creating-base-images">
+      <title>Creating your own template base images</title>
+
+      <para/>
     </section>
   </chapter>
 

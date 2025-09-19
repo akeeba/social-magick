@@ -318,13 +318,16 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			return;
 		}
 
-		$textOpacity = $template['text-opacity'] ?? 100;
-
 		// Normalize text
 		$text = $this->preProcessText($text, false);
 
 		// Break text into lines that fit within the box, adding ellipsis if needed
-		$fittedText = $this->fitTextIntoLines($text, $template);
+		$fittedText = $this->fitTextIntoLines($text, $template, $strokeWidth);
+
+		if (empty($fittedText))
+		{
+			return;
+		}
 
 		// Set up the text
 		$theText = new Imagick();
@@ -402,21 +405,6 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			}
 
 			$strokeText->destroy();
-
-			// Composite stroke canvas onto main image first
-			$yPos = $template['text-y-absolute'];
-			if ($template['text-y-center'] == '1')
-			{
-				$yPos = ($image->getImageHeight() - $strokeCanvas->getImageHeight()) / 2.0 + $template['text-y-adjust'];
-			}
-
-			$xPos = $template['text-x-absolute'];
-			if ($template['text-x-center'] == '1')
-			{
-				$xPos = ($image->getImageWidth() - $strokeCanvas->getImageWidth()) / 2.0 + $template['text-x-adjust'];
-			}
-
-			// TODO strokeCanvas must be composited with the text canvas and the whole shebang made transparent...
 		}
 
 		// Create a `caption:` pseudo image that only manages text.
@@ -441,7 +429,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($template['text-y-center'] == '1')
 		{
-			$yPos = ($image->getImageHeight() - $theText->getImageHeight()) / 2.0 + $template['text-y-adjust'];
+			$yPos = (int) (($image->getImageHeight() - $theText->getImageHeight()) / 2.0 + $template['text-y-adjust']);
 		}
 
 		// Figure out text horizontal position
@@ -449,18 +437,56 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($template['text-x-center'] == '1')
 		{
-			$xPos = ($image->getImageWidth() - $theText->getImageWidth()) / 2.0 + $template['text-x-adjust'];
+			$xPos = (int) (($image->getImageWidth() - $theText->getImageWidth()) / 2.0 + $template['text-x-adjust']);
 		}
 
 		if ($this->debugText)
 		{
-			$debugW = $theText->getImageWidth();
-			$debugH = $theText->getImageHeight();
+			// Bounding box
+			$bbY = $template['text-y-absolute'];
+
+			if ($template['text-y-center'] == '1')
+			{
+				$bbY = (int)(($image->getImageHeight() - $template['text-height']) / 2.0 + $template['text-y-adjust']);
+			}
+
+			$bbX = $template['text-x-absolute'];
+
+			if ($template['text-x-center'] == '1')
+			{
+				$bbX = (int)(($image->getImageWidth() - $template['text-width']) / 2.0 + $template['text-x-adjust']);
+			}
 
 			$draw        = new ImagickDraw();
 			$strokeColor = new ImagickPixel('#ff00ff');
 			$fillColor   = new ImagickPixel('#ffff0050');
 			$draw->setStrokeColor($strokeColor);
+			$draw->setFillColor($fillColor);
+			$draw->setStrokeOpacity(1);
+			$draw->setStrokeWidth(2);
+			$draw->rectangle(1, 1, $template['text-width'], $template['text-height']);
+			$debugImage       = new Imagick();
+			$transparentPixel = new ImagickPixel('transparent');
+			$debugImage->newImage($template['text-width'], $template['text-height'], $transparentPixel);
+			$debugImage->drawImage($draw);
+
+			$strokeColor->destroy();
+			$fillColor->destroy();
+			$draw->destroy();
+			$transparentPixel->destroy();
+
+			$image->compositeImage($debugImage, Imagick::COMPOSITE_OVER, $bbX, $bbY);
+			$debugImage->destroy();
+
+			// Text lines
+			$debugW = $theText->getImageWidth() + 2 * $strokeWidth;
+			$debugH = $theText->getImageHeight() + 2 * $strokeWidth;
+
+			$draw        = new ImagickDraw();
+			$strokeColor = new ImagickPixel('#ff00ff');
+			$fillColor   = new ImagickPixel('transparent');
+			$draw->setStrokeColor($strokeColor);
+			$draw->setStrokeDashArray([5, 5]);
 			$draw->setFillColor($fillColor);
 			$draw->setStrokeOpacity(1);
 			$draw->setStrokeWidth(2);
@@ -521,14 +547,15 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Fit text into lines that can be contained within the template box, adding ellipsis if needed.
 	 *
-	 * @param   string  $text      The original text
-	 * @param   array   $template  The template configuration
+	 * @param   string  $text         The original text
+	 * @param   array   $template     The template configuration
+	 * @param   int     $strokeWidth  The text stroke width
 	 *
 	 * @return  string  The text formatted with line breaks and ellipsis if needed
 	 *
 	 * @since   1.0.0
 	 */
-	private function fitTextIntoLines(string $text, array $template): string
+	private function fitTextIntoLines(string $text, array $template, int $strokeWidth = 0): string
 	{
 		$words       = explode(' ', $text);
 		$lines       = [];
@@ -542,7 +569,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			$testLine = empty($currentLine) ? $word : $currentLine . ' ' . $word;
 
 			// Measure the test line
-			$testMetrics = $this->measureText($testLine, $template);
+			$testMetrics = $this->measureText($testLine, $template, $strokeWidth);
 
 			if ($testMetrics['width'] <= $maxWidth)
 			{
@@ -567,12 +594,12 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		// Now check if all lines fit vertically
-		$totalHeight = $this->calculateTotalTextHeight($lines, $template, $lineSpacing);
+		$totalHeight = $this->calculateTotalTextHeight($lines, $template, $lineSpacing, $strokeWidth);
 
 		if ($totalHeight > $maxHeight)
 		{
 			// We need to remove lines and add ellipsis
-			$lines = $this->truncateLinesToFitHeight($lines, $template, $maxHeight, $lineSpacing);
+			$lines = $this->truncateLinesToFitHeight($lines, $template, $maxHeight, $lineSpacing, $strokeWidth);
 		}
 
 		return implode("\n", $lines);
@@ -583,12 +610,13 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @param   string  $text      The text to measure
 	 * @param   array   $template  The template configuration
+	 * @param   int     $strokeWidth  The text stroke width
 	 *
 	 * @return  array   Array with 'width' and 'height' keys
 	 *
 	 * @since   1.0.0
 	 */
-	private function measureText(string $text, array $template): array
+	private function measureText(string $text, array $template, int $strokeWidth = 0): array
 	{
 		$draw = new ImagickDraw();
 		$draw->setFont($this->normalizeFont($template['text-font']));
@@ -617,8 +645,8 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		$tempImage->destroy();
 
 		return [
-			'width'  => (int) ceil($metrics['textWidth']),
-			'height' => (int) ceil($metrics['textHeight']),
+			'width'  => (int) ceil($metrics['textWidth']) + 2 * $strokeWidth,
+			'height' => (int) ceil($metrics['textHeight']) + 2 * $strokeWidth,
 		];
 	}
 
@@ -628,25 +656,26 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 * @param   array  $lines        Array of text lines
 	 * @param   array  $template     Template configuration
 	 * @param   float  $lineSpacing  Line spacing factor
+	 * @param   int    $strokeWidth  The text stroke width
 	 *
 	 * @return  int     Total height in pixels
 	 *
 	 * @since   1.0.0
 	 */
-	private function calculateTotalTextHeight(array $lines, array $template, float $lineSpacing): int
+	private function calculateTotalTextHeight(array $lines, array $template, float $lineSpacing, int $strokeWidth = 0): int
 	{
 		if (empty($lines))
 		{
 			return 0;
 		}
 
-		$firstLineHeight = $this->measureText($lines[0], $template)['height'];
+		$firstLineHeight = $this->measureText($lines[0], $template, $strokeWidth)['height'];
 		$totalHeight     = $firstLineHeight;
 
 		// Add height for additional lines with spacing
 		for ($i = 1; $i < count($lines); $i++)
 		{
-			$lineHeight  = $this->measureText($lines[$i], $template)['height'];
+			$lineHeight  = $this->measureText($lines[$i], $template, $strokeWidth)['height'];
 			$totalHeight += $lineHeight * $lineSpacing;
 		}
 
@@ -660,12 +689,13 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 * @param   array  $template     Template configuration
 	 * @param   int    $maxHeight    Maximum height in pixels
 	 * @param   float  $lineSpacing  Line spacing factor
+	 * @param   int    $strokeWidth  The text stroke width
 	 *
 	 * @return  array   Truncated array of lines with ellipsis on the last line
 	 *
 	 * @since   1.0.0
 	 */
-	private function truncateLinesToFitHeight(array $lines, array $template, int $maxHeight, float $lineSpacing): array
+	private function truncateLinesToFitHeight(array $lines, array $template, int $maxHeight, float $lineSpacing, int $strokeWidth = 0): array
 	{
 		$fittedLines   = [];
 		$currentHeight = 0;
@@ -673,7 +703,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		foreach ($lines as $line)
 		{
-			$lineMetrics = $this->measureText($line, $template);
+			$lineMetrics = $this->measureText($line, $template, $strokeWidth);
 			$lineHeight  = $lineMetrics['height'];
 
 			if (count($fittedLines) > 0)
@@ -692,7 +722,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 				if (!empty($fittedLines))
 				{
 					$lastLine      = array_pop($fittedLines);
-					$ellipsisLine  = $this->addEllipsisToLine($lastLine, $template, $maxWidth);
+					$ellipsisLine  = $this->addEllipsisToLine($lastLine, $template, $maxWidth, $strokeWidth);
 					$fittedLines[] = $ellipsisLine;
 				}
 				break;
@@ -705,19 +735,20 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Add ellipsis to a line, truncating words if necessary to fit within the width.
 	 *
-	 * @param   string  $line      The original line
-	 * @param   array   $template  Template configuration
-	 * @param   int     $maxWidth  Maximum width in pixels
+	 * @param   string  $line         The original line
+	 * @param   array   $template     Template configuration
+	 * @param   int     $maxWidth     Maximum width in pixels
+	 * @param   int     $strokeWidth  The text stroke width
 	 *
 	 * @return  string  Line with ellipsis that fits within the width
 	 *
 	 * @since   1.0.0
 	 */
-	private function addEllipsisToLine(string $line, array $template, int $maxWidth): string
+	private function addEllipsisToLine(string $line, array $template, int $maxWidth, int $strokeWidth = 0): string
 	{
 		// First try adding ellipsis to the full line
 		$testLine    = $line . '…';
-		$testMetrics = $this->measureText($testLine, $template);
+		$testMetrics = $this->measureText($testLine, $template, $strokeWidth);
 
 		if ($testMetrics['width'] <= $maxWidth)
 		{
@@ -731,7 +762,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			array_pop($words);
 			$testLine    = implode(' ', $words) . '…';
-			$testMetrics = $this->measureText($testLine, $template);
+			$testMetrics = $this->measureText($testLine, $template, $strokeWidth);
 
 			if ($testMetrics['width'] <= $maxWidth)
 			{
@@ -749,7 +780,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			{
 				array_pop($chars);
 				$testLine    = implode('', $chars) . '…';
-				$testMetrics = $this->measureText($testLine, $template);
+				$testMetrics = $this->measureText($testLine, $template, $strokeWidth);
 
 				if ($testMetrics['width'] <= $maxWidth)
 				{

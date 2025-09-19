@@ -479,9 +479,14 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		// Pre-render the text
 		$fontSize = ((abs($template['font-size']) >= 1) ? abs($template['font-size']) : 24) * 0.755;
 		$fontPath = $this->normalizeFont($template['text-font']);
-		[
-			$textImage, $textImageWidth, $textImageHeight,
-		] = $this->renderText($text, $template['text-color'], $template['text-align'], $fontPath, $fontSize, $template['text-width'], $template['text-height'], $template['text-y-center'] == 1, 1.35, $strokeColor, $strokeWidth);
+		[$textImage, $textImageWidth, $textImageHeight]
+			= $this->renderText($text, $template['text-color'], $template['text-align'], $fontPath, $fontSize, $template['text-width'], $template['text-height'], $template['text-y-center'] == 1, 1.35, $strokeColor, $strokeWidth);
+
+		if (empty($textImage))
+		{
+			return;
+		}
+
 		$centerVertically   = $template['text-y-center'] == 1;
 		$verticalOffset     = $centerVertically ? $template['text-y-adjust'] : $template['text-y-absolute'];
 		$centerHorizontally = $template['text-x-center'] == 1;
@@ -538,6 +543,11 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		$lineCountBeforeMaxHeight = count($lines);
 		$lines                    = $this->applyMaximumHeight($lines, $maxHeight);
 		$lineCountAfterMaxHeight  = count($lines);
+
+		if (empty($lines))
+		{
+			return [null, 0, 0];
+		}
 
 		// Add ellipses to the last line if the text didn't fit.
 		if ($lineCountAfterMaxHeight < $lineCountBeforeMaxHeight)
@@ -636,7 +646,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 					{
 						if ($xOffset !== 0 || $yOffsetStroke !== 0)
 						{
-							imagettftext($image, $fontSize, 0, $x1 + $xOffset, $y1 + $yOffsetStroke, $strokeColorResource, $font, $line['text']);
+							imagettftext($image, $fontSize, 0, (int) ($x1 + $xOffset), (int) ($y1 + $yOffsetStroke), $strokeColorResource, $font, $line['text']);
 						}
 					}
 				}
@@ -666,7 +676,8 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 			if ($this->debugText)
 			{
-				imagerectangle($image, $x1, $y1, $x1 + $line['width'], $y1 + $line['height'], $purple);
+				$this->imageDottedRectangle
+				($image, $x1, $y1, $x1 + $line['width'], $y1 + $line['height'], $purple, 5, 5);
 			}
 		}
 
@@ -674,12 +685,80 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	}
 
 	/**
+	 * Draw a dotted rectangle
+	 *
+	 * @param   resource  $image       The GD image resource
+	 * @param   int       $x1          Top-left X coordinate
+	 * @param   int       $y1          Top-left Y coordinate
+	 * @param   int       $x2          Bottom-right X coordinate
+	 * @param   int       $y2          Bottom-right Y coordinate
+	 * @param   int       $color       The color resource
+	 * @param   int       $dashLength  Length of each dash (default 5)
+	 * @param   int       $gapLength   Length of each gap (default 5)
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function imageDottedRectangle($image, int $x1, int $y1, int $x2, int $y2, $color, int $dashLength = 5, int $gapLength = 5): void
+	{
+		// Ensure coordinates are in correct order
+		if ($x1 > $x2) {
+			[$x1, $x2] = [$x2, $x1];
+		}
+		if ($y1 > $y2) {
+			[$y1, $y2] = [$y2, $y1];
+		}
+
+		$totalPattern = $dashLength + $gapLength;
+
+		// Draw top edge
+		for ($x = $x1; $x <= $x2; $x++)
+		{
+			$position = ($x - $x1) % $totalPattern;
+			if ($position < $dashLength)
+			{
+				imagesetpixel($image, $x, $y1, $color);
+			}
+		}
+
+		// Draw bottom edge
+		for ($x = $x1; $x <= $x2; $x++)
+		{
+			$position = ($x - $x1) % $totalPattern;
+			if ($position < $dashLength)
+			{
+				imagesetpixel($image, $x, $y2, $color);
+			}
+		}
+
+		// Draw left edge
+		for ($y = $y1 + 1; $y < $y2; $y++)
+		{
+			$position = ($y - $y1) % $totalPattern;
+			if ($position < $dashLength)
+			{
+				imagesetpixel($image, $x1, $y, $color);
+			}
+		}
+
+		// Draw right edge
+		for ($y = $y1 + 1; $y < $y2; $y++)
+		{
+			$position = ($y - $y1) % $totalPattern;
+			if ($position < $dashLength)
+			{
+				imagesetpixel($image, $x2, $y, $color);
+			}
+		}
+	}
+
+	/**
 	 * Returns the rendering offsets for the text image over a base image.
 	 *
 	 * @param   int   $baseImageWidth      Base image width, in pixels.
 	 * @param   int   $baseImageHeight     Base image height, in pixels.
-	 * @param   int   $textImageWidth      Text image width, in pixels. This includes the 50px padding in either side.
-	 * @param   int   $textImageHeight     Text image height, in pixels. This includes the 50px padding in either side.
+	 * @param   int   $textImageWidth      Text image width, in pixels. This includes the 50px padding on either side.
+	 * @param   int   $textImageHeight     Text image height, in pixels. This includes the 50px padding on either side.
 	 * @param   bool  $centerVertically    Should I center the text vertically over the base image?
 	 * @param   int   $verticalOffset      Offset in the vertical direction. Positive moves text down, negative moves
 	 *                                     text up.

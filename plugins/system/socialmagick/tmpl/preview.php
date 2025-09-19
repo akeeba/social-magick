@@ -14,6 +14,26 @@ use Joomla\CMS\Uri\Uri;
  * @var ?string $description
  */
 
+$urlToDisplay = function (?string $url = null)
+{
+	$url ??= Uri::current();
+	$uri = Uri::getInstance($url);
+
+	$uriParts = explode('/', $uri->toString(['scheme', 'user', 'pass', 'host', 'port', 'path']));
+	$uriParts = array_map(fn($x) => htmlentities($x, encoding: 'UTF-8'), $uriParts);
+	$urlForDisplay = implode('/<wbr>', $uriParts);
+
+	if ($uri->getQuery())
+	{
+		$queryParts = $uri->getQuery(true);
+		$query = http_build_query($queryParts, '', '&<wbr>');
+		$urlForDisplay .= '?<wbr>' . rtrim($query, '=');
+	}
+
+	return $urlForDisplay;
+};
+
+
 ?>
 <div id="plg_system_socialmagic_btn" title="<?= Text::_('PLG_SYSTEM_SOCIALMAGIC_PREVIEW_OPENGRAPH') ?>">
 	<span class="fa fas fa-image" aria-hidden="true"></span>
@@ -56,7 +76,7 @@ use Joomla\CMS\Uri\Uri;
 						</th>
 						<td>
 							<a href="<?= htmlentities($imageLink, encoding: 'utf8') ?>" target="_blank">
-								<?= htmlentities($imageLink, encoding: 'utf8') ?>
+								<?= $urlToDisplay($imageLink) ?>
 							</a>
 						</td>
 					</tr>
@@ -65,7 +85,7 @@ use Joomla\CMS\Uri\Uri;
 							<?= Text::_('PLG_SYSTEM_SOCIALMAGIC_PREVIEW_LBL_URL') ?>
 						</th>
 						<td>
-							<?= htmlentities(Uri::current(), encoding: 'utf8') ?>
+							<?= $urlToDisplay() ?>
 						</td>
 					</tr>
 					<tr>

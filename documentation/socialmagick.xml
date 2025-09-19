@@ -3143,7 +3143,91 @@ php_value post_max_size 10M
     <section xml:id="frontend-preview">
       <title>Frontend preview</title>
 
-      <para/>
+      <para>SocialMagick works in a generally invisible way, creating
+      OpenGraph images and setting up OpenGraph data for your site's pages.
+      But how do you know that the data it creates and the images it creates
+      is what you were aiming for? Normally, that would require viewing the
+      page's source to inspect the meta tags in the HTML head. If you want to
+      see the OpenGraph image you have to find the OpenGraph image tag, get
+      the image URL from it, and open it in another browser tab. That's a lot
+      of work.</para>
+
+      <para>Instead, you can enabled the Frontend Preview option in the
+      component's <guibutton>Options</guibutton> page. </para>
+
+      <tip>
+        <para>You can also limit which <emphasis role="bold">user
+        groups</emphasis> can see this button. You may want, for example, to
+        only allow Manager, Administrator, and Super User accounts to see this
+        button in the frontend as it makes no sense for regular users to see
+        it. Or, you may have a development or staging site where you want to
+        enable this button for everyone, even guests, because you're working
+        on a site which does not allow frontend user login. It's up to
+        you!</para>
+      </tip>
+
+      <para>This shows a button towards the bottom right of the screen for
+      every page on your site. It looks like this:</para>
+
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/frontend-preview-btn.png" scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+
+      <para>Clicking on this button opens up the OpenGraph Preview modal
+      window, which looks like this:</para>
+
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/frontend-preview.png" scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+
+      <para>The top half of the modal window shows you how third parties will
+      display a link to this page of your site including the OpenGraph image
+      (if any), the domain name, the OpenGraph title, and the OpenGraph
+      description. The template used is very similar to how Facebook displays
+      links. Other sites and applications may use a slightly different
+      arrangement of the same elements.</para>
+
+      <para>The bottom half of the modal window shows you the individual
+      OpenGraph properties on the page:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Image. A link to the OpenGraph image. Click on it to open the
+          image in a new tab.</para>
+        </listitem>
+
+        <listitem>
+          <para>URL. The URL to your page. This is the URL reported by Joomla
+          and <emphasis>should</emphasis> be the URL you see in your browser
+          in most cases. Please note that the URL will never include the page
+          fragment (<code>#something</code>), as this information is not
+          communicated by the browser to the server,</para>
+        </listitem>
+
+        <listitem>
+          <para>Title. The OpenGraph title. It could be the same as the Joomla
+          browser title (default), the content item title, or custom text you
+          have entered depending on what kind of content you are displaying,
+          the availability of an integration plugin for it, and your
+          preferences.</para>
+        </listitem>
+
+        <listitem>
+          <para>Description. It could be the same as the Joomla meta
+          description for the menu item, the content's meta description, or
+          custom text you have entered depending on what kind of content you
+          are displaying, the availability of an integration plugin for it,
+          and your preferences.</para>
+        </listitem>
+      </itemizedlist>
     </section>
 
     <section xml:id="managing-php-image-exts">
@@ -3483,7 +3567,65 @@ Additional .ini files parsed:      /etc/php/conf.d/99-nicholas.ini,
     <section xml:id="clean-up-old-images">
       <title>Cleaning up old images</title>
 
-      <para/>
+      <para>SocialMagick creates OpenGraph images. The generated image files
+      are stored on your site, by default under
+      <filename>media/com_socialmagick/generated</filename>. This happens for
+      two reasons. First of all, generating images is time consuming. Having
+      the generated images cached means that this time will only be spent
+      once, speeding up your site. Second, when you are sharing a link to a
+      site or application it will retrieve the URL of the OpenGraph image, not
+      necessarily its contents right away. The image must remain available on
+      your site for link previews to work. This behaviour depends on the third
+      party site / application. For this reason, SocialMagick will by default
+      never clean up old images.</para>
+
+      <para>The image filename is constructed as a hash of the page of your
+      site you are displaying, the template ID and summary of its options, as
+      well as the Text and the location of the Extra Image used to generate
+      the image. When any of these factors change, so does the image filename.
+      When you are actively working on your site, tuning the SocialMagick
+      templates, changing the menu item OpenGraph options etc a lot of images
+      will be generated.</para>
+
+      <para>Moreover, as we said, old images are never removed, even if the
+      page has not been viewed for a very long time. This leaves behind the
+      OpenGraph image.</para>
+
+      <para>Depending on the image format you use, these images can get quite
+      big. PNG format images are the biggest, usually around 1-2 MiB each,
+      whereas WebP images are the smallest, usually in the 100-200 KiB
+      range.</para>
+
+      <para>If you are short on space you may want to remove old OpenGraph
+      images. There are two ways to do that.</para>
+
+      <para>First, when you visit the SocialMagick Templates page in the
+      backend you can see how much space your OpenGraph images take and delete
+      all of them. They will be regenerated on demand.</para>
+
+      <para>Second, as long as you publish the <guilabel>Task -
+      SocialMagick</guilabel> plugin you can use Joomla's Scheduled Tasks
+      feature to create a scheduled task of the <guilabel>SocialMagick -
+      Delete Obsolete Images</guilabel> type to automatically delete images
+      older than a specific amount of time, from 1 minute to 1 year.</para>
+
+      <para>That said, we recommend AGAINST deleting old OpenGraph images on a
+      production site. A production site will be indexed by search engine
+      crawlers which access all of your site's pages sequentially. If these
+      pages are set to generate OpenGraph images and these images are missing
+      from your site, they will have to be generated. This takes up a lot of
+      server resources. Therefore, crawling your site could have a <emphasis
+      role="bold">MASSIVE</emphasis> impact in its performance if the
+      OpenGraph images of old pages nobody but the crawler ever
+      accesses!</para>
+
+      <para>If you are concerned about disk space and site performance, we
+      recommend having OpenGraph image generation turned off by default, and
+      only enable it for specific pages which you reasonably expect to be
+      shared and would like to have custom OpenGraph images. For instance, a
+      device manufacturer's site would likely want to enable OpenGraph images
+      for the site's products and news sections, but not its community forum,
+      and downloads / resources sections.</para>
     </section>
 
     <section xml:id="creating-base-images">

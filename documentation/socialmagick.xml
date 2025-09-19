@@ -2953,7 +2953,191 @@ php_value post_max_size 10M
     <section xml:id="debug-text-layout">
       <title>Debug text layout</title>
 
-      <para/>
+      <para>When you are designing a template one of the hardest concept to
+      wrap your head around is how text is rendered. That's because of the
+      number of variables involved: font, font size, the size of the text box,
+      its positioning on the page, aligning the text, and how the text gets
+      cut off when it overflows.</para>
+
+      <para>The best way to understand it is to visualise the position and
+      size of the text box itself, and the text in it. Maybe play around with
+      different text strings, fonts, and font sizes. This is what the Debug
+      Text Layout does. It visualises the text box and the rendered text so
+      you can figure out how to best set up your template's overlay
+      text.</para>
+
+      <important>
+        <para>Please note that each PHP graphics library –ImageMagick
+        (<code>imagick</code>) and GD (<code>gd</code>)– render the same text
+        slightly differently. This comes down to the different font rendering
+        mechanism each library uses.</para>
+
+        <para>When you are developing on a development or staging server
+        please make sure that you use the same library you will be using on
+        your live site.</para>
+      </important>
+
+      <para><bridgehead>ImageMagick</bridgehead></para>
+
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/debugtext-imagick.png" scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+
+      <para>When you enable Debug Text Layout using ImageMagick you see the
+      text box rendered as a translucent yellow box with a thin solid purple
+      border. The position of the text box depends on the following template
+      settings:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><guilabel>Centre text vertically</guilabel>. Whether the text
+          box is vertically anchored to the middle of the image (Yes) or to
+          the top side of the image (No).</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Nudge Vertically from Centre (px)</guilabel> /
+          <guilabel>Pixels from the Top</guilabel>. How many pixels to the
+          bottom (positive numbers) or top (negative numbers) the text box
+          will move vertically from its anchor position.</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Centre text horizontally</guilabel>. Whether the
+          text box is horizontally anchored to the middle of the image (Yes)
+          or to the left hand side of the image (No).</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Nudge Horizontally from Centre (px)</guilabel> /
+          <guilabel>Pixels from Left Edge</guilabel>. How many pixels to the
+          right (positive numbers) or left (negative numbers) the text box
+          will move horizontally from its anchor position.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The size of the text box depends on the following template
+      settings:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><guilabel>Maximum Text Width (px)</guilabel>. The width
+          (horizontal size) of the text box.</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Maximum Text Height (px)</guilabel>. The height
+          (vertical size) of the text box.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>ImageMagick renders all text lines as a single text label
+      regardless of the number of actual text lines. You can see the outline
+      of the rendered text label as a thin dashed purple border.</para>
+
+      <para>The positioning of the text label within the text box is
+      automatic: it is always placed in the centre of the text box.</para>
+
+      <para>The alignment of the text within the text label (Left, Centre, or
+      Right) is determined by the Text Align template option.</para>
+
+      <bridgehead>GD</bridgehead>
+
+      <screenshot>
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/debugtext-gd.png" scalefit="1"/>
+          </imageobject>
+        </mediaobject>
+      </screenshot>
+
+      <para>When you enable Debug Text Layout using GD you see the text box
+      rendered as a translucent yellow box. Unlike when using the ImageMagick
+      library, you will also see that it extends 50 pixels to all sides,
+      rendered as a translucent pink background with a thin solid purple
+      border. This is the text gutter which is required by GD to render text
+      (if the text to be rendered is exactly the same size as the text box,
+      you get strange artifacts or crashes). Do note that the gutter is added
+      automatically. Your template settings only affect the size and
+      positioning of the text box itself.</para>
+
+      <note>
+        <para>In very rare cases (especially decorative fonts with character
+        elements extending beyond the character's render cell) you may see
+        parts of the font rendered inside the gutter area. In those rare cases
+        we strongly recommend using a different font, or switching to
+        ImageMagick which handles those cases more gracefully.</para>
+
+        <para>We also want to note that GD tends to render the text a bit
+        smaller and “rougher” than ImageMagick. Its only benefit is that it's
+        available and enabled on virtually every server which runs PHP,
+        whereas ImageMagick usually needs to be explicitly enabled by you, or
+        your systems administrator.</para>
+      </note>
+
+      <para>The position of the text box (yellow background) depends on the
+      following template settings:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><guilabel>Centre text vertically</guilabel>. Whether the text
+          box is vertically anchored to the middle of the image (Yes) or to
+          the top side of the image (No).</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Nudge Vertically from Centre (px)</guilabel> /
+          <guilabel>Pixels from the Top</guilabel>. How many pixels to the
+          bottom (positive numbers) or top (negative numbers) the text box
+          will move vertically from its anchor position.</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Centre text horizontally</guilabel>. Whether the
+          text box is horizontally anchored to the middle of the image (Yes)
+          or to the left hand side of the image (No).</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Nudge Horizontally from Centre (px)</guilabel> /
+          <guilabel>Pixels from Left Edge</guilabel>. How many pixels to the
+          right (positive numbers) or left (negative numbers) the text box
+          will move horizontally from its anchor position.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The size of the text box (yellow background) depends on the
+      following template settings:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><guilabel>Maximum Text Width (px)</guilabel>. The width
+          (horizontal size) of the text box.</para>
+        </listitem>
+
+        <listitem>
+          <para><guilabel>Maximum Text Height (px)</guilabel>. The height
+          (vertical size) of the text box.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>GD renders each text line as an individual text label. You can see
+      the outline of each line's text label as a thin dashed purple
+      border.</para>
+
+      <para>The positioning of the text labels within the text box is
+      automatic: they are always placed so that the entire text is vertically
+      and horizontally centred inside the text box. The vertical distance
+      between the text labels of each line cannot be changed; it is set by the
+      font itself (it's the line height which is calculated by GD based on the
+      font characters' render cell height).</para>
+
+      <para>The alignment of the text within the text label (Left, Centre, or
+      Right) is determined by the Text Align template option.</para>
     </section>
 
     <section xml:id="frontend-preview">

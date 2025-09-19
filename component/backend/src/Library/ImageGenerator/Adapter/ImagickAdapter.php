@@ -429,7 +429,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($template['text-y-center'] == '1')
 		{
-			$yPos = (int) (($image->getImageHeight() - $theText->getImageHeight()) / 2.0 + $template['text-y-adjust']);
+			$yPos = (int) (($image->getImageHeight() - $theText->getImageHeight() - 2 * $strokeWidth) / 2.0 + $template['text-y-adjust']);
 		}
 
 		// Figure out text horizontal position
@@ -437,7 +437,7 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 		if ($template['text-x-center'] == '1')
 		{
-			$xPos = (int) (($image->getImageWidth() - $theText->getImageWidth()) / 2.0 + $template['text-x-adjust']);
+			$xPos = (int) (($image->getImageWidth() - $theText->getImageWidth() - 2 * $strokeWidth) / 2.0 + $template['text-x-adjust']);
 		}
 
 		if ($this->debugText)

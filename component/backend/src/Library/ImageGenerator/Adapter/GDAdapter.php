@@ -534,7 +534,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		$colorValues = $this->hexToRGBA($color);
 
 		// Quick escape route: if the rendered string length is smaller than the maximum width
-		$lines = $this->toLines($text, $fontSize, $font, $maxWidth);
+		$lines = $this->toLines($text, $fontSize, $font, $maxWidth, $strokeWidth);
 
 		// Apply the line spacing
 		$lines = $this->applyLineSpacing($lines, $lineSpacing);
@@ -556,7 +556,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 			// Try adding ellipses to the last line
 			$testText       = $lastLine['text'] . '…';
-			$testDimensions = $this->lineSize($testText, $fontSize, $font);
+			$testDimensions = $this->lineSize($testText, $fontSize, $font, $strokeWidth);
 
 			/**
 			 * If the last line is too big to fit remove the ellipses, the last word and space and re-add the ellipses,
@@ -573,7 +573,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 				}
 
 				$testText       = trim($lastLine['text']);
-				$testDimensions = $this->lineSize($testText, $fontSize, $font);
+				$testDimensions = $this->lineSize($testText, $fontSize, $font, $strokeWidth);
 			}
 
 			$lastLine['text']   = $testText;
@@ -636,8 +636,8 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			// Draw stroke by rendering text multiple times with offsets
 			foreach ($lines as $line)
 			{
-				$x1 = 50 + $line['x'];
-				$y1 = 50 + $line['y'] + $yOffset + $centerYOffset;
+				$x1 = 50 + $line['x'] + $strokeWidth;
+				$y1 = 50 + $line['y'] + $yOffset + $centerYOffset + $strokeWidth;
 
 				// Create stroke effect by drawing text at offset positions
 				for ($xOffset = -$strokeWidth; $xOffset <= $strokeWidth; $xOffset++)
@@ -669,15 +669,21 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 		foreach ($lines as $line)
 		{
-			$x1 = (int) (50 + $line['x']);
-			$y1 = (int) (50 + $line['y'] + $centerYOffset);
+			$x1 = (int) (50 + $line['x'] + $strokeWidth);
+			$y1 = (int) (50 + $line['y'] + $centerYOffset + $strokeWidth);
 
 			imagettftext($image, $fontSize, 0, $x1, $y1 + (int) $yOffset, $colorResource, $font, $line['text']);
 
 			if ($this->debugText)
 			{
-				$this->imageDottedRectangle
-				($image, $x1, $y1, $x1 + $line['width'], $y1 + $line['height'], $purple, 5, 5);
+				$this->imageDottedRectangle($image,
+					$x1 - $strokeWidth,
+					$y1 - $strokeWidth,
+					$x1 + $line['width'] - $strokeWidth,
+					$y1 + $line['height'] - $strokeWidth + 1,
+					$purple,
+					5,
+					5);
 			}
 		}
 
@@ -832,21 +838,22 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Returns the width and height of a line of text
 	 *
-	 * @param   string  $text  The text to render
-	 * @param   float   $size  Font size, in points
-	 * @param   string  $font  Font file
+	 * @param   string  $text         The text to render
+	 * @param   float   $size         Font size, in points
+	 * @param   string  $font         Font file
+	 * @param   int     $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
 	 * @return  array  [width, height]
 	 *
 	 * @since   1.0.0
 	 */
-	private function lineSize(string $text, float $size, string $font): array
+	private function lineSize(string $text, float $size, string $font, int $strokeWidth = 0): array
 	{
 		$boundingBox = imagettfbbox($size, 0, $font, $text);
 
 		return [
-			$boundingBox[2] - $boundingBox[0],
-			$boundingBox[1] - $boundingBox[7],
+			$boundingBox[2] - $boundingBox[0] + 2 * $strokeWidth,
+			$boundingBox[1] - $boundingBox[7] + 2 * $strokeWidth,
 		];
 
 	}
@@ -854,19 +861,20 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Chop the string to lines which are rendered up to a given maximum width
 	 *
-	 * @param   string  $text      The text to chop
-	 * @param   float   $size      Font size, in points
-	 * @param   string  $font      Font file
-	 * @param   int     $maxWidth  Maximum width for the rendered text, in pixels
+	 * @param   string  $text         The text to chop
+	 * @param   float   $size         Font size, in points
+	 * @param   string  $font         Font file
+	 * @param   int     $maxWidth     Maximum width for the rendered text, in pixels
+	 * @param   int     $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
 	 * @return  array[] The individual lines along with their width and height metrics
 	 *
 	 * @since   1.0.0
 	 */
-	private function toLines(string $text, float $size, string $font, int $maxWidth): array
+	private function toLines(string $text, float $size, string $font, int $maxWidth, int $strokeWidth = 0): array
 	{
 		// Is the line narrow enough to call it a day?
-		$lineDimensions = $this->lineSize($text, $size, $font);
+		$lineDimensions = $this->lineSize($text, $size, $font, $strokeWidth);
 
 		if ($lineDimensions[0] < $maxWidth)
 		{
@@ -889,7 +897,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			$nextWord       = array_shift($words);
 			$testLine       = $currentLine . ($currentLine ? ' ' : '') . $nextWord;
-			$testDimensions = $this->lineSize($testLine, $size, $font);
+			$testDimensions = $this->lineSize($testLine, $size, $font, $strokeWidth);
 			$isOversize     = $testDimensions[0] > $maxWidth;
 
 			// Oversize word. Can't do much, your layout will suffer. I won't be doing hyphenation here!

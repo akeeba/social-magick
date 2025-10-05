@@ -2,8 +2,8 @@
 release:
   version: '%%VERSION%%'
   date: '%%DATE%%'
-  category: 999
-  access: 1
+  category: 74
+  access: 28
   release_notes: '%%DEFAULT_RELEASE_NOTES%%'
   changelog: '%%DEFAULT_CHANGELOG%%'
 
@@ -44,7 +44,7 @@ files:
     title: 'SocialMagick for Joomla'
     connection: sftp
     directory: '%%SFTP.DIR%%/files/normal/socialmagick'
-    source: '%%RELEASEDIR%%/plg_system_*.zip'
+    source: '%%RELEASEDIR%%/pkg_*.zip'
     access: 1
   -
     title: 'Documentation (ePub)'
@@ -58,7 +58,7 @@ updates:
     title: 'SocialMagick updates'
     connection: bunny
     directory: 'updates'
-    stream: 52
-    base_name: 'plgsocialmagick'
+    stream: 54
+    base_name: 'pkgsocialmagick'
     formats:
       - 'xml'

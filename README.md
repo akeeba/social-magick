@@ -1,6 +1,6 @@
 # ![SocialMagick](https://github.com/akeeba/social-magick/blob/main/assets/banner/banner.png?raw=true)
 
-Automatically generate OpenGraph images for Joomla! content.
+Automatically generate OpenGraph data and images for Joomla! content.
 
 > [!WARNING]  
 > 🚧 **Work In Progress** 🚧 This project was recently transferred from Lucid Fox to Akeeba Ltd. We are actively reworking it. 

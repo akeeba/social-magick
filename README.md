@@ -42,7 +42,6 @@ This plugin was conceived in 2021 by Crystal Dionysopoulos of Lucid Fox. The cod
 
 This is meant as a quick brain-dump. Things here may or may not be implemented and may end up becoming issues to handle later...
 
-* [ ] Rewrite documentation as DocBook XML [gh-14]
 * [ ] Document that `imagick` or `gd` are required. Explain how you can use the PHP Information page in Joomla to determine if they are installed. Explain that if it's not enabled you can do that from the hosting control panel, or ask your host.
 * [ ] Document that SVGs are only supported using ImageMagick.
 * [ ] Document image colorisation: underlay and desaturate the Extra Image, apply a semi-transparent Background Color.

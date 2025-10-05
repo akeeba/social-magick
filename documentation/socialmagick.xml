@@ -2370,7 +2370,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Extra Image Field Name </term>
+          <term>Extra Image Field Name</term>
 
           <listitem>
             <para>The <guilabel>Name</guilabel> of the Joomla Field of the
@@ -2385,7 +2385,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Use Article Title </term>
+          <term>Use Article Title</term>
 
           <listitem>
             <para>Tells SocialMagick to use the article's title as the text
@@ -2395,7 +2395,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Use Article Description </term>
+          <term>Use Article Description</term>
 
           <listitem>
             <para>Tells SocialMagick to use the article's Meta Description as
@@ -2431,7 +2431,7 @@ php_value post_max_size 10M
           <listitem>
             <para>Should the OpenGraph settings tab show up when editing an
             article in the frontend of the site? Super Users are not limited
-            by this setting. </para>
+            by this setting.</para>
           </listitem>
         </varlistentry>
 
@@ -2649,8 +2649,8 @@ php_value post_max_size 10M
             <para>OpenGraph images will be generated for all pages on your
             site unless explicitly configured not to, for example at the menu
             or article level. When disabled, you will have to explicitly
-            configure menu items, articles, etc to generate OpenGraph images.
-            </para>
+            configure menu items, articles, etc to generate OpenGraph
+            images.</para>
           </listitem>
         </varlistentry>
 
@@ -2679,7 +2679,7 @@ php_value post_max_size 10M
             extension which does that for you. Even in this case it is safe to
             leave this option enabled; SocialMagick will check if the
             namespace declaration is present to avoid creating a duplicate
-            definition. </para>
+            definition.</para>
 
             <important>
               <para>If the OpenGraph namespace declaration is missing most
@@ -2691,37 +2691,37 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>OpenGraph Title </term>
+          <term>OpenGraph Title</term>
 
           <listitem>
             <para>Tells SocialMagic which text to use when setting the
             <code>og:title</code> property in the HTML document. This
             communicates the title of the current page to social media sites.
-            Setting this to No disables this feature. </para>
+            Setting this to No disables this feature.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>OpenGraph Description </term>
+          <term>OpenGraph Description</term>
 
           <listitem>
             <para>Tells SocialMagic which text to use when setting the
             <code>og:description</code> property in the HTML document. This
             communicates the summary (description) of the current page to
-            social media sites. Setting this to No disables this feature.
-            </para>
+            social media sites. Setting this to No disables this
+            feature.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>OpenGraph URL </term>
+          <term>OpenGraph URL</term>
 
           <listitem>
             <para>Tells SocialMagic whether to set the <code>og:url</code>
             property in the HTML document. This communicates the URL of the
             current page to social media sites. This property is largely
             redundant for Joomla! sites. It only serves to satisfy OpenGraph
-            validators which might complain if it's missing. </para>
+            validators which might complain if it's missing.</para>
 
             <tip>
               <para>If you are not sure whether you need the OpenGraph URL or
@@ -2734,17 +2734,17 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>OpenGraph Site Name </term>
+          <term>OpenGraph Site Name</term>
 
           <listitem>
             <para>Tells SocialMagic whether to set the
             <code>og:site_name</code> property in the HTML document. This
-            communicates the name of the site to social media sites. </para>
+            communicates the name of the site to social media sites.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>X (formerly Twitter) Card type </term>
+          <term>X (formerly Twitter) Card type</term>
 
           <listitem>
             <para>Set the sharing card type on X (formerly Twitter). Summary
@@ -2754,7 +2754,7 @@ php_value post_max_size 10M
             X will show its default preview which may include a preview image.
             Using either card type requires that your page has an og:image
             property set either by this plugin or by a third party extension,
-            otherwise it has no effect. </para>
+            otherwise it has no effect.</para>
 
             <para>You can use this option even if you don't care about, plan
             to use, or support X; its properties are read by other social
@@ -2764,16 +2764,16 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>X Site Handle </term>
+          <term>X Site Handle</term>
 
           <listitem>
             <para>The X handle used by your site, including the @ sign in
-            front. </para>
+            front.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>X Creator Handle </term>
+          <term>X Creator Handle</term>
 
           <listitem>
             <para>The default X handle which will be attributed as the content
@@ -2783,7 +2783,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Facebook App ID </term>
+          <term>Facebook App ID</term>
 
           <listitem>
             <para>If your site is using a Facebook app, e.g. for social login,
@@ -2811,7 +2811,7 @@ php_value post_max_size 10M
             versions of) third party software may not be able to display WebP
             files. If you know your links won't be shared in any niche
             software / service (or don't care about them), we recommend
-            switching this option to WebP for best quality and size. </para>
+            switching this option to WebP for best quality and size.</para>
 
             <para>As of the writing of this documentation (September 2025) all
             major third party services and applications support WebP, with a
@@ -2821,7 +2821,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Image Quality </term>
+          <term>Image Quality</term>
 
           <listitem>
             <para>Controls the quality of the generated image by adjusting the
@@ -2871,8 +2871,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Regenerate Images On Every Page Load (Development Mode)
-          </term>
+          <term>Regenerate Images On Every Page Load (Development Mode)</term>
 
           <listitem>
             <para>By default, SocialMagick only regenerates an OpenGraph image
@@ -2889,7 +2888,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Debug Text Layout </term>
+          <term>Debug Text Layout</term>
 
           <listitem>
             <para>Enables the <link linkend="debug-text-layout">Debug Text
@@ -2909,7 +2908,7 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Frontend Preview Button </term>
+          <term>Frontend Preview Button</term>
 
           <listitem>
             <para>SocialMagick will display a preview floating on pages it has
@@ -2922,18 +2921,18 @@ php_value post_max_size 10M
         </varlistentry>
 
         <varlistentry>
-          <term>Frontend Preview Access Level </term>
+          <term>Frontend Preview Access Level</term>
 
           <listitem>
             <para>Choose the Joomla Access Level which will see the Frontend
             Preview Button. The default value is <option>Special</option>,
             allowing only Administrator and Super User accounts to see the
-            button. </para>
+            button.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>PHP Image Handling Extensions </term>
+          <term>PHP Image Handling Extensions</term>
 
           <listitem>
             <para>Choose which PHP extension to use to generate OpenGraph
@@ -3153,7 +3152,7 @@ php_value post_max_size 10M
       of work.</para>
 
       <para>Instead, you can enabled the Frontend Preview option in the
-      component's <guibutton>Options</guibutton> page. </para>
+      component's <guibutton>Options</guibutton> page.</para>
 
       <tip>
         <para>You can also limit which <emphasis role="bold">user
@@ -3626,12 +3625,6 @@ Additional .ini files parsed:      /etc/php/conf.d/99-nicholas.ini,
       device manufacturer's site would likely want to enable OpenGraph images
       for the site's products and news sections, but not its community forum,
       and downloads / resources sections.</para>
-    </section>
-
-    <section xml:id="creating-base-images">
-      <title>Creating your own template base images</title>
-
-      <para/>
     </section>
   </chapter>
 

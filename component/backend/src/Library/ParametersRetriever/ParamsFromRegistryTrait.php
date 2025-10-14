@@ -25,7 +25,7 @@ trait ParamsFromRegistryTrait
 		'custom_text'           => '',
 		'use_article'           => '1',
 		'use_title'             => '1',
-		'image_source'          => 'fulltext',
+		'image_source'          => '',
 		'image_field'           => '',
 		'override_og'           => '0',
 		'og_title'              => '-1',

@@ -16,7 +16,6 @@ use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemImageEv
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemParametersEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemTitleEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\MenuItemFormEvent;
-use JForm;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;

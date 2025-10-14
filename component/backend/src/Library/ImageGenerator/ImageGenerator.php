@@ -145,9 +145,9 @@ final class ImageGenerator implements DatabaseAwareInterface
 	/**
 	 * Generates an OpenGraph image given set parameters, and sets appropriate meta tags.
 	 *
-	 * @param   string       $text        Test to overlay on image.
+	 * @param   string       $text        Text to overlay on the image.
 	 * @param   int          $templateId  Preset template ID.
-	 * @param   string|null  $extraImage  Additional image to layer below template.
+	 * @param   string|null  $extraImage  An additional image to layer below template.
 	 * @param   bool         $force       Should I override an already set OpenGraph image?
 	 *
 	 * @return  void
@@ -189,9 +189,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 		// Try to generate (or get an already generated) image
 		try
 		{
-			$templateOptions = $this->getTemplateOptions($templateId);
-
-			$imageData      = $this->getOGImage($text, $templateOptions, $extraImage);
+			$imageData      = $this->createOGImage($text, $templateId, $extraImage);
 			$imageURL       = $imageData['imageURL'];
 			$templateHeight = $imageData['height'];
 			$templateWidth  = $imageData['width'];
@@ -212,6 +210,37 @@ final class ImageGenerator implements DatabaseAwareInterface
 		$document->setMetaData('og:image:alt', stripcslashes($text), 'property');
 		$document->setMetaData('og:image:height', $templateHeight, 'property');
 		$document->setMetaData('og:image:width', $templateWidth, 'property');
+	}
+
+	/**
+	 * Try to generate, or get an already generated, OpenGraph image.
+	 *
+	 * @param   string       $text        Text to overlay on the image.
+	 * @param   int          $templateId  Preset template ID.
+	 * @param   string|null  $extraImage  An additional image to layer below template.
+	 *
+	 * @return  array{imageURL: string|null, height: int|null, width: int|null}|null[]
+	 * @since   3.0.0
+	 */
+	public function createOGImage(string $text, int $templateId, ?string $extraImage = null): array
+	{
+		// Try to generate (or get an already generated) image
+		try
+		{
+			return $this->getOGImage(
+				$text,
+				$this->getTemplateOptions($templateId),
+				$extraImage
+			);
+		}
+		catch (Exception)
+		{
+			return [
+				'imageURL' => null,
+				'height'   => null,
+				'width'    => null,
+			];
+		}
 	}
 
 	/**

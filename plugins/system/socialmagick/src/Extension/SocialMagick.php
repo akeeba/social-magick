@@ -12,15 +12,18 @@ defined('_JEXEC') || die();
 use Akeeba\Component\SocialMagick\Administrator\Library\OpenGraphTags\OGTagsHelper;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
+use Joomla\Application\Event\ApplicationEvent;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Document\HtmlDocument;
+use Joomla\CMS\Event\Application\AfterInitialiseEvent;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\WebAsset\WebAssetManager;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
 use Joomla\Event\Event;
+use Joomla\Event\Priority;
 use Joomla\Event\SubscriberInterface;
 use Throwable;
 
@@ -52,12 +55,19 @@ class SocialMagick extends CMSPlugin implements SubscriberInterface, DatabaseAwa
 	public static function getSubscribedEvents(): array
 	{
 		return [
+			'onAfterInitialise'    => ['onAfterInitialise', Priority::ABOVE_NORMAL],
 			'onAfterRender'        => 'onAfterRender',
 			'onBeforeRender'       => 'onBeforeRender',
 			'onContentBeforeSave'  => 'onContentBeforeSave',
 			'onContentPrepareData' => 'onContentPrepareData',
 			'onContentPrepareForm' => 'onContentPrepareForm',
 		];
+	}
+
+	public function onAfterInitialise(AfterInitialiseEvent $event): void
+	{
+		// Load the SocialMagick plugins so that they can handle extension-specific events.
+		PluginHelper::importPlugin('socialmagick');
 	}
 
 	/**

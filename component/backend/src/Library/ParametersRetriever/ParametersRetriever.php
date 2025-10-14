@@ -166,15 +166,22 @@ final class ParametersRetriever implements DatabaseAwareInterface
 
 	public function getOpenGraphImageGeneratorArguments(array $params, ?MenuItem $activeMenuItem = null, ?Input $input = null): array
 	{
+		global $socialMagickTemplate;
+
 		// Get the applicable options
 		$template   = $params['template'];
 		$overrideOG = $params['override_og'] == 1;
+		$templateId = $socialMagickTemplate ?? $template;
 
 		// Get the text to render.
 		$text = $this->getText($params, $activeMenuItem, $input);
 
 		// Get the extra image location
-		$extraImage = $this->getExtraImage($params, $activeMenuItem, $input);
+		$cParams         = ComponentHelper::getParams('com_socialmagick');
+		$imageGenerator  = new ImageGenerator($cParams, $this->getDatabase());
+		$templateOptions = $imageGenerator->getTemplateOptions($templateId) ?: [];
+		$enhancedParams  = $this->inheritanceAwareMerge($templateOptions, $params);
+		$extraImage      = $this->getExtraImage($enhancedParams, $activeMenuItem, $input);
 
 		// So, Joomla 4 adds some meta information to the image. Let's fix that.
 		if (!empty($extraImage))
@@ -187,11 +194,9 @@ final class ParametersRetriever implements DatabaseAwareInterface
 			$extraImage = null;
 		}
 
-		global $socialMagickTemplate;
-
 		return [
 			'text'       => $text,
-			'templateId' => $socialMagickTemplate ?? $template,
+			'templateId' => $templateId,
 			'extraImage' => $extraImage,
 			'force'      => $overrideOG == 1,
 		];
@@ -232,7 +237,7 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		}
 
 		// If there is no menu item, or it's the wrong one, retrieve it from Joomla.
-		if (empty($menuItem) || ($menuItem->id != ($id)))
+		if ((empty($menuItem) || ($menuItem->id != $id)) && $id > 0)
 		{
 			$menuItem = $this->application->getMenu()->getItem($id);
 		}
@@ -296,7 +301,9 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		}
 
 		// 04. Joomla! page title, if this feature is enabled.
-		if ($useTitle)
+		$isSite = $this->application->isClient('site');
+
+		if ($isSite && $useTitle)
 		{
 			$menu        = $this->application->getMenu();
 			$currentItem = $menu->getActive();

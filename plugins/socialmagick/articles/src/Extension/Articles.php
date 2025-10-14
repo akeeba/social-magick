@@ -18,9 +18,15 @@ use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemDescrip
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemImageEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemParametersEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemTitleEvent;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
+use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
 use Exception;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Event\Model as JoomlaModel;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\Component\Content\Administrator\Model\ArticleModel;
+use Joomla\Component\Content\Administrator\Table\ArticleTable;
+use Joomla\Event\Priority;
 use Joomla\Input\Input;
 use Joomla\Registry\Registry;
 use function defined;
@@ -31,6 +37,8 @@ final class Articles extends AbstractPlugin
 	use InheritanceAwareMergeTrait;
 	use CategoryRetrievalTrait;
 	use ExtraImageFetchTrait;
+	use ParametersRetrieverTrait;
+	use ImageGeneratorHelperTrait;
 
 	/**
 	 * Cached parameters per article ID
@@ -61,6 +69,17 @@ final class Articles extends AbstractPlugin
 	 * @since 3.0.0
 	 */
 	private ArticleModel $articleModel;
+
+	public static function getSubscribedEvents(): array
+	{
+		return array_merge(
+			parent::getSubscribedEvents(),
+			[
+				'onContentBeforeSave' => ['onContentBeforeSave', Priority::MIN],
+			]
+		);
+	}
+
 
 	public function __construct($config = [])
 	{
@@ -198,6 +217,78 @@ final class Articles extends AbstractPlugin
 		}
 
 		$event->addResult($this->getArticleParameters($articleId));
+	}
+
+	/**
+	 * Handles saving articles. Implements automatic image generation.
+	 *
+	 * @param   JoomlaModel\BeforeSaveEvent  $event
+	 *
+	 * @return  void
+	 * @throws  Exception
+	 */
+	public function onContentBeforeSave(JoomlaModel\BeforeSaveEvent $event): void
+	{
+		// We are only interested in doing something when saving an article.
+		if ($event->getContext() !== 'com_content.article')
+		{
+			return;
+		}
+
+		/** @var ArticleTable $article */
+		$article   = $event->getItem();
+		$articleId = $article->getId();
+		$isNew     = empty($articleId);
+
+		$parametersRetriever = $this->getParamsRetriever();
+		$imageGenerator      = $this->getImageGenerator();
+		$fakeInput           = new Input([
+			'option' => 'com_content',
+			'view'   => 'article',
+			'id'     => $isNew ? 0 : $articleId,
+		]);
+		$params              = $parametersRetriever->getApplicableOGParameters(null, $fakeInput);
+		// TODO Change default to 'none'
+		$autoImage = $params['auto_image'] ?? 'intro';
+
+		if ($autoImage === 'none' && !$imageGenerator->isAvailable())
+		{
+			return;
+		}
+
+		global $socialMagickText;
+
+		$socialMagickText = $article->title;
+
+		$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params, null, $fakeInput);
+
+		unset($arguments['force']);
+
+		$imageInfo = $imageGenerator->createOGImage(...$arguments);
+		$imageURL  = $imageInfo['imageURL'];
+
+		if (!$imageURL)
+		{
+			return;
+		}
+
+		$imageRegistry = new Registry($article->images ?: '{}');
+
+		if (in_array($autoImage, ['intro', 'both']) && !$imageRegistry->get('image_intro', null))
+		{
+			$imageRegistry->set('image_intro', $imageURL);
+			$imageRegistry->set('image_intro_alt', '');
+			$imageRegistry->set('image_intro_caption', '');
+		}
+
+		if (in_array($autoImage, ['full', 'both']) && !$imageRegistry->get('image_fulltext', null))
+		{
+			$imageRegistry->set('image_fulltext', $imageURL);
+			$imageRegistry->set('image_fulltext_alt', '');
+			$imageRegistry->set('image_fulltext_caption', '');
+		}
+
+		$article->images = $imageRegistry->toString('JSON');
 	}
 
 	/**

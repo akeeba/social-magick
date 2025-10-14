@@ -198,7 +198,7 @@ final class Categories extends AbstractPlugin
 	 * @return  int|null
 	 * @since   3.0.0
 	 */
-	private function getCategoryIdFromMenuItem(?MenuItem $activeMenuItem = null, Input $input = null): ?int
+	private function getCategoryIdFromMenuItem(?MenuItem $activeMenuItem = null, ?Input $input = null): ?int
 	{
 		if (empty($activeMenuItem))
 		{

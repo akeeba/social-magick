@@ -22,7 +22,7 @@ use Joomla\Database\ParameterType;
  */
 class TemplatesModel extends ListModel
 {
-	public function __construct($config = [], MVCFactoryInterface $factory = null)
+	public function __construct($config = [], ?MVCFactoryInterface $factory = null)
 	{
 		$config['filter_fields'] = array_merge(
 			$config['filter_fields'] ?? [],

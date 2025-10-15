@@ -134,7 +134,7 @@ final class ParametersRetriever implements DatabaseAwareInterface
 			'menuitem' => $activeMenuItem,
 			'input'    => $input,
 		]);
-		$results = $this->application->getDispatcher()->dispatch($event->getName(), $event) ?: [];
+		$results = $this->application->getDispatcher()->dispatch($event->getName(), $event)['result'] ?: [];
 
 		foreach ($results as $result)
 		{
@@ -180,18 +180,29 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		$cParams         = ComponentHelper::getParams('com_socialmagick');
 		$imageGenerator  = new ImageGenerator($cParams, $this->getDatabase());
 		$templateOptions = $imageGenerator->getTemplateOptions($templateId) ?: [];
-		$enhancedParams  = $this->inheritanceAwareMerge($templateOptions, $params);
-		$extraImage      = $this->getExtraImage($enhancedParams, $activeMenuItem, $input);
+		$extraImage      = $this->getExtraImage(array_merge($params, $templateOptions), $activeMenuItem, $input);
 
 		// So, Joomla 4 adds some meta information to the image. Let's fix that.
-		if (!empty($extraImage))
+		if (!empty($extraImage) && (str_contains($extraImage, '?') || str_contains($extraImage, '#')))
 		{
 			$extraImage = urldecode(HTMLHelper::cleanImageURL($extraImage)->url ?? '');
 		}
 
+		$altImage = empty($extraImage) ? null : JPATH_PUBLIC . '/' . $extraImage;
+
 		if (!empty($extraImage) && (!@file_exists($extraImage) || !@is_readable($extraImage)))
 		{
-			$extraImage = null;
+			$imageExists    = @file_exists($extraImage) && @is_readable($extraImage);
+			$altImageExists = @file_exists($altImage) && @is_readable($altImage);
+
+			if (!$imageExists && $altImageExists)
+			{
+				$extraImage = $altImage;
+			}
+			elseif (!$imageExists && !$altImageExists)
+			{
+				$extraImage = null;
+			}
 		}
 
 		return [

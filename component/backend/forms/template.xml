@@ -346,6 +346,43 @@
         </field>
 
         <field
+                name="use_article"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
+                description="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
+                class="btn-group btn-group-yesno"
+                default="1"
+                showon="overlay_text:1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="use_title"
+                type="radio"
+                layout="joomla.form.field.radio.switcher"
+                label="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
+                description="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
+                class="btn-group btn-group-yesno"
+                default="0"
+                showon="overlay_text:1"
+        >
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+
+        <field
+                name="custom_text"
+                type="text"
+                label="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
+                description="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
+                default=""
+                showon="overlay_text:1"
+        />
+
+        <field
                 name="text-font"
                 type="filelist"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_TEXT_FONT_LABEL"

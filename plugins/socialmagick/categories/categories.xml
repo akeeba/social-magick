@@ -34,54 +34,6 @@
 
     <config>
         <fields name="params">
-            <fieldset name="basic">
-                <field
-                        name="image_source"
-                        type="list"
-                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_SOURCE_LABEL"
-                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_SOURCE_DESC"
-                        class="btn-group btn-group-yesno"
-                        default="customcategory"
-                >
-                    <option value="none">PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_SOURCE_OPT_NONE</option>
-                    <option value="category">PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_SOURCE_OPT_CATEGORY</option>
-                    <option value="custom">PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
-                    <option value="customcategory">PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_SOURCE_OPT_CUSTOMCATEGORY</option>
-                </field>
-
-                <field
-                        name="image_field"
-                        type="text"
-                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_FIELD_LABEL"
-                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_IMAGE_FIELD_DESC"
-                        default="ogimage"
-                        filter="no_html"
-                />
-
-                <field
-                        name="use_article"
-                        type="radio"
-                        layout="joomla.form.field.radio.switcher"
-                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_USE_ARTICLE_LABEL"
-                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_USE_ARTICLE_DESC"
-                        default="1"
-                >
-                    <option value="0">JNO</option>
-                    <option value="1">JYES</option>
-                </field>
-
-                <field
-                        name="use_article_description"
-                        type="radio"
-                        layout="joomla.form.field.radio.switcher"
-                        label="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_USE_ARTICLE_DESCRIPTION_LABEL"
-                        description="PLG_SOCIALMAGICK_CATEGORIES_CONFIG_USE_ARTICLE_DESCRIPTION_DESC"
-                        default="1"
-                >
-                    <option value="0">JNO</option>
-                    <option value="1">JYES</option>
-                </field>
-            </fieldset>
             <fieldset name="advanced">
                 <field
                         name="edititem_groups"
@@ -94,7 +46,6 @@
                         layout="joomla.form.field.list-fancy-select"
                         filter="intarray"
                 />
-
             </fieldset>
         </fields>
     </config>

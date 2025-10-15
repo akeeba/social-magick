@@ -29,47 +29,6 @@
             />
 
             <field
-                    name="category_override"
-                    type="radio"
-                    layout="joomla.form.field.radio.switcher"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_CATEGORY_OVERRIDE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="0"
-            >
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
-                    name="category_generate_images"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="category_override:1"
-            >
-                <option value="0">JNO</option>
-                <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
-                    name="category_override_og"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="category_override:1[AND]category_generate_images!:0"
-            >
-                <option value="0">JNO</option>
-                <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
                     name="category_template"
                     type="socialmagicktemplate"
                     label="COM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
@@ -77,83 +36,8 @@
                     validate="options"
                     showon="category_override:1[AND]category_generate_images!:0"
             >
-                <option value="">JGLOBAL_INHERIT</option>
-            </field>
-
-            <field
-                    name="category_custom_text"
-                    type="text"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
-                    filter="no_html"
-                    showon="category_override:1[AND]category_generate_images!:0"
-            />
-
-            <field
-                    name="category_use_article"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="category_override:1[AND]category_generate_images!:0"
-            >
-                <option value="0">JNO</option>
                 <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
             </field>
-
-            <field
-                    name="category_use_title"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="category_override:1[AND]category_generate_images!:0"
-            >
-                <option value="0">JNO</option>
-                <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
-                    name="category_image_source"
-                    type="list"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default=""
-                    validate="options"
-                    showon="category_override:1[AND]category_generate_images!:0"
-            >
-                <option value="">JGLOBAL_INHERIT</option>
-                <option value="none">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
-                <option value="category">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CATEGORY</option>
-                <option value="custom">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
-                <option value="customcategory">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMCATEGORY</option>
-                <option value="static">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_STATIC</option>
-            </field>
-
-            <field
-                    name="category_image_field"
-                    type="text"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
-                    default=""
-                    filter="no_html"
-                    showon="category_override:1[AND]category_image_source:custom[OR]category_image_source:customcategory[AND]category_generate_images!:0"
-            />
-
-            <field
-                    name="category_static_image"
-                    type="media"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_STATIC_IMAGE_DESC"
-                    hide_none="1"
-                    default=""
-                    showon="category_override:1[AND]category_image_source:static[AND]category_generate_images!:0"
-            />
 
             <!-- ================================================================================ -->
 
@@ -302,47 +186,6 @@
             />
 
             <field
-                    name="article_override"
-                    type="radio"
-                    layout="joomla.form.field.radio.switcher"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_CATEGORY_ARTICLE_OVERRIDE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="0"
-            >
-                <option value="0">JNO</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
-                    name="article_generate_images"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_GENERATE_IMAGES_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="article_override!:0"
-            >
-                <option value="0">JNO</option>
-                <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
-                    name="article_override_og"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_OVERRIDE_OG_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="article_override!:0[AND]article_generate_images!:0"
-            >
-                <option value="0">JNO</option>
-                <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
                     name="article_template"
                     type="socialmagicktemplate"
                     label="COM_SOCIALMAGICK_FORM_COMMON_TEMPLATE_LABEL"
@@ -350,76 +193,8 @@
                     validate="options"
                     showon="article_override!:0[AND]article_generate_images!:0"
             >
-                <option value="">JGLOBAL_INHERIT</option>
-            </field>
-
-            <field
-                    name="article_custom_text"
-                    type="text"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_CUSTOM_TEXT_DESC"
-                    filter="no_html"
-                    showon="article_override!:0[AND]article_generate_images!:0"
-            />
-
-            <field
-                    name="article_use_article"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_USE_ARTICLE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="article_override!:0[AND]article_generate_images!:0"
-            >
-                <option value="0">JNO</option>
                 <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
             </field>
-
-            <field
-                    name="article_use_title"
-                    type="radio"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_USE_TITLE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default="-1"
-                    showon="article_override!:0[AND]article_generate_images!:0"
-            >
-                <option value="0">JNO</option>
-                <option value="-1">JGLOBAL_INHERIT</option>
-                <option value="1">JYES</option>
-            </field>
-
-            <field
-                    name="article_image_source"
-                    type="list"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_DESC"
-                    class="btn-group btn-group-yesno"
-                    default=""
-                    validate="options"
-                    showon="article_override!:0[AND]article_generate_images!:0"
-            >
-                <option value="">JGLOBAL_INHERIT</option>
-                <option value="none">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_NONE</option>
-                <option value="intro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTRO</option>
-                <option value="fulltext">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLTEXT</option>
-                <option value="custom">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFIELD</option>
-                <option value="fullintro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_FULLINTRO</option>
-                <option value="introfull">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_INTROFULL</option>
-                <option value="customfullintro">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMFULLINTRO</option>
-                <option value="customintrofull">COM_SOCIALMAGICK_FORM_COMMON_IMAGE_SOURCE_OPT_CUSTOMINTROFULL</option>
-            </field>
-
-            <field
-                    name="article_image_field"
-                    type="text"
-                    label="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_LABEL"
-                    description="COM_SOCIALMAGICK_FORM_COMMON_IMAGE_FIELD_DESC"
-                    default=""
-                    filter="no_html"
-                    showon="article_override!:0[AND]article_image_source:custom[OR]article_image_source:customfullintro[OR]article_image_source:customintrofull[AND]article_generate_images!:0"
-            />
 
             <!-- ================================================================================ -->
 

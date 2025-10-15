@@ -20,16 +20,12 @@ trait InheritanceAwareMergeTrait
 	 */
 	private function inheritanceAwareMerge(array $source, array $overrides): array
 	{
-		$overrideImageParams = isset($overrides['override']) && $overrides['override'] == 1;
-
 		if (empty($overrides))
 		{
 			return $source;
 		}
 
 		$temp = [];
-
-		$temp['override'] = $overrideImageParams || ($source['override'] ?? null) == 1 ? 1 : 0;;
 
 		foreach ($source as $key => $value)
 		{
@@ -42,16 +38,18 @@ trait InheritanceAwareMergeTrait
 				continue;
 			}
 
-			// Ignore override and og_override; I have already handled that.
-			if (in_array($key, ['override'], true))
-			{
-				continue;
-			}
+			/**
+			 * Is it a valid override?
+			 *
+			 * Valid overrides are:
+			 * - The `template` key for image generation.
+			 * - The `og_*` keys for OpenGraph data.
+			 * - The `twitter_*` keys for Twitter/X cards.
+			 * - The `fb_*` keys for Facebook share link cards.
+			 */
+			$isValidKey = $key === 'template' || str_starts_with($key, 'og_') || str_starts_with($key, 'twitter_') || str_starts_with($key, 'fb_');
 
-			// Is it a valid override?
-			$isOGKey = str_starts_with($key, 'og_') || str_starts_with($key, 'twitter_') || str_starts_with($key, 'fb_');
-
-			if (!$isOGKey && !$overrideImageParams)
+			if (!$isValidKey)
 			{
 				continue;
 			}

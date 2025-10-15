@@ -9,6 +9,7 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\Plugin;
 
 \defined('_JEXEC') || die;
 
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\ImageGenerator;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\FormDataKeyEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\FormInjectedEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemDescriptionEvent;
@@ -16,6 +17,7 @@ use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemImageEv
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemParametersEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemTitleEvent;
 use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\MenuItemFormEvent;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -75,6 +77,14 @@ abstract class AbstractPlugin extends CMSPlugin implements SubscriberInterface, 
 	 * @since  3.0.0
 	 */
 	protected ?array $menuItemInjectedForms = null;
+
+	/**
+	 * The component parameters
+	 *
+	 * @var   Registry|null
+	 * @since 3.0.0
+	 */
+	private ?Registry $componentParams;
 
 	/** @inheritDoc */
 	public static function getSubscribedEvents(): array
@@ -367,6 +377,16 @@ abstract class AbstractPlugin extends CMSPlugin implements SubscriberInterface, 
 		return false;
 	}
 
+	/**
+	 * Get the component parameters.
+	 *
+	 * @return  Registry|null
+	 * @since   3.0.0
+	 */
+	protected function getComponentParams(): ?Registry
+	{
+		return $this->componentParams ?? (ComponentHelper::getParams('com_socialmagick') ?: null);
+	}
 
 	/**
 	 * Like `in_array()`, but allows the array to include glob strings in the form `foo*`.

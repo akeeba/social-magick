@@ -9,6 +9,7 @@ namespace Akeeba\Plugin\SocialMagick\Articles\Extension;
 
 defined('_JEXEC') || die;
 
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\ImageGenerator;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\CategoryRetrievalTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\ExtraImageFetchTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\InheritanceAwareMergeTrait;
@@ -21,7 +22,6 @@ use Akeeba\Component\SocialMagick\Administrator\Library\Plugin\Event\ItemTitleEv
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ImageGeneratorHelperTrait;
 use Akeeba\Plugin\System\SocialMagick\Extension\Traits\ParametersRetrieverTrait;
 use Exception;
-use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Event\Model as JoomlaModel;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\Component\Content\Administrator\Model\ArticleModel;
@@ -118,10 +118,17 @@ final class Articles extends AbstractPlugin
 			return;
 		}
 
-		$defaultImageSource     = $this->params->get('image_source', 'customfullintro');
-		$defaultCustomFieldName = $this->params->get('image_field', 'ogimage');
-		$imageSource            = $params->get('image_source', '') ?: $defaultImageSource;
-		$customFieldName        = $params->get('image_field', '') ?: $defaultCustomFieldName;
+		$template = $params->get('template');
+
+		if (empty($template))
+		{
+			return;
+		}
+
+		$templateOptions = (new ImageGenerator($this->getComponentParams(), $this->getDatabase()))
+			->getTemplateOptions($template);
+		$imageSource     = $templateOptions['image_source'] ?? 'customfullintro';
+		$customFieldName = $templateOptions['image_field'] ?? 'ogimage';
 
 		$extraImage = $this->getExtraImage($imageSource, $contentObject, $customFieldName);
 
@@ -153,9 +160,16 @@ final class Articles extends AbstractPlugin
 			return;
 		}
 
-		$defaultUseArticle = $this->params->get('use_article', 1);
-		$useArticle        = $params->get('use_article', -1);
-		$useArticle        = $useArticle < 0 ? $defaultUseArticle : $useArticle;
+		$template = $params->get('template');
+
+		if (empty($template))
+		{
+			return;
+		}
+
+		$templateOptions = (new ImageGenerator($this->getComponentParams(), $this->getDatabase()))
+			->getTemplateOptions($template);
+		$useArticle      = ($templateOptions['use_article'] ?? 1) == 1;
 
 		if (!$useArticle)
 		{
@@ -185,15 +199,6 @@ final class Articles extends AbstractPlugin
 			return;
 		}
 
-		$defaultUseArticleDesc = $this->params->get('use_article_description', 1);
-		$useArticleDesc        = $params->get('use_article_description', -1);
-		$useArticleDesc        = $useArticleDesc < 0 ? $defaultUseArticleDesc : $useArticleDesc;
-
-		if (!$useArticleDesc)
-		{
-			return;
-		}
-
 		$metaDesc = trim($contentObject->metadesc ?: '');
 
 		if (empty($metaDesc))
@@ -216,7 +221,16 @@ final class Articles extends AbstractPlugin
 			return;
 		}
 
-		$event->addResult($this->getArticleParameters($articleId));
+		$articleParams = $this->getArticleParameters($articleId);
+		$contentObject = $this->getArticleById($articleId);
+		$catId = $contentObject?->catid;
+
+		if ($catId > 0)
+		{
+			$catParams = $this->getCategoryParameters($catId, 'article_');
+		}
+
+		$event->addResult($this->inheritanceAwareMerge($catParams, $articleParams));
 	}
 
 	/**
@@ -248,6 +262,7 @@ final class Articles extends AbstractPlugin
 			'id'     => $isNew ? 0 : $articleId,
 		]);
 		$params              = $parametersRetriever->getApplicableOGParameters(null, $fakeInput);
+
 		// TODO Change default to 'none'
 		$autoImage = $params['auto_image'] ?? 'intro';
 
@@ -332,7 +347,7 @@ final class Articles extends AbstractPlugin
 				return $this->getImageFromItem($contentObject, 'images', 'image_' . $imageSource);
 
 			case 'custom':
-				return $this->getImageFromCustomField($contentObject, $customFieldName);
+				return $this->getImageFromCustomField($contentObject, $customFieldName ?? '');
 		}
 	}
 
@@ -379,11 +394,16 @@ final class Articles extends AbstractPlugin
 	{
 		if (empty($activeMenuItem))
 		{
-			return null;
+			//return null;
 		}
 
 		$menuOption    = $activeMenuItem?->query['option'] ?? '';
 		$currentOption = $input?->getCmd('option', $menuOption) ?? $menuOption;
+
+		if (empty($menuOption) && !empty($currentOption))
+		{
+			$menuOption = $currentOption;
+		}
 
 		if (!empty($menuOption) && ($menuOption !== $currentOption))
 		{

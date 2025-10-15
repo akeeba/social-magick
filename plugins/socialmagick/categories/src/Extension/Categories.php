@@ -9,6 +9,7 @@ namespace Akeeba\Plugin\SocialMagick\Categories\Extension;
 
 defined('_JEXEC') || die;
 
+use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\ImageGenerator;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\CategoryRetrievalTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\ExtraImageFetchTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\InheritanceAwareMergeTrait;
@@ -31,8 +32,8 @@ final class Categories extends AbstractPlugin
 
 	public function __construct($config = [])
 	{
-		$this->supportedComponent   = 'com_categories';
-		$this->itemDataKey          = 'params';
+		$this->supportedComponent = 'com_categories';
+		$this->itemDataKey        = 'params';
 
 		parent::__construct($config);
 	}
@@ -57,10 +58,17 @@ final class Categories extends AbstractPlugin
 			return;
 		}
 
-		$defaultImageSource     = $this->params->get('image_source', 'customcategory');
-		$defaultCustomFieldName = $this->params->get('image_field', 'ogimage');
-		$imageSource            = $params->get('image_source', '') ?: $defaultImageSource;
-		$customFieldName        = $params->get('image_field', '') ?: $defaultCustomFieldName;
+		$template = $params->get('template');
+
+		if (empty($template))
+		{
+			return;
+		}
+
+		$templateOptions = (new ImageGenerator($this->getComponentParams(), $this->getDatabase()))
+			->getTemplateOptions($template);
+		$imageSource     = $templateOptions['image_source'] ?? 'customfullintro';
+		$customFieldName = $templateOptions['image_field'] ?? 'ogimage';
 
 		$extraImage = $this->getExtraImage($imageSource, $contentObject, $customFieldName);
 
@@ -92,9 +100,16 @@ final class Categories extends AbstractPlugin
 			return;
 		}
 
-		$defaultUseArticle = $this->params->get('use_article', 1);
-		$useArticle        = $params->get('use_article', -1);
-		$useArticle        = $useArticle < 0 ? $defaultUseArticle : $useArticle;
+		$template = $params->get('template');
+
+		if (empty($template))
+		{
+			return;
+		}
+
+		$templateOptions = (new ImageGenerator($this->getComponentParams(), $this->getDatabase()))
+			->getTemplateOptions($template);
+		$useArticle      = ($templateOptions['use_article'] ?? 1) == 1;
 
 		if (!$useArticle)
 		{
@@ -120,15 +135,6 @@ final class Categories extends AbstractPlugin
 		$contentObject = $this->getCategoryById($categoryId);
 
 		if (empty($contentObject))
-		{
-			return;
-		}
-
-		$defaultUseArticleDesc = $this->params->get('use_article_description', 1);
-		$useArticleDesc        = $params->get('use_article_description', -1);
-		$useArticleDesc        = $useArticleDesc < 0 ? $defaultUseArticleDesc : $useArticleDesc;
-
-		if (!$useArticleDesc)
 		{
 			return;
 		}

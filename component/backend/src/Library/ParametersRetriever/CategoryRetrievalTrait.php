@@ -131,7 +131,7 @@ trait CategoryRetrievalTrait
 	 * If the category does not define an override, we walk through all of its parent categories until we find an
 	 * override or reach a top level category.
 	 *
-	 * @param   int   $id        The category ID.
+	 * @param   int  $id  The category ID.
 	 *
 	 * @return  array
 	 *
@@ -149,9 +149,13 @@ trait CategoryRetrievalTrait
 
 		// Get parameters recursing all the way to the root category.
 		$parentCategory = $this->getParentCategory($id);
-		$parentParams   = empty($parentCategory) ? [] : $this->getCategoryParameters($parentCategory->id, $prefix);
-		$catParams      = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.' . $prefix);
+		// TODO The default should NOT be an empty array, but an array with all the MOTHERFUCKING KEYS, GODDAMMIT!
+		$parentParams = empty($parentCategory) ? [] : $this->getCategoryParameters($parentCategory->id, $prefix);
+		$catParams    = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.' . $prefix);
 
-		return $this->categoryParameters[$prefix][$id] = $this->inheritanceAwareMerge($parentParams, $catParams);
+		$allKeys         = array_merge(array_keys($catParams), array_keys($parentParams));
+		$processedParent = array_combine($allKeys, array_fill(0, count($allKeys), null));
+
+		return $this->categoryParameters[$prefix][$id] = $this->inheritanceAwareMerge(array_merge($processedParent, $parentParams), $catParams);
 	}
 }

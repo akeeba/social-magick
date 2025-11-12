@@ -11,6 +11,7 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones;
 
 use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter\AdapterInterface;
 use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter\GDAdapter;
+use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter\ImagickAdapter;
 use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Classifier;
 use RuntimeException;
 
@@ -29,6 +30,7 @@ use RuntimeException;
 class ObjectDetector
 {
 	private const ADAPTERS = [
+		ImagickAdapter::class,
 		GDAdapter::class,
 	];
 

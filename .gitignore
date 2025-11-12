@@ -28,7 +28,7 @@
 .idea/httpRequests
 
 ### Composer
-/vendor
+/component/backend/vendor
 
 ### Akeeba
 # Files for release

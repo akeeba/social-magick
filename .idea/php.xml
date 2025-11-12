@@ -18,6 +18,7 @@
     <include_path>
       <path value="$PROJECT_DIR$/../../master/joomla5" />
       <path value="$USER_HOME$/Sites/boot5/configuration.php" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1">

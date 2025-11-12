@@ -10,7 +10,7 @@ use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Cl
 define('_JEXEC', 1);
 
 /** @var \Composer\Autoload\ClassLoader $autoloader */
-$autoloader = require_once __DIR__ . '/../../component/backend/vendor/autoload.php';
+$autoloader = require_once __DIR__ . '/../../vendor/autoload.php';
 $autoloader->addPsr4(
 	'Akeeba\\Component\\SocialMagick\\Administrator\\Library\\ViolaJones\\',
 	[

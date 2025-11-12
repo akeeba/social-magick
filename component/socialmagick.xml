@@ -32,7 +32,6 @@
             <folder>sql</folder>
             <folder>src</folder>
             <folder>tmpl</folder>
-            <folder>vendor</folder>
 
             <filename>access.xml</filename>
             <filename>config.xml</filename>

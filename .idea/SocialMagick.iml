@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/plugins/task/socialmagick/src" isTestSource="false" packagePrefix="Akeeba\Plugin\Task\SocialMagick\" />
       <excludeFolder url="file://$MODULE_DIR$/release" />
       <excludeFolder url="file://$MODULE_DIR$/update" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

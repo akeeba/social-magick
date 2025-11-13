@@ -101,34 +101,48 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			$extraCanvas      = new Imagick();
 			$transparentPixel = new ImagickPixel('transparent');
+
 			$extraCanvas->newImage($templateWidth, $templateHeight, $transparentPixel);
 			$transparentPixel->destroy();
 
-			$anchor = $template['image-anchor'] ?? 'center';
-
 			if ($template['image-cover'] == '1')
 			{
-				$tmpImg = $this->resize($extraImage, $templateWidth, $templateHeight, $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y'] ?? 0);
-				$imgX   = 0;
-				$imgY   = 0;
-				$extraCanvas->compositeImage(
-					$tmpImg,
-					Imagick::COMPOSITE_DEFAULT,
-					(int) $imgX,
-					(int) $imgY
-				);
+				$tmpWidth  = $templateWidth;
+				$tmpHeight = $templateHeight;
+				$imgX      = 0;
+				$imgY      = 0;
 			}
 			else
 			{
-				$tmpImg = $this->resize($extraImage, $template['image-width'], $template['image-height'], $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y'] ?? 0);
-				$imgX   = $template['image-x'];
-				$imgY   = $template['image-y'];
-				$extraCanvas->compositeImage(
-					$tmpImg,
-					Imagick::COMPOSITE_DEFAULT,
-					$imgX,
-					$imgY);
+				$tmpWidth  = $template['image-width'];
+				$tmpHeight = $template['image-height'];
+				$imgX      = $template['image-x'];
+				$imgY      = $template['image-y'];
 			}
+
+			$anchor         = $template['image-anchor'] ?? 'center';
+			$detectionModel = $template['image_detect_model'] ?? 'frontalface_default';
+			$featureSize    = $template['image_object_size'] ?? 0;
+			$objectPadding  = $template['image_object_padding'] ?? 0;
+
+			$tmpImg = $this->resize(
+				$extraImage,
+				$tmpWidth,
+				$tmpHeight,
+				$anchor,
+				$template['image-clip-transform-x'] ?? 0,
+				$template['image-clip-transform-y'] ?? 0,
+				$detectionModel,
+				$featureSize,
+				$objectPadding
+			);
+
+			$extraCanvas->compositeImage(
+				$tmpImg,
+				Imagick::COMPOSITE_DEFAULT,
+				(int) $imgX,
+				(int) $imgY
+			);
 
 
 			// Apply image effects
@@ -238,7 +252,17 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @since   1.0.0
 	 */
-	private function resize(string $src, $new_w, $new_h, string $focus = 'center', int $clipTransformX = 0, int $clipTransformY = 0): Imagick
+	private function resize(
+		string $src,
+		int    $new_w,
+		int    $new_h,
+		string $focus = 'center',
+		int    $clipTransformX = 0,
+		int    $clipTransformY = 0,
+		string $imageDetectionModel = 'frontalface_default',
+		int    $desiredSize = 0,
+		int    $objectPadding = 0
+	): Imagick
 	{
 		$image = new Imagick($src);
 
@@ -260,6 +284,35 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 		$h = $image->getImageHeight();
 
 		[$resize_w, $resize_h] = $this->getBestFitDimensions($w, $h, $new_w, $new_h);
+		$scalingFactor = $resize_w / $w;
+
+		// Conditionally change the scaling factor to fit the detected object into the requested width.
+		if ($focus === 'detect')
+		{
+			[
+				$featureX1, $featureY1, $featureX2, $featureY2,
+			] = $this->getObjectCoordinates($image, $imageDetectionModel);
+
+			$doResizeInfo = $this->resizeUsingDetectedObjects(
+				$featureX1,
+				$featureY1,
+				$featureX2,
+				$featureY2,
+				$scalingFactor,
+				$desiredSize,
+				$objectPadding
+			);
+
+			if ($doResizeInfo['changeScale'])
+			{
+				$scalingFactor = $doResizeInfo['scalingFactor'];
+				$resize_w      = $scalingFactor * $w;
+				$resize_h      = $scalingFactor * $h;
+			}
+
+			$featureX1 = $doResizeInfo['originX'];
+			$featureY1 = $doResizeInfo['originY'];
+		}
 
 		$image->resizeImage((int) $resize_w, (int) $resize_h, Imagick::FILTER_LANCZOS, 0.9);
 
@@ -281,7 +334,14 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 			'southwest' => [$west, $south],
 			'south' => [$xCenter, $south],
 			'southeast' => [$east, $south],
+			'detect' => [$featureX1, $featureY1]
 		};
+
+		// If object detection fails, it sets the source X and Y to NULL. Catch that and use the image centre instead.
+		if ($sourceX === null && $sourceY === null)
+		{
+			[$sourceX, $sourceY] = [$xCenter, $yCenter];
+		}
 
 		if ($clipTransformX != 0 || $clipTransformY != 0)
 		{
@@ -447,14 +507,14 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 
 			if ($template['text-y-center'] == '1')
 			{
-				$bbY = (int)(($image->getImageHeight() - $template['text-height']) / 2.0 + $template['text-y-adjust']);
+				$bbY = (int) (($image->getImageHeight() - $template['text-height']) / 2.0 + $template['text-y-adjust']);
 			}
 
 			$bbX = $template['text-x-absolute'];
 
 			if ($template['text-x-center'] == '1')
 			{
-				$bbX = (int)(($image->getImageWidth() - $template['text-width']) / 2.0 + $template['text-x-adjust']);
+				$bbX = (int) (($image->getImageWidth() - $template['text-width']) / 2.0 + $template['text-x-adjust']);
 			}
 
 			$draw        = new ImagickDraw();
@@ -608,8 +668,8 @@ class ImagickAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Measure the dimensions of text as it would be rendered.
 	 *
-	 * @param   string  $text      The text to measure
-	 * @param   array   $template  The template configuration
+	 * @param   string  $text         The text to measure
+	 * @param   array   $template     The template configuration
 	 * @param   int     $strokeWidth  The text stroke width
 	 *
 	 * @return  array   Array with 'width' and 'height' keys

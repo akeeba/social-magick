@@ -257,7 +257,6 @@
                 type="list"
                 label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_LABEL"
                 description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_DESC"
-                class="btn-group btn-group-yesno"
                 default="center"
                 showon="use-article-image:1[AND]image_source!:none"
         >
@@ -270,7 +269,43 @@
             <option value="southwest">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_SOUTHWEST</option>
             <option value="south">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_SOUTH</option>
             <option value="southeast">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_SOUTHEAST</option>
+            <option value="detect">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_ANCHOR_OPT_DETECT</option>
         </field>
+
+        <field
+                name="image_detect_model"
+                type="list"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_DETECT_MODEL"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_DETECT_MODEL_DESC"
+                default="frontalface_default"
+                showon="use-article-image:1[AND]image_source!:none[AND]image-anchor:detect"
+        >
+            <option value="frontalface_default">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_DETECT_MODEL_OPT_FRONTALFACE_DEFAULT</option>
+            <option value="profileface">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_DETECT_MODEL_OPT_PROFILEFACE</option>
+            <option value="upperbody">COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_DETECT_MODEL_OPT_UPPERBODY</option>
+        </field>
+
+        <field
+                name="image_object_size"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OBJECT_SIZE"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OBJECT_SIZE_DESC"
+                addonAfter="px"
+                filter="integer"
+                default="0"
+                showon="use-article-image:1[AND]image_source!:none[AND]image-anchor:detect"
+                />
+
+        <field
+                name="image_object_padding"
+                type="text"
+                label="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OBJECT_PADDING"
+                description="COM_SOCIALMAGICK_TEMPLATES_FIELD_PARAM_IMAGE_OBJECT_PADDING_DESC"
+                default="0"
+                addonAfter="px"
+                filter="integer"
+                showon="use-article-image:1[AND]image_source!:none[AND]image-anchor:detect"
+                />
 
         <field
                 name="image-clip-transform-x"

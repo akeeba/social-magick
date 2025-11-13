@@ -11,6 +11,7 @@ namespace Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter
 
 use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Classifier;
 use RuntimeException;
+use Throwable;
 
 /**
  * Abstract implementation of an object detection adapter.
@@ -43,6 +44,14 @@ abstract class AbstractAdapter implements AdapterInterface
 	protected float $scalingFactor = 1.0;
 
 	/**
+	 * Should I try to destroy the image resource on object destruction?
+	 *
+	 * @var   bool
+	 * @since 3.0.0
+	 */
+	protected bool $freeImageOnObjectDestruction;
+
+	/**
 	 * @inheritDoc
 	 * @since 3.0.0
 	 */
@@ -67,7 +76,7 @@ abstract class AbstractAdapter implements AdapterInterface
 	 * @inheritDoc
 	 * @since 3.0.0
 	 */
-	final public function scan(string $filePath): array
+	final public function scanImageFile(string $filePath): array
 	{
 		if (!file_exists($filePath) || !is_readable($filePath))
 		{
@@ -75,8 +84,83 @@ abstract class AbstractAdapter implements AdapterInterface
 		}
 
 		$this->destroyImage();
-		$this->loadImage($filePath);
 
+		try
+		{
+			$this->freeImageOnObjectDestruction = true;
+			$this->loadImage($filePath);
+
+			return $this->scanLoadedImage();
+		}
+		catch (Throwable)
+		{
+			return [];
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @since 3.0.0
+	 */
+	public function scanImageResource(mixed $imageResource): array
+	{
+		$this->destroyImage();
+
+		try
+		{
+			$this->freeImageOnObjectDestruction = false;
+			$this->loadImageResource($imageResource);
+
+			return $this->scanLoadedImage();
+		}
+		catch (Throwable)
+		{
+			return [];
+		}
+	}
+
+	abstract protected function loadImageResource(mixed $imageResource): void;
+
+	/**
+	 * Loads an image file.
+	 *
+	 * Updates the width and height parameters. Also set up an internal property to read the image.
+	 *
+	 * @param   string  $filePath  The file path to parse.
+	 *
+	 * @return  void
+	 * @throws  RuntimeException  When we cannot load the image file.
+	 * @since   3.0.0
+	 */
+	abstract protected function loadImage(string $filePath): void;
+
+	/**
+	 * Destroys the image resource and frees any associated memory.
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	abstract protected function destroyImage(): void;
+
+	/**
+	 * Returns the colour components of the loaded image at a given location.
+	 *
+	 * @param   int  $x  X location.
+	 * @param   int  $y  Y location
+	 *
+	 * @return  array  The Red, Green, Blue, and Alpha components of the colour at the given image lcoation.
+	 * @since   3.0.0
+	 */
+	abstract protected function colorAt(int $x, int $y): array;
+
+	/**
+	 * Scans the loaded image for objects and returns an array with the found rectangles.
+	 *
+	 * @return  array
+	 * @since   3.0.0
+	 */
+	private function scanLoadedImage(): array
+	{
 		$return = [];
 
 		$maxScale  = min($this->width / $this->classifier->getSizeX(), $this->height / $this->classifier->getSizeY());
@@ -139,36 +223,4 @@ abstract class AbstractAdapter implements AdapterInterface
 
 		return $return;
 	}
-
-	/**
-	 * Loads an image file.
-	 *
-	 * Updates the width and height parameters. Also set up an internal property to read the image.
-	 *
-	 * @param   string  $filePath  The file path to parse.
-	 *
-	 * @return  void
-	 * @throws  RuntimeException  When we cannot load the image file.
-	 * @since   3.0.0
-	 */
-	abstract protected function loadImage(string $filePath): void;
-
-	/**
-	 * Destroys the image resource and frees any associated memory.
-	 *
-	 * @return  void
-	 * @since   3.0.0
-	 */
-	abstract protected function destroyImage(): void;
-
-	/**
-	 * Returns the colour components of the loaded image at a given location.
-	 *
-	 * @param   int  $x  X location.
-	 * @param   int  $y  Y location
-	 *
-	 * @return  array  The Red, Green, Blue, and Alpha components of the colour at the given image lcoation.
-	 * @since   3.0.0
-	 */
-	abstract protected function colorAt(int $x, int $y): array;
 }

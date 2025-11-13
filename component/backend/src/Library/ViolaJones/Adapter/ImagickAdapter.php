@@ -55,13 +55,16 @@ final class ImagickAdapter extends AbstractAdapter
 			return;
 		}
 
-		try
+		if ($this->freeImageOnObjectDestruction)
 		{
-			$this->imageResource->clear();
-		}
-		catch (Throwable $e)
-		{
-			// Swallow any errors while cleaning up
+			try
+			{
+				$this->imageResource->clear();
+			}
+			catch (Throwable $e)
+			{
+				// Swallow any errors while cleaning up
+			}
 		}
 
 		$this->imageResource = null;
@@ -85,22 +88,8 @@ final class ImagickAdapter extends AbstractAdapter
 		$this->width  = $this->imageResource->getImageWidth();
 		$this->height = $this->imageResource->getImageHeight();
 
-		// Images up to a resolution of MAX_IMAGE_RESOLUTION are okay
-		$surface = $this->width * $this->height;
+		$this->conditionalImageRescaling();
 
-		if ($surface < self::MAX_IMAGE_RESOLUTION)
-		{
-			return;
-		}
-
-		// The image is bigger than the allowed surface. Downscale so the larger dimension is MAX_IMAGE_DIMENSION.
-		$maxDimension        = max($this->width, $this->height);
-		$this->scalingFactor = $maxDimension / self::MAX_IMAGE_DIMENSION;
-		$this->width         = (int) floor($this->width / $this->scalingFactor);
-		$this->height        = (int) floor($this->height / $this->scalingFactor);
-
-		// Resize using a high-quality filter; maintain the exact target size previously computed.
-		$this->imageResource->resizeImage($this->width, $this->height, Imagick::FILTER_LANCZOS, 1.0, false);
 	}
 
 	/**
@@ -129,5 +118,61 @@ final class ImagickAdapter extends AbstractAdapter
 		$alpha  = (int) round($aFloat * 127);
 
 		return [$r, $g, $b, $alpha];
+	}
+
+	/**
+	 * @inheritDoc
+	 * @since 3.0.0
+	 */
+	protected function loadImageResource(mixed $imageResource): void
+	{
+		if (!$imageResource instanceof Imagick)
+		{
+			throw new RuntimeException('The provided image resource must be an Imagick instance');
+		}
+
+		$this->imageResource = $imageResource;
+		$this->width         = $this->imageResource->getImageWidth();
+		$this->height        = $this->imageResource->getImageHeight();
+
+		$this->conditionalImageRescaling();
+	}
+
+	/**
+	 * Conditionally resize the image.
+	 *
+	 * If the image resolution is greater than MAX_IMAGE_RESOLUTION we will resample the image to a smaller size (max
+	 * dimension MAX_IMAGE_DIMENSION) to speed up object detection without any significant loss of accuracy.
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function conditionalImageRescaling(): void
+	{
+		// Images up to a resolution of MAX_IMAGE_RESOLUTION are okay
+		$surface = $this->width * $this->height;
+
+		if ($surface < self::MAX_IMAGE_RESOLUTION)
+		{
+			return;
+		}
+
+		// The image is bigger than the allowed surface. Downscale so the larger dimension is MAX_IMAGE_DIMENSION.
+		$maxDimension        = max($this->width, $this->height);
+		$this->scalingFactor = $maxDimension / self::MAX_IMAGE_DIMENSION;
+		$this->width         = (int) floor($this->width / $this->scalingFactor);
+		$this->height        = (int) floor($this->height / $this->scalingFactor);
+
+		if (!$this->freeImageOnObjectDestruction)
+		{
+			$newResource = clone $this->imageResource;
+			$this->imageResource = $newResource;
+		}
+
+		// Resize using a high-quality filter; maintain the exact target size previously computed.
+		$this->imageResource->resizeImage($this->width, $this->height, Imagick::FILTER_LANCZOS, 1.0, false);
+
+		// Since we have a resampled temporary image we will need to free it when we're done with it.
+		$this->freeImageOnObjectDestruction = true;
 	}
 }

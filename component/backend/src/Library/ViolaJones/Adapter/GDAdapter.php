@@ -64,7 +64,10 @@ final class GDAdapter extends AbstractAdapter
 			return;
 		}
 
-		@imagedestroy($this->imageResource);
+		if ($this->freeImageOnObjectDestruction)
+		{
+			@imagedestroy($this->imageResource);
+		}
 
 		$this->imageResource = null;
 	}
@@ -103,26 +106,7 @@ final class GDAdapter extends AbstractAdapter
 			throw new RuntimeException("Unknown file format " . $imageType . " for " . $filePath);
 		}
 
-		// Images up to a resolution of MAX_IMAGE_RESOLUTION are okay
-		$surface = $this->width * $this->height;
-
-		if ($surface < self::MAX_IMAGE_RESOLUTION)
-		{
-			return;
-		}
-
-		// The image is bigger than 1MP. Try to convert to a maximum dimension of MAX_IMAGE_RESOLUTION
-		$maxDimension        = max($this->width, $this->height);
-		$this->scalingFactor = $maxDimension / self::MAX_IMAGE_DIMENSION;
-		$this->width         = floor($this->width / $this->scalingFactor);
-		$this->height        = floor($this->height / $this->scalingFactor);
-
-		$tempImage = imagecreatetruecolor($this->width, $this->height);
-
-		imagecopyresampled($tempImage, $this->imageResource, 0, 0, 0, 0, $this->width, $this->height, imagesx($this->imageResource), imagesy($this->imageResource));
-		imagedestroy($this->imageResource);
-
-		$this->imageResource = $tempImage;
+		$this->conditionalImageRescaling();
 	}
 
 	/**
@@ -132,5 +116,66 @@ final class GDAdapter extends AbstractAdapter
 	protected function colorAt(int $x, int $y): array
 	{
 		return array_values(imagecolorsforindex($this->imageResource, imagecolorat($this->imageResource, $x, $y)));
+	}
+
+	/**
+	 * @inheritDoc
+	 * @since 3.0.0
+	 */
+	protected function loadImageResource(mixed $imageResource): void
+	{
+		$isResource = is_resource($imageResource) && get_resource_type($imageResource) !== 'gd';
+		$isObject   = is_object($imageResource) && $imageResource instanceof \GdImage;
+
+		if (!$isResource && !$isObject)
+		{
+			throw new RuntimeException('Not a valid GD image resource');
+		}
+
+		$this->imageResource = $imageResource;
+		$this->width         = imagesx($imageResource);
+		$this->height        = imagesy($imageResource);
+
+		$this->conditionalImageRescaling();
+	}
+
+	/**
+	 * Conditionally resize the image.
+	 *
+	 * If the image resolution is greater than MAX_IMAGE_RESOLUTION we will resample the image to a smaller size (max
+	 * dimension MAX_IMAGE_DIMENSION) to speed up object detection without any significant loss of accuracy.
+	 *
+	 * @return  void
+	 * @since   3.0.0
+	 */
+	private function conditionalImageRescaling(): void
+	{
+		// Images up to a resolution of MAX_IMAGE_RESOLUTION are okay
+		$surface = $this->width * $this->height;
+
+		if ($surface < self::MAX_IMAGE_RESOLUTION)
+		{
+			return;
+		}
+
+		// The image is bigger than MAX_IMAGE_RESOLUTION. Try to convert to a maximum dimension of MAX_IMAGE_DIMENSION.
+		$maxDimension        = max($this->width, $this->height);
+		$this->scalingFactor = $maxDimension / self::MAX_IMAGE_DIMENSION;
+		$this->width         = floor($this->width / $this->scalingFactor);
+		$this->height        = floor($this->height / $this->scalingFactor);
+
+		$tempImage = imagecreatetruecolor($this->width, $this->height);
+
+		imagecopyresampled($tempImage, $this->imageResource, 0, 0, 0, 0, $this->width, $this->height, imagesx($this->imageResource), imagesy($this->imageResource));
+
+		if ($this->freeImageOnObjectDestruction)
+		{
+			imagedestroy($this->imageResource);
+		}
+
+		$this->imageResource                = $tempImage;
+
+		// Since we have a resampled temporary image we will need to free it when we're done with it.
+		$this->freeImageOnObjectDestruction = true;
 	}
 }

@@ -51,16 +51,16 @@ class ObjectDetector
 	 * Each object is represented by an associative array with the keys x, y, width and height.
 	 *
 	 * The minNeighbours parameter determines the accuracy of detection. The default value (2) may result in some
-	 * uncertain results. Increase to 3 for more confidence, at the expense of dropping valid objects detected in less
+	 * spurious results. Increase to 3 for more confidence, at the expense of dropping valid objects detected in less
 	 * clear images. Anything above this value will probably be too strict for practical use.
 	 *
-	 * @param   string  $filePath       The image file to analyse
-	 * @param   int     $minNeighbours  The minimum neighbours to require for object detection.
+	 * @param   string  $image          The image file or resource to analyse
+	 * @param   int     $minNeighbours  The minimum neighbours to require for object detection (2–10 inclusive).
 	 *
-	 * @return  array Coordinates of the rectangles where objects are found.
+	 * @return  array  Coordinates of the rectangles where objects are found.
 	 * @since   3.0.0
 	 */
-	public function getObjects(string $filePath, int $minNeighbours = 2): array
+	public function getObjects(mixed $image, int $minNeighbours = 2): array
 	{
 		// Catch error case: missing classifier
 		if (!$this->classifier instanceof Classifier || $this->classifier->getSizeX() <= 0 || $this->classifier->getSizeY() <= 0)
@@ -69,10 +69,10 @@ class ObjectDetector
 		}
 
 		// Use the adapter to detect objects
-		$adapter       = $this->getAdapter();
-		$foundRects    = $adapter->scan($filePath);
+		$adapter    = $this->getAdapter();
+		$foundRects = is_string($image) ? $adapter->scanImageFile($image) : $adapter->scanImageResource($image);
 
-		// Make sure the minimum neighbours is within range.
+		// Make sure the minimum neighbours value is within range.
 		$minNeighbours = min(max(2, $minNeighbours), 10);
 
 		return array_map(

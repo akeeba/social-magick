@@ -402,18 +402,15 @@ abstract class AbstractAdapter implements AdapterInterface
 		}
 
 		// Make sure the padding is valid
-		while ($objectPadding > 1 && $objectPadding <= intdiv($desiredSize, 2))
+		while ($objectPadding > 1 && $objectPadding >= intdiv($desiredSize, 2))
 		{
 			$objectPadding = intdiv($objectPadding, 2);
 		}
 
-		if ($objectPadding < 1)
-		{
-			$objectPadding = 0;
-		}
-
-		// TODO Take padding into account
-
+		// We will adjust the desired size by removing twice the padding.
+		$desiredSize = $desiredSize - $objectPadding;
+		$ret['originX'] = max(0, $ret['originX'] - $objectPadding);
+		$ret['originY'] = max(0, $ret['originY'] - $objectPadding);
 
 		// That's the maximum size of the detected object in the scaled image
 		$featureSize = intval($scalingFactor * max($featureX2 - $featureX1, $featureY1 - $featureY2));
@@ -429,8 +426,8 @@ abstract class AbstractAdapter implements AdapterInterface
 		{
 			// Note that we can't ask the crop point to be outside the image to avoid black bars showing.
 			$offset         = intdiv($desiredSize - $featureSize, 2);
-			$ret['originX'] = max(0, intval($featureX1 * $scalingFactor) - $offset);
-			$ret['originY'] = max(0, intval($featureY1 * $scalingFactor) - $offset);
+			$ret['originX'] = max(0, intval($featureX1 * $scalingFactor) - $offset - $objectPadding);
+			$ret['originY'] = max(0, intval($featureY1 * $scalingFactor) - $offset - $objectPadding);
 
 			return $ret;
 		}
@@ -439,8 +436,8 @@ abstract class AbstractAdapter implements AdapterInterface
 		$newScale = ($desiredSize / $featureSize) * $scalingFactor;
 		$ret['changeScale'] = true;
 		$ret['scalingFactor'] = $newScale;
-		$ret['originX'] = intval($featureX1 * $newScale);
-		$ret['originY'] = intval($featureY1 * $newScale);
+		$ret['originX'] = max(0, intval($featureX1 * $newScale) - $objectPadding);
+		$ret['originY'] = max(0, intval($featureY1 * $newScale) - $objectPadding);
 
 		return $ret;
 	}

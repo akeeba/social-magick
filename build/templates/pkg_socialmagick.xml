@@ -25,7 +25,7 @@
 
         <file type="plugin" group="system" id="socialmagick">plg_system_socialmagick.zip</file>
 
-        <file type="plugin" group="socialmagick" id="articles">plg_socialmagick_.zip</file>
+        <file type="plugin" group="socialmagick" id="articles">plg_socialmagick_articles.zip</file>
         <file type="plugin" group="socialmagick" id="categories">plg_socialmagick_categories.zip</file>
         <file type="plugin" group="socialmagick" id="menus">plg_socialmagick_menus.zip</file>
 

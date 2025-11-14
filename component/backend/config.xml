@@ -248,6 +248,31 @@
         </field>
     </fieldset>
 
+    <fieldset name="facedetect"
+              label="COM_SOCIALMAGICK_CONFIG_FIELDSET_FACEDETECT_LABEL">
+
+        <field
+                name="facedetect_method"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_DESC"
+                validate="options"
+                default="php"
+        >
+            <option value="ViolaJones">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_VIOLAJONES</option>
+            <option value="Google">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_GOOGLE</option>
+            <option value="Rekognition">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_REKOGNITION</option>
+        </field>
+
+        <field
+                name="facedect_google_apikey"
+                type="password"
+                label="COM_SOCIALMAGICK_CONFIG_FACEDECT_GOOGLE_APIKEY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FACEDECT_GOOGLE_APIKEY_DESC"
+                showon="facedetect_method:Google"
+        />
+    </fieldset>
+
     <fieldset
             name="permissions"
             label="JCONFIG_PERMISSIONS_LABEL"

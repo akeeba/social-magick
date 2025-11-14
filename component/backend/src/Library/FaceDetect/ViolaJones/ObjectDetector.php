@@ -5,14 +5,14 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones;
 
 \defined('_JEXEC') || die;
 
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter\AdapterInterface;
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter\GDAdapter;
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter\ImagickAdapter;
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Classifier;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Adapter\AdapterInterface;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Adapter\GDAdapter;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Adapter\ImagickAdapter;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier\Classifier;
 use RuntimeException;
 
 /**

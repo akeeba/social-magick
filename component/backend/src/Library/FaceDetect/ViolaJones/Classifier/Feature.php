@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier;
 
 \defined('_JEXEC') || die;
 

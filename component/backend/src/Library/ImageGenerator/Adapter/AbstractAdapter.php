@@ -7,8 +7,11 @@
 
 namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Classifier;
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\ObjectDetector;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\AdapterInterface as FaceDetectInterface;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier\Classifier;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\ObjectDetector;
+use Joomla\CMS\Component\ComponentHelper;
 
 defined('_JEXEC') || die();
 
@@ -327,36 +330,22 @@ abstract class AbstractAdapter implements AdapterInterface
 	 * @return  array<int|null>
 	 * @since   3.0.0
 	 */
-	protected function getObjectCoordinates($image, string $imageDetectionModel = 'frontalface_default'): array
+	protected function getObjectCoordinates($image): array
 	{
-		$rootPath     = JPATH_ADMINISTRATOR . '/components/com_socialmagick/src/Library/ViolaJones/models/';
-		$filePath     = $rootPath . 'haarcascade_' . ($imageDetectionModel ?: 'frontalface_default') . '.json.gz';
-		$classifier   = Classifier::fromJsonFile($filePath);
-		$detector     = new ObjectDetector($classifier);
-		$foundObjects = $detector->getObjects($image, 2);
+		// Use the detector specified in the component's configuration.
+		$method = ComponentHelper::getParams('com_socialmagick')
+			->get('facedetect_method', 'ViolaJones') ?: 'ViolaJones';
 
-		if (empty($foundObjects))
+		$className = '\\Akeeba\\Component\\SocialMagick\\Administrator\\Library\\FaceDetect\\' . $method;
+
+		if (!class_exists($className) || !in_array(FaceDetectInterface::class, class_implements($className)))
 		{
-			return [null, null, null, null];
+			$className = ViolaJones::class;
 		}
 
-		$xValues = [];
-		$yValues = [];
+		$detector = new $className();
 
-		foreach ($foundObjects as $object)
-		{
-			$xValues[] = $object['x'];
-			$xValues[] = $object['x'] + $object['width'];
-			$yValues[] = $object['y'];
-			$yValues[] = $object['y'] + $object['height'];
-		}
-
-		$minX = min($xValues);
-		$maxX = max($xValues);
-		$minY = min($yValues);
-		$maxY = max($yValues);
-
-		return [$minX, $minY, $maxX, $maxY];
+		return $detector->getCoordinates($image);
 	}
 
 	/**

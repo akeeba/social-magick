@@ -250,7 +250,6 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		}
 
 		$anchor         = $template['image-anchor'] ?? 'center';
-		$detectionModel = $template['image_detect_model'] ?? 'frontalface_default';
 		$featureSize    = $template['image_object_size'] ?? 0;
 		$objectPadding  = $template['image_object_padding'] ?? 0;
 
@@ -263,7 +262,6 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			$anchor,
 			$template['image-clip-transform-x'] ?? 0,
 			$template['image-clip-transform-y'] ?? 0,
-			$detectionModel,
 			$featureSize,
 			$objectPadding
 		);
@@ -391,7 +389,6 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		string $focus = 'center',
 		int $clipTransformX = 0,
 		int $clipTransformY = 0,
-		string $imageDetectionModel = 'frontalface_default',
 		$desiredSize = 0,
 		$objectPadding = 0
 	)
@@ -410,7 +407,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			[
 				$featureX1, $featureY1, $featureX2, $featureY2,
-			] = $this->getObjectCoordinates($image, $imageDetectionModel);
+			] = $this->getObjectCoordinates($image);
 
 			$doResizeInfo = $this->resizeUsingDetectedObjects(
 				$featureX1,

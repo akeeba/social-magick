@@ -5,21 +5,21 @@
  * @license   GNU General Public License version 3, or later
  */
 
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Classifier;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier\Classifier;
 
 define('_JEXEC', 1);
 
 /** @var \Composer\Autoload\ClassLoader $autoloader */
 $autoloader = require_once __DIR__ . '/../../vendor/autoload.php';
 $autoloader->addPsr4(
-	'Akeeba\\Component\\SocialMagick\\Administrator\\Library\\ViolaJones\\',
+	'Akeeba\\Component\\SocialMagick\\Administrator\\Library\\FaceDetect\\ViolaJones\\',
 	[
 		__DIR__ . '/../../component/backend/src/Library/ViolaJones',
 	]
 );
 
 $di       = new DirectoryIterator(__DIR__);
-$basePath = __DIR__ . '/../../component/backend/src/Library/ViolaJones/models';
+$basePath = __DIR__ . '/../../component/backend/src/Library/FaceDetect/ViolaJones/models';
 
 /** @var DirectoryIterator $file */
 foreach ($di as $file)

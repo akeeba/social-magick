@@ -5,11 +5,11 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Adapter;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Adapter;
 
 \defined('_JEXEC') || die;
 
-use Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\Classifier;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier\Classifier;
 use RuntimeException;
 use Throwable;
 

@@ -5,12 +5,13 @@
  * @license   GNU General Public License version 3, or later
  */
 
-namespace Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier;
+namespace Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier;
 
 \defined('_JEXEC') || die;
 
 use Generator;
 use JsonSerializable;
+use function Akeeba\Component\SocialMagick\Administrator\Library\ViolaJones\Classifier\zstd_uncompress;
 
 /**
  * A Haar cascade classifier.

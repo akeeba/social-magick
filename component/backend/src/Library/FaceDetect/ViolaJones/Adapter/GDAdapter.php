@@ -160,7 +160,7 @@ final class GDAdapter extends AbstractAdapter
 
 		// The image is bigger than MAX_IMAGE_RESOLUTION. Try to convert to a maximum dimension of MAX_IMAGE_DIMENSION.
 		$maxDimension        = max($this->width, $this->height);
-		$this->scalingFactor = $maxDimension / self::MAX_IMAGE_DIMENSION;
+		$this->scalingFactor = min(1.0, $maxDimension / self::MAX_IMAGE_DIMENSION);
 		$this->width         = floor($this->width / $this->scalingFactor);
 		$this->height        = floor($this->height / $this->scalingFactor);
 

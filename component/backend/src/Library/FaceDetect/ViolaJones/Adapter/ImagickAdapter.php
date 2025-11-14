@@ -159,7 +159,7 @@ final class ImagickAdapter extends AbstractAdapter
 
 		// The image is bigger than the allowed surface. Downscale so the larger dimension is MAX_IMAGE_DIMENSION.
 		$maxDimension        = max($this->width, $this->height);
-		$this->scalingFactor = $maxDimension / self::MAX_IMAGE_DIMENSION;
+		$this->scalingFactor = min(1.0, $maxDimension / self::MAX_IMAGE_DIMENSION);
 		$this->width         = (int) floor($this->width / $this->scalingFactor);
 		$this->height        = (int) floor($this->height / $this->scalingFactor);
 

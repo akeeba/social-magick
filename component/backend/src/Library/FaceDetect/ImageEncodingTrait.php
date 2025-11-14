@@ -19,6 +19,8 @@ use Imagick;
  */
 trait ImageEncodingTrait
 {
+	protected float $scalingFactor = 1.0;
+
 	/**
 	 * Return the given image object as a base sixty-four encoded PNG or WebP image.
 	 *
@@ -27,9 +29,14 @@ trait ImageEncodingTrait
 	 * @return  string  The encoded binary string representation of the image.
 	 * @since   3.0.0
 	 */
-	protected function encodeImage(Imagick|GdImage $image): string
+	protected function encodeImage(Imagick|GdImage $image, int $resizeTo = 1024): string
 	{
-		return $image instanceof GdImage ? $this->encodeGdImage($image) : $this->encodeImagickImage($image);
+		if ($image instanceof GdImage)
+		{
+			return $this->encodeGdImage($image);
+		}
+
+		return $this->encodeImagickImage($image);
 	}
 
 	/**
@@ -40,20 +47,20 @@ trait ImageEncodingTrait
 	 * @return  string  The encoded binary string representation of the image.
 	 * @since   3.0.0
 	 */
-	protected function encodeGdImage(GdImage $image): string
+	private function encodeGdImage(GdImage $image): string
 	{
 		@ob_start();
 
 		if (function_exists('imagewebp'))
 		{
-			imagewebp($image, null, IMG_WEBP_LOSSLESS);
+			imagewebp($image, null, 80);
 		}
 		else
 		{
 			imagejpeg($image, null, 80);
 		}
 
-		return $this->encodeBinaryData(ob_end_clean());
+		return $this->encodeBinaryData(ob_get_clean());
 	}
 
 	/**
@@ -64,7 +71,7 @@ trait ImageEncodingTrait
 	 * @return  string  The encoded binary string representation of the image.
 	 * @since   3.0.0
 	 */
-	protected function encodeImagickImage(Imagick $image): string
+	private function encodeImagickImage(Imagick $image): string
 	{
 		$imageFormat = in_array('WEBP', Imagick::queryFormats()) ? 'webp' : 'png';
 
@@ -74,13 +81,13 @@ trait ImageEncodingTrait
 		switch ($imageFormat)
 		{
 			case 'png':
-				$image->setImageCompressionQuality(90);
+				$image->setImageCompressionQuality(80);
 				$image->setOption('png:compression-strategy', '0'); // 0-4, compression strategy
 				break;
 
 			case 'webp':
-				$image->setImageCompressionQuality(90);
-				$image->setOption('webp:lossless', true);
+				$image->setImageCompressionQuality(80);
+				$image->setOption('webp:lossless', false);
 				break;
 		}
 
@@ -101,10 +108,10 @@ trait ImageEncodingTrait
 	 * @return  string  The encoded data.
 	 * @since   3.0.0
 	 */
-	protected function encodeBinaryData(string $data): string
+	private function encodeBinaryData(string $data): string
 	{
 		// Work around idiot hosts
-		$function = substr('debased', 2, -1) . (string) (2 * 32) .
+		$function = substr('debased', 2, -1) . (string) (2 * 32) . '_' .
 			substr('end', 0, 2) . substr('recode', 2);
 
 		return call_user_func($function, $data);

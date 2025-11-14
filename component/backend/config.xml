@@ -265,10 +265,10 @@
         </field>
 
         <field
-                name="facedect_google_apikey"
+                name="facedetect_google_apikey"
                 type="password"
-                label="COM_SOCIALMAGICK_CONFIG_FACEDECT_GOOGLE_APIKEY_LABEL"
-                description="COM_SOCIALMAGICK_CONFIG_FACEDECT_GOOGLE_APIKEY_DESC"
+                label="COM_SOCIALMAGICK_CONFIG_FACEDETECT_GOOGLE_APIKEY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FACEDETECT_GOOGLE_APIKEY_DESC"
                 showon="facedetect_method:Google"
         />
     </fieldset>

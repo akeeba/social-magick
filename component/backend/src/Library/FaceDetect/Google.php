@@ -24,6 +24,12 @@ class Google implements AdapterInterface
 {
 	use ImageEncodingTrait;
 
+	public function __construct(private ?string $apiKey = null)
+	{
+		$this->apiKey ??= ComponentHelper::getParams('com_socialmagick')->get('facedetect_google_apikey', '');
+	}
+
+
 	public function getCoordinates(Imagick|GdImage $image): array
 	{
 		// Create the Google Cloud Vision API payload
@@ -48,7 +54,7 @@ class Google implements AdapterInterface
 				'https://vision.googleapis.com/v1/images:annotate',
 				json_encode($payload),
 				[
-					'X-goog-api-key' => ComponentHelper::getParams('com_socialmagick')->get('facedect_google_apikey', ''),
+					'X-goog-api-key' => $this->apiKey,
 					'Content-Type'   => 'application/json',
 				]
 			);
@@ -92,34 +98,35 @@ class Google implements AdapterInterface
 				continue;
 			}
 
-			if (!isset($response['faceAnnotations']['fdBoundingPoly']) || !is_array($response['faceAnnotations']['fdBoundingPoly']) || empty($response['faceAnnotations']['fdBoundingPoly']))
+			foreach ($response['faceAnnotations'] as $faceAnnotation)
 			{
-				continue;
-			}
+				if (!isset($faceAnnotation['fdBoundingPoly']) || !is_array($faceAnnotation['fdBoundingPoly']) || empty($faceAnnotation['fdBoundingPoly']))
+				{
+					continue;
+				}
 
-			$x = [];
-			$y = [];
+				$x = [];
+				$y = [];
+				$poly = $faceAnnotation['fdBoundingPoly'];
 
-			foreach ($response['faceAnnotations']['fdBoundingPoly'] as $poly)
-			{
 				if (!isset($poly['vertices']) || !is_array($poly['vertices']) || empty($poly['vertices']))
 				{
 					continue;
 				}
 
-				foreach ($poly['vertices'] as $vertice)
+				foreach ($poly['vertices'] as $vertex)
 				{
-					if (!isset($vertice['x']) || !isset($vertice['y']) || !is_int($vertice['x']) || !is_int($vertice['y']))
+					if (!isset($vertex['x']) || !isset($vertex['y']) || !is_int($vertex['x']) || !is_int($vertex['y']))
 					{
 						continue;
 					}
 
-					$x[] = $vertice['x'];
-					$y[] = $vertice['y'];
+					$x[] = $vertex['x'];
+					$y[] = $vertex['y'];
 				}
-			}
 
-			$faces[] = [min($x), min($y), max($x), max($y)];
+				$faces[] = [min($x), min($y), max($x), max($y)];
+			}
 		}
 
 		// No faces?

@@ -21,6 +21,8 @@ trait ImageEncodingTrait
 {
 	protected float $scalingFactor = 1.0;
 
+	protected $allowWebP = true;
+
 	/**
 	 * Return the given image object as a base sixty-four encoded PNG or WebP image.
 	 *
@@ -29,7 +31,7 @@ trait ImageEncodingTrait
 	 * @return  string  The encoded binary string representation of the image.
 	 * @since   3.0.0
 	 */
-	protected function encodeImage(Imagick|GdImage $image, int $resizeTo = 1024): string
+	protected function encodeImage(Imagick|GdImage $image): string
 	{
 		if ($image instanceof GdImage)
 		{
@@ -51,7 +53,7 @@ trait ImageEncodingTrait
 	{
 		@ob_start();
 
-		if (function_exists('imagewebp'))
+		if (function_exists('imagewebp') && $this->allowWebP)
 		{
 			imagewebp($image, null, 80);
 		}
@@ -73,7 +75,7 @@ trait ImageEncodingTrait
 	 */
 	private function encodeImagickImage(Imagick $image): string
 	{
-		$imageFormat = in_array('WEBP', Imagick::queryFormats()) ? 'webp' : 'png';
+		$imageFormat = in_array('WEBP', Imagick::queryFormats()) && $this->allowWebP ? 'webp' : 'png';
 
 		$image = clone($image);
 		$image->setImageFormat($imageFormat);

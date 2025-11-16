@@ -29,7 +29,6 @@ class Google implements AdapterInterface
 		$this->apiKey ??= ComponentHelper::getParams('com_socialmagick')->get('facedetect_google_apikey', '');
 	}
 
-
 	public function getCoordinates(Imagick|GdImage $image): array
 	{
 		// Create the Google Cloud Vision API payload

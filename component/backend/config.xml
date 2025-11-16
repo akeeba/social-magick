@@ -261,7 +261,7 @@
         >
             <option value="ViolaJones">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_VIOLAJONES</option>
             <option value="Google">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_GOOGLE</option>
-            <option value="Rekognition">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_REKOGNITION</option>
+            <option value="AWS">COM_SOCIALMAGICK_CONFIG_FACEDETECT_METHOD_OPT_REKOGNITION</option>
         </field>
 
         <field
@@ -271,6 +271,50 @@
                 description="COM_SOCIALMAGICK_CONFIG_FACEDETECT_GOOGLE_APIKEY_DESC"
                 showon="facedetect_method:Google"
         />
+
+        <field
+                name="facedetect_aws_access_key"
+                type="text"
+                label="COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_ACCESS_KEY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_ACCESS_KEY_DESC"
+                showon="facedetect_method:AWS"
+        />
+
+        <field
+                name="facedetect_aws_secret_key"
+                type="password"
+                label="COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_SECRET_KEY_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_SECRET_KEY_DESC"
+                showon="facedetect_method:AWS"
+        />
+
+        <field
+                name="facedetect_aws_region"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_DESC"
+                validate="options"
+                default="us-east-1"
+                showon="facedetect_method:AWS"
+        >
+            <option value="us-east-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_US_EAST_2</option>
+            <option value="us-east-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_US_EAST_1</option>
+            <option value="us-west-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_US_WEST_1</option>
+            <option value="us-west-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_US_WEST_2</option>
+            <option value="ap-south-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_AP_SOUTH_1</option>
+            <option value="ap-northeast-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_AP_NORTHEAST_2</option>
+            <option value="ap-southeast-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_AP_SOUTHEAST_1</option>
+            <option value="ap-southeast-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_AP_SOUTHEAST_2</option>
+            <option value="ap-northeast-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_AP_NORTHEAST_1</option>
+            <option value="ca-central-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_CA_CENTRAL_1</option>
+            <option value="eu-central-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_EU_CENTRAL_1</option>
+            <option value="eu-west-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_EU_WEST_1</option>
+            <option value="eu-west-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_EU_WEST_2</option>
+            <option value="eu-south-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_EU_SOUTH_2</option>
+            <option value="il-central-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_IL_CENTRAL_1</option>
+            <option value="us-gov-west-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_US_GOV_WEST_1</option>
+        </field>
+
     </fieldset>
 
     <fieldset

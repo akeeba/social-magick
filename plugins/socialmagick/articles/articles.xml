@@ -21,7 +21,6 @@
         <folder>form</folder>
         <folder plugin="articles">services</folder>
         <folder>src</folder>
-        <folder>tmpl</folder>
 
         <filename>.htaccess</filename>
         <filename>web.config</filename>

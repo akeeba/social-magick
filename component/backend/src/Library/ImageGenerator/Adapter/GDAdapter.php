@@ -83,7 +83,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			// Joomla 4 append infomration to the image after either a question mark OR a hash sign. Let's fix that.
 			$baseImage = $template['base-image'];
-			
+
 			$imageInfo = HTMLHelper::_('cleanImageURL', $baseImage);
 			$baseImage = $imageInfo->url;
 
@@ -101,7 +101,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			imagecopy($image, $baseImage, 0, 0, 0, 0, $templateWidth, $templateHeight);
 			imagealphablending($image, false);
 		}
-		
+
 		// Layer an extra image, if necessary
 		if (!empty($extraImage) && ($template['use-article-image'] !== '0'))
 		{
@@ -249,8 +249,22 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			$imgY      = $template['image-y'];
 		}
 
-		$anchor = $template['image-anchor'] ?? 'center';
-		$tmpImg = $this->resizeImage($tmpImg, $width, $height, $tmpWidth, $tmpHeight, $anchor, $template['image-clip-transform-x'] ?? 0, $template['image-clip-transform-y'] ?? 0);
+		$anchor         = $template['image-anchor'] ?? 'center';
+		$featureSize    = $template['image_object_size'] ?? 0;
+		$objectPadding  = $template['image_object_padding'] ?? 0;
+
+		$tmpImg = $this->resizeImage(
+			$tmpImg,
+			$width,
+			$height,
+			$tmpWidth,
+			$tmpHeight,
+			$anchor,
+			$template['image-clip-transform-x'] ?? 0,
+			$template['image-clip-transform-y'] ?? 0,
+			$featureSize,
+			$objectPadding
+		);
 
 		// Apply image effects
 		$this->applyImageEffects($tmpImg, $template, 'image-');
@@ -366,7 +380,18 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	 *
 	 * @since   1.0.0
 	 */
-	private function resizeImage(&$image, int $oldWidth, int $oldHeight, int $newWidth, int $newHeight, string $focus = 'center', int $clipTransformX = 0, int $clipTransformY = 0)
+	private function resizeImage(
+		&$image,
+		int $oldWidth,
+		int $oldHeight,
+		int $newWidth,
+		int $newHeight,
+		string $focus = 'center',
+		int $clipTransformX = 0,
+		int $clipTransformY = 0,
+		$desiredSize = 0,
+		$objectPadding = 0
+	)
 	{
 		if (($oldWidth === $newWidth) && ($oldHeight === $newHeight))
 		{
@@ -375,6 +400,35 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 
 		// Get the resize dimensions
 		[$resizeWidth, $resizeHeight] = $this->getBestFitDimensions($oldWidth, $oldHeight, $newWidth, $newHeight);
+		$scalingFactor = $resizeWidth / $oldWidth;
+
+		// Conditionally change the scaling factor to fit the detected object into the requested width.
+		if ($focus === 'detect')
+		{
+			[
+				$featureX1, $featureY1, $featureX2, $featureY2,
+			] = $this->getObjectCoordinates($image);
+
+			$doResizeInfo = $this->resizeUsingDetectedObjects(
+				$featureX1,
+				$featureY1,
+				$featureX2,
+				$featureY2,
+				$scalingFactor,
+				$desiredSize,
+				$objectPadding
+			);
+
+			if ($doResizeInfo['changeScale'])
+			{
+				$scalingFactor = $doResizeInfo['scalingFactor'];
+				$resizeWidth   = $scalingFactor * $oldWidth;
+				$resizeHeight  = $scalingFactor * $oldHeight;
+			}
+
+			$featureX1 = $doResizeInfo['originX'];
+			$featureY1 = $doResizeInfo['originY'];
+		}
 
 		// Resize the image
 		$newImage = imagecreatetruecolor((int) $resizeWidth, (int) $resizeHeight);
@@ -403,19 +457,28 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		[$sourceX, $sourceY] = match ($focus)
 		{
 			'northwest' => [$west, $north],
-			'north'     => [$xCenter, $north],
+			'north' => [$xCenter, $north],
 			'northeast' => [$east, $north],
-			'west'      => [$west, $yCenter],
-			default     => [$xCenter, $yCenter],
-			'east'      => [$east, $yCenter],
+			'west' => [$west, $yCenter],
+			default => [$xCenter, $yCenter],
+			'east' => [$east, $yCenter],
 			'southwest' => [$west, $south],
-			'south'     => [$xCenter, $south],
+			'south' => [$xCenter, $south],
 			'southeast' => [$east, $south],
+			'detect' => [$featureX1, $featureY1]
 		};
+
+		// If object detection fails, it sets the source X and Y to NULL. Catch that and use the image centre instead.
+		if ($sourceX === null && $sourceY === null)
+		{
+			[$sourceX, $sourceY] = [$xCenter, $yCenter];
+		}
 
 		if ($clipTransformX != 0 || $clipTransformY != 0)
 		{
-			[$clipTransformX, $clipTransformY] = $this->nudgeClipRegion($resizeWidth, $resizeHeight, $sourceX, $sourceY, $newWidth, $newHeight, $clipTransformX, $clipTransformY);
+			[
+				$clipTransformX, $clipTransformY,
+			] = $this->nudgeClipRegion($resizeWidth, $resizeHeight, $sourceX, $sourceY, $newWidth, $newHeight, $clipTransformX, $clipTransformY);
 			$sourceX += $clipTransformX;
 			$sourceY += $clipTransformY;
 		}
@@ -454,9 +517,9 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	/**
 	 * Overlay the text on the image.
 	 *
-	 * @param   string    $text      The text to render.
-	 * @param   array     $template  The OpenGraph image template definition.
-	 * @param   resource  $image     The GD image resource to overlay the text.
+	 * @param   string    $text         The text to render.
+	 * @param   array     $template     The OpenGraph image template definition.
+	 * @param   resource  $image        The GD image resource to overlay the text.
 	 * @param   string    $strokeColor  The stroke color (optional, default empty)
 	 * @param   int       $strokeWidth  The stroke width in pixels (optional, default 0)
 	 *
@@ -619,7 +682,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		// Render stroke if specified
 		if (!empty($strokeColor) && $strokeWidth > 0)
 		{
-			$strokeColorValues = $this->hexToRGBA($strokeColor);
+			$strokeColorValues   = $this->hexToRGBA($strokeColor);
 			$strokeColorResource = imagecolorallocate($image, $strokeColorValues[0], $strokeColorValues[1], $strokeColorValues[2]);
 
 			// Get the y offset because GD is doing weird things
@@ -708,10 +771,12 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	private function imageDottedRectangle($image, int $x1, int $y1, int $x2, int $y2, $color, int $dashLength = 5, int $gapLength = 5): void
 	{
 		// Ensure coordinates are in correct order
-		if ($x1 > $x2) {
+		if ($x1 > $x2)
+		{
 			[$x1, $x2] = [$x2, $x1];
 		}
-		if ($y1 > $y2) {
+		if ($y1 > $y2)
+		{
 			[$y1, $y2] = [$y2, $y1];
 		}
 
@@ -1023,7 +1088,6 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		return array_filter($lines, fn(array $line): bool => ($line['y'] + $line['height']) <= $maxHeight);
 	}
 
-
 	/**
 	 * Apply various image effects to the base image using GD.
 	 *
@@ -1164,7 +1228,7 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 			return;
 		}
 
-		$width = imagesx($image);
+		$width  = imagesx($image);
 		$height = imagesy($image);
 
 		// Create a new image that will hold our semi-transparent result
@@ -1214,30 +1278,30 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 		{
 			// Convert to grayscale first
 			imagefilter($image, IMG_FILTER_GRAYSCALE);
-			
+
 			// Apply sepia tone using colorize
 			imagefilter($image, IMG_FILTER_COLORIZE, 100, 50, 0, 0);
-			
+
 			return;
 		}
-		
+
 		// Method 2: Using imageconvolution for sepia matrix (fallback if imagefilter not available)
 		if (function_exists('imageconvolution'))
 		{
 			$this->applySepiaUsingConvolution($image);
-			
+
 			return;
 		}
-		
+
 		// Method 3: Fallback to pixel-by-pixel (original implementation)
 		$this->applySepiaFilterPixelByPixel($image);
 	}
 
-	
 	/**
 	 * Apply sepia effect using color overlay technique (more efficient than pixel-by-pixel)
 	 *
 	 * @param   resource  $image  The GD image resource
+	 *
 	 * @return  void
 	 * @since   3.0.0
 	 */
@@ -1272,29 +1336,29 @@ class GDAdapter extends AbstractAdapter implements AdapterInterface
 	 */
 	private function applySepiaFilterPixelByPixel(&$image): void
 	{
-		$width = imagesx($image);
+		$width  = imagesx($image);
 		$height = imagesy($image);
-		
+
 		// Enable alpha blending for proper color handling
 		imagealphablending($image, false);
 		imagesavealpha($image, true);
-		
+
 		// Apply sepia transformation pixel by pixel
 		for ($x = 0; $x < $width; $x++)
 		{
 			for ($y = 0; $y < $height; $y++)
 			{
-				$rgba = imagecolorat($image, $x, $y);
+				$rgba  = imagecolorat($image, $x, $y);
 				$alpha = ($rgba & 0x7F000000) >> 24;
-				$red = ($rgba & 0xFF0000) >> 16;
+				$red   = ($rgba & 0xFF0000) >> 16;
 				$green = ($rgba & 0x00FF00) >> 8;
-				$blue = $rgba & 0x0000FF;
-				
+				$blue  = $rgba & 0x0000FF;
+
 				// Sepia transformation matrix
-				$newRed = min(255, (int) round(($red * 0.393) + ($green * 0.769) + ($blue * 0.189)));
+				$newRed   = min(255, (int) round(($red * 0.393) + ($green * 0.769) + ($blue * 0.189)));
 				$newGreen = min(255, (int) round(($red * 0.349) + ($green * 0.686) + ($blue * 0.168)));
-				$newBlue = min(255, (int) round(($red * 0.272) + ($green * 0.534) + ($blue * 0.131)));
-				
+				$newBlue  = min(255, (int) round(($red * 0.272) + ($green * 0.534) + ($blue * 0.131)));
+
 				$newColor = imagecolorallocatealpha($image, $newRed, $newGreen, $newBlue, $alpha);
 				imagesetpixel($image, $x, $y, $newColor);
 			}

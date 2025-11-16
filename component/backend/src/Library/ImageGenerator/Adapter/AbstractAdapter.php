@@ -7,6 +7,12 @@
 
 namespace Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter;
 
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\AdapterInterface as FaceDetectInterface;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\Classifier\Classifier;
+use Akeeba\Component\SocialMagick\Administrator\Library\FaceDetect\ViolaJones\ObjectDetector;
+use Joomla\CMS\Component\ComponentHelper;
+
 defined('_JEXEC') || die();
 
 /**
@@ -314,4 +320,114 @@ abstract class AbstractAdapter implements AdapterInterface
 		return $clear_string;
 	}
 
+	/**
+	 * Get the focus coordinates of the detected objects.
+	 *
+	 * The focus coordinates are the centre point across all detected objects.
+	 *
+	 * @param   mixed  $image  The image resource to analyse
+	 *
+	 * @return  array<int|null>
+	 * @since   3.0.0
+	 */
+	protected function getObjectCoordinates($image): array
+	{
+		// Use the detector specified in the component's configuration.
+		$method = ComponentHelper::getParams('com_socialmagick')
+			->get('facedetect_method', 'ViolaJones') ?: 'ViolaJones';
+
+		$className = '\\Akeeba\\Component\\SocialMagick\\Administrator\\Library\\FaceDetect\\' . $method;
+
+		if (!class_exists($className) || !in_array(FaceDetectInterface::class, class_implements($className)))
+		{
+			$className = ViolaJones::class;
+		}
+
+		$detector = new $className();
+
+		return $detector->getCoordinates($image);
+	}
+
+	/**
+	 * Figure out Extra Image resizing and crop origin based on the detected objects
+	 *
+	 * @param   int|null  $featureX1      Top left X coordinate of the detected objects' area
+	 * @param   int|null  $featureY1      Top left Y coordinate of the detected objects' area
+	 * @param   int|null  $featureX2      Bottom right X coordinate of the detected objects' area
+	 * @param   int|null  $featureY2      Bottom right Y coordinate of the detected objects' area
+	 * @param   float     $scalingFactor  Current image scaling factor
+	 * @param   int       $desiredSize    Desired feature size
+	 *
+	 * @return  array{changeScale: bool, scalingFactor: float, originX: int, originY: int}
+	 * @since   3.0.0
+	 */
+	protected function resizeUsingDetectedObjects(
+		?int  $featureX1,
+		?int  $featureY1,
+		?int  $featureX2,
+		?int  $featureY2,
+		float $scalingFactor,
+		int   $desiredSize,
+		int   $objectPadding
+	): array
+	{
+		$ret = [
+			'changeScale'   => false,
+			'scalingFactor' => $scalingFactor,
+			'originX'       => $featureX1 === null ? null : intval($featureX1 * $scalingFactor),
+			'originY'       => $featureY1 === null ? null : intval($featureY1 * $scalingFactor),
+		];
+
+		// No object feature detected; keep the scaling factor as-is.
+		if ($featureX1 === null || $featureY1 === null || $featureX2 === null || $featureY2 === null)
+		{
+			return $ret;
+		}
+
+		// No desired size is set or is an invalid value. Keep the image as-is.
+		if ($desiredSize <= 0)
+		{
+			return $ret;
+		}
+
+		// Make sure the padding is valid
+		while ($objectPadding > 1 && $objectPadding >= intdiv($desiredSize, 2))
+		{
+			$objectPadding = intdiv($objectPadding, 2);
+		}
+
+		// We will adjust the desired size by removing twice the padding.
+		$desiredSize = $desiredSize - $objectPadding;
+		$ret['originX'] = max(0, $ret['originX'] - $objectPadding);
+		$ret['originY'] = max(0, $ret['originY'] - $objectPadding);
+
+		// That's the maximum size of the detected object in the scaled image
+		$featureSize = intval($scalingFactor * max($featureX2 - $featureX1, $featureY1 - $featureY2));
+
+		// If the object is EQUAL TO than the desired size, do nothing.
+		if ($featureSize === $desiredSize)
+		{
+			return $ret;
+		}
+
+		// If the object is SMALLER than the desired size, we have to centre it into the desired size.
+		if ($featureSize < $desiredSize)
+		{
+			// Note that we can't ask the crop point to be outside the image to avoid black bars showing.
+			$offset         = intdiv($desiredSize - $featureSize, 2);
+			$ret['originX'] = max(0, intval($featureX1 * $scalingFactor) - $offset - $objectPadding);
+			$ret['originY'] = max(0, intval($featureY1 * $scalingFactor) - $offset - $objectPadding);
+
+			return $ret;
+		}
+
+		// If the object is LARGER than the desired size, we have to change the scaling factor.
+		$newScale = ($desiredSize / $featureSize) * $scalingFactor;
+		$ret['changeScale'] = true;
+		$ret['scalingFactor'] = $newScale;
+		$ret['originX'] = max(0, intval($featureX1 * $newScale) - $objectPadding);
+		$ret['originY'] = max(0, intval($featureY1 * $newScale) - $objectPadding);
+
+		return $ret;
+	}
 }

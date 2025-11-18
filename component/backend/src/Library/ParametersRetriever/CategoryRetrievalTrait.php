@@ -149,9 +149,17 @@ trait CategoryRetrievalTrait
 
 		// Get parameters recursing all the way to the root category.
 		$parentCategory = $this->getParentCategory($id);
-		// TODO The default should NOT be an empty array, but an array with all the MOTHERFUCKING KEYS, GODDAMMIT!
-		$parentParams = empty($parentCategory) ? [] : $this->getCategoryParameters($parentCategory->id, $prefix);
-		$catParams    = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.' . $prefix);
+		$parentParams   = empty($parentCategory) ? [] : $this->getCategoryParameters($parentCategory->id, $prefix);
+		$catParams      = $this->getParamsFromRegistry(new Registry($category->params), 'socialmagick.' . $prefix);
+
+		// If there was no parent category the default value should be an array with all keys, but NULL values.
+		if ($parentParams === [])
+		{
+			$parentParams = array_combine(
+				array_keys($catParams),
+				array_fill(0, count(array_keys($catParams)), null)
+			);
+		}
 
 		$allKeys         = array_merge(array_keys($catParams), array_keys($parentParams));
 		$processedParent = array_combine($allKeys, array_fill(0, count($allKeys), null));

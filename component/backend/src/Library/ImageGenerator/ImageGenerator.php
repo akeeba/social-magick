@@ -13,12 +13,15 @@ use Akeeba\Component\SocialMagick\Administrator\Library\FileDistributor\FileDist
 use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter\AdapterInterface;
 use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter\GDAdapter;
 use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\Adapter\ImagickAdapter;
+use Akeeba\Component\SocialMagick\Administrator\Library\JoomlaMedia\MediaProviderHelper;
 use DateInterval;
 use Exception;
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Document\HtmlDocument;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Database\DatabaseAwareInterface;
 use Joomla\Database\DatabaseAwareTrait;
@@ -115,7 +118,7 @@ final class ImageGenerator implements DatabaseAwareInterface
 
 		$rendererType = $cParams->get('library', 'auto');
 		$textDebug    = $cParams->get('textdebug', '0') == 1;
-		$quality  = $cParams->get('quality', '95');
+		$quality      = $cParams->get('quality', '95');
 
 		$this->loadImageTemplates();
 
@@ -307,6 +310,72 @@ final class ImageGenerator implements DatabaseAwareInterface
 			'image-x'           => 0,
 			'image-y'           => 0,
 		], $this->templates[$templateId] ?? []);
+	}
+
+	/**
+	 * Auto-generates an article image file using the OpenGraph image generator and return its Joomla! media URI.
+	 *
+	 * @param   int          $articleId
+	 * @param   string       $text        The text to render
+	 * @param   int          $templateId
+	 * @param   string|null  $extraImage  The location of the extra image to render
+	 *
+	 * @return  ?string  The Joomla! media URI of the created image; NULL on failure.
+	 *
+	 * @throws Exception
+	 * @since   3.0.0
+	 */
+	public function getAutoImage(int $articleId, string $text, int $templateId, ?string $extraImage): ?string
+	{
+		// Get some Joomla settings, and the component's options
+		$app            = Factory::getApplication();
+		$secret         = $app->get('secret', '');
+		$defaultTempDir = @is_dir(JPATH_ROOT . '/tmp') && @is_writable(JPATH_ROOT . '/tmp')
+			? JPATH_ROOT . '/tmp'
+			: sys_get_temp_dir();
+		$tempDir        = $app->get('tmp_path', $defaultTempDir) ?: $defaultTempDir;
+		$cParams        = ComponentHelper::getParams('com_socialmagick');
+
+		// Figure out the filename and type of the generated image
+		$mpHelper  = new MediaProviderHelper($app, $cParams);
+		$baseName  = md5($articleId . '#' . $secret);
+		$extension = $cParams->get('imagetype', 'jpg') ?: 'jpg';
+		$extension = in_array($extension, ['jpg', 'png', 'webp']) ? $extension : 'webp';
+		$mediaUri  = $mpHelper->makeMediaURI($baseName . '.' . $extension);
+
+		try
+		{
+			// We will be generating an image into a temp file first.
+			$tempFile = tempnam($tempDir, 'aksmgk_') . '.' . $extension;
+
+			// Create the image into a temporary file.
+			$this->renderer->makeImage($text, $this->getTemplateOptions($templateId), $tempFile, $extraImage);
+
+			// Get the image data from the temporary file.
+			$fileData = @file_get_contents($tempFile);
+
+			// If reading the temp file failed, well, shoot.
+			if ($fileData === false)
+			{
+				throw new \RuntimeException('Unable to read temp file');
+			}
+
+			// Return the Joomla! media URI
+			return $mpHelper->saveImage($fileData, $mediaUri);
+		}
+		catch (Throwable)
+		{
+			// In case of an error return NULL to indicate an error.
+			return null;
+		}
+		finally
+		{
+			// Finally, remove the temporary image file if we had created one.
+			if (isset($tempFile) && $tempFile !== false)
+			{
+				@unlink($tempFile);
+			}
+		}
 	}
 
 	/**

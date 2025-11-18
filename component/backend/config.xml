@@ -24,7 +24,7 @@
         <field
                 name="template"
                 type="socialmagicktemplate"
-                default="Solid"
+                default="1"
                 label="COM_SOCIALMAGICK_CONFIG_TEMPLATE_LABEL"
                 description="COM_SOCIALMAGICK_CONFIG_TEMPLATE_DESC"
                 validate="options"
@@ -313,6 +313,49 @@
             <option value="eu-south-2">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_EU_SOUTH_2</option>
             <option value="il-central-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_IL_CENTRAL_1</option>
             <option value="us-gov-west-1">COM_SOCIALMAGICK_CONFIG_FACEDETECT_AWS_REGION_OPT_US_GOV_WEST_1</option>
+        </field>
+
+    </fieldset>
+
+    <fieldset name="autoimage"
+              label="COM_SOCIALMAGICK_CONFIG_FIELDSET_AUTOIMAGE_LABEL">
+
+        <field name="autoimage_adapter"
+               type="MediaAdapters"
+               label="COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_ADAPTER_LABEL"
+               description="COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_ADAPTER_DESC"
+               default="local-images"
+        />
+
+        <field name="autoimage_subdirectory"
+               type="text"
+               label="COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_SUBDIRECTORY_LABEL"
+               description="COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_SUBDIRECTORY_DESC"
+               default="socialmagick"
+        />
+
+        <field
+                name="autoimage_generate"
+                type="list"
+                label="COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_GENERATE_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_GENERATE_DESC"
+                default="never"
+        >
+            <option value="never">COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_GENERATE_OPT_NEVER</option>
+            <option value="intro">COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_GENERATE_OPT_INTRO</option>
+            <option value="full">COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_GENERATE_OPT_FULL</option>
+            <option value="both">COM_SOCIALMAGICK_CONFIG_AUTOIMAGE_GENERATE_OPT_BOTH</option>
+        </field>
+
+        <field
+                name="autoimage_template"
+                type="socialmagicktemplate"
+                default="2"
+                label="COM_SOCIALMAGICK_CONFIG_TEMPLATE_LABEL"
+                description="COM_SOCIALMAGICK_CONFIG_TEMPLATE_DESC"
+                validate="options"
+        >
+            <option value="">COM_SOCIALMAGICK_CONFIG_TEMPLATE_SELECT</option>
         </field>
 
     </fieldset>

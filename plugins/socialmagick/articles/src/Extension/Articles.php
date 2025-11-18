@@ -10,6 +10,7 @@ namespace Akeeba\Plugin\SocialMagick\Articles\Extension;
 defined('_JEXEC') || die;
 
 use Akeeba\Component\SocialMagick\Administrator\Library\ImageGenerator\ImageGenerator;
+use Akeeba\Component\SocialMagick\Administrator\Library\JoomlaMedia\MediaProviderHelper;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\CategoryRetrievalTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\ExtraImageFetchTrait;
 use Akeeba\Component\SocialMagick\Administrator\Library\ParametersRetriever\InheritanceAwareMergeTrait;
@@ -70,17 +71,6 @@ final class Articles extends AbstractPlugin
 	 */
 	private ArticleModel $articleModel;
 
-	public static function getSubscribedEvents(): array
-	{
-		return array_merge(
-			parent::getSubscribedEvents(),
-			[
-				'onContentBeforeSave' => ['onContentBeforeSave', Priority::MIN],
-			]
-		);
-	}
-
-
 	public function __construct($config = [])
 	{
 		$this->supportedComponent    = 'com_content';
@@ -96,6 +86,16 @@ final class Articles extends AbstractPlugin
 		];
 
 		parent::__construct($config);
+	}
+
+	public static function getSubscribedEvents(): array
+	{
+		return array_merge(
+			parent::getSubscribedEvents(),
+			[
+				'onContentBeforeSave' => ['onContentBeforeSave', Priority::MIN],
+			]
+		);
 	}
 
 	/** @inheritDoc */
@@ -223,7 +223,7 @@ final class Articles extends AbstractPlugin
 
 		$articleParams = $this->getArticleParameters($articleId);
 		$contentObject = $this->getArticleById($articleId);
-		$catId = $contentObject?->catid;
+		$catId         = $contentObject?->catid;
 
 		if ($catId > 0)
 		{
@@ -263,11 +263,23 @@ final class Articles extends AbstractPlugin
 		]);
 		$params              = $parametersRetriever->getApplicableOGParameters(null, $fakeInput);
 
-		// TODO Change default to 'none'
-		$autoImage = $params['auto_image'] ?? 'intro';
+		// Is automatic image generation enabled?
+		$autoImage = $params['autoimage_generate'] ?? 'never';
 
-		if ($autoImage === 'none' && !$imageGenerator->isAvailable())
+		if ($autoImage === 'never' && !$imageGenerator->isAvailable())
 		{
+			// Nope. We are not supposed to generate images automatically. Go away.
+			return;
+		}
+
+		// Check if we actually **need** to generate any new images automatically.
+		$imageRegistry = new Registry($article->images ?: '{}');
+		$needsIntro = in_array($autoImage, ['intro', 'both']) && !$imageRegistry->get('image_intro', null);
+		$needsFull = in_array($autoImage, ['full', 'both']) && !$imageRegistry->get('image_fulltext', null);
+
+		if (!$needsIntro && !$needsFull)
+		{
+			// Nothing to do. Go away.
 			return;
 		}
 
@@ -275,30 +287,34 @@ final class Articles extends AbstractPlugin
 
 		$socialMagickText = $article->title;
 
-		$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params, null, $fakeInput);
+		$params['template'] = $params['autoimage_template'] ?? 2;
+		$arguments          = $parametersRetriever->getOpenGraphImageGeneratorArguments($params, null, $fakeInput);
 
 		unset($arguments['force']);
 
-		$imageInfo = $imageGenerator->createOGImage(...$arguments);
-		$imageURL  = $imageInfo['imageURL'];
+		$arguments['articleId'] = $articleId;
 
-		if (!$imageURL)
+		$mediaUri = $imageGenerator->getAutoImage(...$arguments);
+
+		if (!$mediaUri)
 		{
+			// We failed to save the generated image. Sorry, can't do anythign else here :(
 			return;
 		}
 
-		$imageRegistry = new Registry($article->images ?: '{}');
+		$mpHelper            = new MediaProviderHelper($this->getApplication(), $this->getComponentParams());
+		$actualThingToInsert = $mpHelper->mediaUriToMediaFieldWeirdUriThing($mediaUri);
 
-		if (in_array($autoImage, ['intro', 'both']) && !$imageRegistry->get('image_intro', null))
+		if ($needsIntro)
 		{
-			$imageRegistry->set('image_intro', $imageURL);
+			$imageRegistry->set('image_intro', $actualThingToInsert);
 			$imageRegistry->set('image_intro_alt', '');
 			$imageRegistry->set('image_intro_caption', '');
 		}
 
-		if (in_array($autoImage, ['full', 'both']) && !$imageRegistry->get('image_fulltext', null))
+		if ($needsFull)
 		{
-			$imageRegistry->set('image_fulltext', $imageURL);
+			$imageRegistry->set('image_fulltext', $actualThingToInsert);
 			$imageRegistry->set('image_fulltext_alt', '');
 			$imageRegistry->set('image_fulltext_caption', '');
 		}

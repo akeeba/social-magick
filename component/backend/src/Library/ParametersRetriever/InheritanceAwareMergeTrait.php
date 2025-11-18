@@ -47,7 +47,9 @@ trait InheritanceAwareMergeTrait
 			 * - The `twitter_*` keys for Twitter/X cards.
 			 * - The `fb_*` keys for Facebook share link cards.
 			 */
-			$isValidKey = $key === 'template' || str_starts_with($key, 'og_') || str_starts_with($key, 'twitter_') || str_starts_with($key, 'fb_');
+			$isValidKey = $key === 'template' || str_starts_with($key, 'og_')
+				|| str_starts_with($key, 'twitter_') || str_starts_with($key, 'fb_')
+				|| str_starts_with($key, 'autoimage_');
 
 			if (!$isValidKey)
 			{

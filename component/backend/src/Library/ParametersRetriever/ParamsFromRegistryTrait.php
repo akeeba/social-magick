@@ -39,6 +39,8 @@ trait ParamsFromRegistryTrait
 		'twitter_site'          => '',
 		'twitter_creator'       => '',
 		'fb_app_id'             => '',
+		'autoimage_generate'    => -1,
+		'autoimage_template'    => '',
 	];
 
 	/**

@@ -120,7 +120,7 @@ final class ParametersRetriever implements DatabaseAwareInterface
 	 * @throws  \Exception
 	 * @since   3.0.0
 	 */
-	public function getApplicableOGParameters(?MenuItem $activeMenuItem = null, ?Input $input = null): array
+	public function getApplicableOGParameters(?MenuItem $activeMenuItem = null, ?Input $input = null, array $overrides = []): array
 	{
 		// Start with the hard-coded defaults, and their component Options overrides.
 		$cParams = ComponentHelper::getParams('com_socialmagick');
@@ -160,6 +160,11 @@ final class ParametersRetriever implements DatabaseAwareInterface
 		$templateId                = $templateFromParams ?? $configuredDefaultTemplate ?? $firstTemplateKey ?? 0;
 
 		$params['template'] = $templateId;
+
+		if (!empty($overrides))
+		{
+			$params = $this->inheritanceAwareMerge($params, $overrides);
+		}
 
 		return $params;
 	}

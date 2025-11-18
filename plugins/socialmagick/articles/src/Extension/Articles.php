@@ -261,7 +261,15 @@ final class Articles extends AbstractPlugin
 			'view'   => 'article',
 			'id'     => $isNew ? 0 : $articleId,
 		]);
-		$params              = $parametersRetriever->getApplicableOGParameters(null, $fakeInput);
+
+		$postData = $this->getApplication()->input->post->get('jform');
+		$postData = is_array($postData) ? $postData : [];
+		$smData = $postData['socialmagick'] ?? [];
+		$smData = is_array($smData) ? $smData : [];
+		$smData = array_filter($smData, fn($x) => !in_array($x, ['-1', '']));
+
+		$params              = $parametersRetriever->getApplicableOGParameters(null, $fakeInput, $smData);
+		$params['template']  = $params['autoimage_template'] ?? 2;
 
 		// Is automatic image generation enabled?
 		$autoImage = $params['autoimage_generate'] ?? 'never';
@@ -274,8 +282,8 @@ final class Articles extends AbstractPlugin
 
 		// Check if we actually **need** to generate any new images automatically.
 		$imageRegistry = new Registry($article->images ?: '{}');
-		$needsIntro = in_array($autoImage, ['intro', 'both']) && !$imageRegistry->get('image_intro', null);
-		$needsFull = in_array($autoImage, ['full', 'both']) && !$imageRegistry->get('image_fulltext', null);
+		$needsIntro    = in_array($autoImage, ['intro', 'both']) && !$imageRegistry->get('image_intro', null);
+		$needsFull     = in_array($autoImage, ['full', 'both']) && !$imageRegistry->get('image_fulltext', null);
 
 		if (!$needsIntro && !$needsFull)
 		{
@@ -287,8 +295,7 @@ final class Articles extends AbstractPlugin
 
 		$socialMagickText = $article->title;
 
-		$params['template'] = $params['autoimage_template'] ?? 2;
-		$arguments          = $parametersRetriever->getOpenGraphImageGeneratorArguments($params, null, $fakeInput);
+		$arguments = $parametersRetriever->getOpenGraphImageGeneratorArguments($params, null, $fakeInput);
 
 		unset($arguments['force']);
 
